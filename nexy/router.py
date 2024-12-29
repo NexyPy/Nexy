@@ -1,6 +1,8 @@
 import os
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
 from .utils import deleteFistDotte, dynamicRoute,importModule,convertPathToModulePath
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 # 
 def FIND_ROUTES(base_path):
@@ -29,35 +31,41 @@ def FIND_ROUTES(base_path):
 
 
 
-
 def Router(appModule: FastAPI, appFolder:str = "app"):
     """
     Charge dynamiquement les routes à partir du répertoire 'app'.
     """
     # Parcours des répertoires dans 'app'
-    routes = FIND_ROUTES(base_path=appFolder);
-    HTTP_METHODES:tuple = ("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
+    routes = FIND_ROUTES(base_path=appFolder)
+    HTTP_METHODES:tuple = ("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
     for route in routes:
 
-        pathname = dynamicRoute(route_in=route["pathname"]);
+        pathname = dynamicRoute(route_in=route["pathname"])
 
         if "module" in route:
 
-            module = importModule(path=route["module"]);
-            for attr_name in dir(module):
-                attr = getattr(module, attr_name)
+            module = importModule(path=route["module"])
+            for function_name in dir(module):
+                function = getattr(module, function_name)
                 
                 # Vérifie que l'attribut est une fonction utilisable par FastAPI
-                if callable(attr) and hasattr(attr, "__annotations__"):
+                if callable(function) and hasattr(function, "__annotations__"):
+                    params = getattr(function, "params", {})
+                    
+
                     # Ajout de la route pour chaque méthode HTTP
-                    if attr_name in HTTP_METHODES:
-                        
-                        method = attr_name
-                        appModule.add_api_route(pathname, attr, methods=[method])
+                    if function_name in HTTP_METHODES:
+
+                        appModule.add_api_route(
+                            path=pathname,
+                            endpoint=function,
+                            methods=[function_name],
+                            **params 
+                        )
 
                     # Ajout d'une route WebSocket si la méthode 'Socket' existe
-                    if attr_name == "Socket":
-                        appModule.add_api_websocket(f"{pathname}/ws", attr)
+                    if function_name == "Socket":
+                        appModule.add_api_websocket_route(f"{pathname}/ws", function)
 
 
 
