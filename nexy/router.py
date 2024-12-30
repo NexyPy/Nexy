@@ -1,8 +1,6 @@
 import os
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
 from .utils import deleteFistDotte, dynamicRoute,importModule,convertPathToModulePath
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 # 
 def FIND_ROUTES(base_path):
@@ -31,41 +29,103 @@ def FIND_ROUTES(base_path):
 
 
 
-def Router(appModule: FastAPI, appFolder:str = "app"):
+# def Router(app: FastAPI):
+#     """
+#     Charge dynamiquement les routes à partir du répertoire 'app'.
+#     """
+#     # Parcours des répertoires dans 'app'
+#     routes = FIND_ROUTES(base_path="app")
+#     HTTP_METHODES:tuple = ["DELETE","GET","OPTIONS","PATCH","POST","PUT"]
+#     for route in routes:
+
+#         pathname = dynamicRoute(route_in=route["pathname"])
+
+#         if "module" in route:
+
+#             module = importModule(path=route["module"])
+#             for function_name in dir(module):
+#                 function = getattr(module, function_name)
+                
+#                 # Vérifie que l'attribut est une fonction utilisable par FastAPI
+#                 if callable(function) and hasattr(function, "__annotations__"):
+#                     params = getattr(function, "params", {})
+                    
+                    
+#                     # Ajout de la route pour chaque méthode HTTP
+#                     if function_name in HTTP_METHODES:
+
+#                         app.add_api_route(
+#                             path=pathname,
+#                             endpoint=function,
+#                             methods=[function_name],
+#                             **{key: value for key, value in params.items() if key != "tags"}, 
+#                             tags=params.get("tags") if params.get("tags") else [pathname]
+#                         )
+
+
+#                     # Ajout d'une route WebSocket si la méthode 'Socket' existe
+#                     elif function_name == "SOCKET":
+#                         app.add_api_websocket_route(f"{pathname}/ws", function)
+
+def Router(app: FastAPI):
     """
     Charge dynamiquement les routes à partir du répertoire 'app'.
     """
-    # Parcours des répertoires dans 'app'
-    routes = FIND_ROUTES(base_path=appFolder)
-    HTTP_METHODES:tuple = ("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-    for route in routes:
+    routes = FIND_ROUTES(base_path="app")
+    HTTP_METHODES: tuple = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
 
+    for route in routes:
         pathname = dynamicRoute(route_in=route["pathname"])
 
         if "module" in route:
-
-            module = importModule(path=route["module"])
-            for function_name in dir(module):
-                function = getattr(module, function_name)
+            try:
+                # Tentative d'importation du module
+                module = importModule(path=route["module"])
                 
-                # Vérifie que l'attribut est une fonction utilisable par FastAPI
-                if callable(function) and hasattr(function, "__annotations__"):
-                    params = getattr(function, "params", {})
-                    
+                for function_name in dir(module):
+                    function = getattr(module, function_name)
 
-                    # Ajout de la route pour chaque méthode HTTP
-                    if function_name in HTTP_METHODES:
+                    # Vérifie que la fonction est callable et a des annotations
+                    if callable(function) and hasattr(function, "__annotations__"):
+                        params = getattr(function, "params", {})
 
-                        appModule.add_api_route(
-                            path=pathname,
-                            endpoint=function,
-                            methods=[function_name],
-                            **params 
-                        )
+                        # Ajout de la route pour chaque méthode HTTP
+                        if function_name in HTTP_METHODES:
+                            try:
+                                app.add_api_route(
+                                    path=pathname,
+                                    endpoint=function,
+                                    methods=[function_name],
+                                    **{key: value for key, value in params.items() if key != "tags"},
+                                    tags=params.get("tags") if params.get("tags") else [pathname]
+                                )
+                            except Exception as e:
+                                # Capture les erreurs spécifiques à l'ajout de la route
+                                print(f"Erreur lors de l'ajout de la route {pathname} pour la méthode {function_name}: {e}")
+                                app.add_api_route(
+                                    path=pathname,
+                                    endpoint=lambda: {"error": f"Erreur lors de la méthode {function_name} pour la route {pathname}. {str(e)}"},
+                                    methods=[function_name],
+                                    status_code=500
+                                )
 
-                    # Ajout d'une route WebSocket si la méthode 'Socket' existe
-                    if function_name == "Socket":
-                        appModule.add_api_websocket_route(f"{pathname}/ws", function)
+                        # Ajout d'une route WebSocket si la méthode 'Socket' existe
+                        elif function_name == "SOCKET":
+                            try:
+                                app.add_api_websocket_route(f"{pathname}/ws", function)
+                            except Exception as e:
+                                print(f"Erreur lors de l'ajout du WebSocket pour la route {pathname}: {e}")
+                                app.add_api_websocket_route(
+                                    f"{pathname}/ws",
+                                    lambda: {"error": f"Erreur lors de la connexion WebSocket pour la route {pathname}. {str(e)}"}
+                                )
 
-
-
+            except Exception as e:
+                # Capture les erreurs d'importation ou d'autres erreurs générales
+                print(f"Erreur lors du chargement du module {route['module']}: {e}")
+                app.add_api_route(
+                    path=pathname,
+                    endpoint=lambda: {"error": f"Erreur lors du chargement du module {route['module']}. {str(e)}"},
+                    methods=["GET"],
+                    status_code=500
+                )

@@ -15,7 +15,7 @@ def Nexy(title: str = None ,**args):
 
     app:FastAPI = FastAPI(title=title,**args)
     
-    @app.get("/{name}/{file_path:path}")
+    @app.get("/{name}/{file_path:path}", tags=["Public"])
     async def serve_static_files(name: str, file_path: str):
         # Construire le chemin complet vers le fichier dans le dossier public
         file_location = Path(f"public/{name}/{file_path}")
@@ -31,7 +31,7 @@ def Nexy(title: str = None ,**args):
     cache_dir.mkdir(exist_ok=True)
     sys.pycache_prefix = str(cache_dir)
 
-    Router(appModule=app)
+    Router(app=app)
     return app
 
 
