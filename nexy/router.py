@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import APIRouter
 from .utils import deleteFistDotte, dynamicRoute,importModule,convertPathToModulePath
 
 # 
@@ -29,48 +29,12 @@ def FIND_ROUTES(base_path):
 
 
 
-# def Router(app: FastAPI):
-#     """
-#     Charge dynamiquement les routes à partir du répertoire 'app'.
-#     """
-#     # Parcours des répertoires dans 'app'
-#     routes = FIND_ROUTES(base_path="app")
-#     HTTP_METHODES:tuple = ["DELETE","GET","OPTIONS","PATCH","POST","PUT"]
-#     for route in routes:
 
-#         pathname = dynamicRoute(route_in=route["pathname"])
-
-#         if "module" in route:
-
-#             module = importModule(path=route["module"])
-#             for function_name in dir(module):
-#                 function = getattr(module, function_name)
-                
-#                 # Vérifie que l'attribut est une fonction utilisable par FastAPI
-#                 if callable(function) and hasattr(function, "__annotations__"):
-#                     params = getattr(function, "params", {})
-                    
-                    
-#                     # Ajout de la route pour chaque méthode HTTP
-#                     if function_name in HTTP_METHODES:
-
-#                         app.add_api_route(
-#                             path=pathname,
-#                             endpoint=function,
-#                             methods=[function_name],
-#                             **{key: value for key, value in params.items() if key != "tags"}, 
-#                             tags=params.get("tags") if params.get("tags") else [pathname]
-#                         )
-
-
-#                     # Ajout d'une route WebSocket si la méthode 'Socket' existe
-#                     elif function_name == "SOCKET":
-#                         app.add_api_websocket_route(f"{pathname}/ws", function)
-
-def Router(app: FastAPI):
+def Router():
     """
     Charge dynamiquement les routes à partir du répertoire 'app'.
     """
+    app = APIRouter()
     routes = FIND_ROUTES(base_path="app")
     HTTP_METHODES: tuple = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
 
@@ -129,3 +93,4 @@ def Router(app: FastAPI):
                     methods=["GET"],
                     status_code=500
                 )
+    return app

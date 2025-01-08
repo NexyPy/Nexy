@@ -1,37 +1,44 @@
 from fastapi import FastAPI,Response, Depends
 from fastapi.datastructures import Default, DefaultPlaceholder
 from fastapi.responses import FileResponse,JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.types import IncEx
 from .router import Router
 import sys
 from pathlib import Path
 from typing import Any, List, Dict, Sequence
 from functools import wraps
+from scalar_fastapi import get_scalar_api_reference
 
 
-def Nexy(title: str = None ,**args):
+svg_data_uri ="""data:image/svg+xml;base64,<svg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <rect width='100' height='100' fill='#CBECE3'/>
+        <path d='M27 78V22H30.1379L69.2414 60.0575V22H72.2184V78H27Z' fill='#1CB68D'/>
+        </svg>
+        """
+def Nexy(title: str = None , favicon:str = svg_data_uri,**args):
     if title is None:
         title = Path.cwd().name 
 
-    app:FastAPI = FastAPI(title=title,**args)
+    app:FastAPI = FastAPI(title=title,docs_url="/122xxxxxx2345",redoc_url="/xx123n134" , **args)
     
-    @app.get("/{name}/{file_path:path}", tags=["Public"])
-    async def serve_static_files(name: str, file_path: str):
-        # Construire le chemin complet vers le fichier dans le dossier public
-        file_location = Path(f"public/{name}/{file_path}")
+    @app.get("/docs",include_in_schema=False)
+    async def scalar_html():
+
         
-        # Vérifier si le fichier existe
-        if file_location.is_file():
-            return FileResponse(file_location)
-        else:
-            return {"error": "File not found"}
+        return get_scalar_api_reference(
+            openapi_url=app.openapi_url,
+            title=app.title,
+            scalar_favicon_url= favicon
+        )
+    app.mount("/public",StaticFiles(directory="public"), name="Public")
 
     # Configurer le cache
     cache_dir = Path('./__pycache__/nexy')
     cache_dir.mkdir(exist_ok=True)
     sys.pycache_prefix = str(cache_dir)
 
-    Router(app=app)
+    app.include_router(Router())
     return app
 
 
