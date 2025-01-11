@@ -1,6 +1,6 @@
 # Ignorer tous les dossiers __pycache__
 __pycache__/
-.env
+venv
 dist
 # Ignorer les fichiers compilés Python 
 *.pyc

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nexy"
-version = "0.0.26.9"
+version = "0.0.27.1"
 description = "Un framework Python conçu pour allier simplicité, performance et plaisir du développement."
 authors = ["Espoir-Loem <hopcy.forcy@gmail.com>"]
 readme = "README.md"
@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.8"
 fastapi = ">0.115.0"
-jinja2 = ">3.1.5"
+jinja2 = "^3.1.5"
 scalar-fastapi = "^1.0.3"
 
 
