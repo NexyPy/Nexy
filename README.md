@@ -86,7 +86,13 @@ nexy/
 
 ## **🚀 Installation et Démarrage**  
 
-### Étape 1 : Créez et activez un environnement virtuel
+### Étape 1 : Créez un répertoire pour votre projet et placez-vous dedans 
+
+ ```shell
+   mkdir nexy-app && cd nexy-app
+```
+
+### Étape 2 : Créez et activez un environnement virtuel
 
 Avant de commencer, il est fortement recommandé de créer un environnement virtuel pour isoler les dépendances de votre projet.
 
@@ -105,23 +111,18 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
      source venv/bin/activate
      ```
 
-### Étape 2 : Initialisez votre projet  
+### Étape 3 : Initialisez votre projet    
 
-1. Créez un répertoire pour votre projet et placez-vous dedans :
-   ```shell
-   mkdir nexy-app && cd nexy-app
-   ```
-
-2. Installez Nexy et ses dépendances :
+1. Installez Nexy et ses dépendances :
    ```shell
    pip install nexy uvicorn
    ```
 
-3. Créez les fichiers nécessaires au projet :
+2. Créez les fichiers nécessaires au projet :
    - **main.py** : Le fichier principal de votre application.
    - **app/controller.py** : Le contrôleur de base pour gérer vos routes.
 
-4. Configurez votre application Dans le fichier `main.py` :
+3. Configurez votre application Dans le fichier `main.py` :
 
    ```python
     from nexy import Nexy
@@ -130,7 +131,7 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
 
    ```
 
-5. Créez un répertoire `app/` et ajoutez un fichier `controller.py` pour vos routes de base. Exemple :
+4. Créez un répertoire `app/` et ajoutez un fichier `controller.py` pour vos routes de base. Exemple :
 
    ```python
    # app/controller.py
@@ -142,7 +143,7 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
 
    ```
 
-6. Lancez le serveur avec `uvicorn` :
+5. Lancez le serveur avec `uvicorn` :
    ```shell
         uvicorn main:app --reload
    ```
