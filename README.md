@@ -148,6 +148,8 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
    ```
 Votre API est maintenant accessible sur **http://127.0.0.1:8000** 🎉  
 
+Une fois que l'application est en cours d'exécution, tu peux accéder à la documentation Swagger en naviguant vers **http://localhost:8000/docs** dans ton navigateur.
+
 ---
 
 ## **🧩 Concepts Clés avec des Exemples**  

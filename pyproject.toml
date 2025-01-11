@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nexy"
-version = "0.0.26.6"
+version = "0.0.26.7"
 description = "Un framework Python conçu pour allier simplicité, performance et plaisir du développement."
 authors = ["Espoir-Loem <hopcy.forcy@gmail.com>"]
 readme = "README.md"
