@@ -32,13 +32,13 @@ def Nexy(title: str = None , favicon:str = svg_data_uri,**args):
             scalar_favicon_url= favicon
         )
     app.mount("/public",StaticFiles(directory="public"), name="Public")
-
+    app.include_router(Router())
     # Configurer le cache
     cache_dir = Path('./__pycache__/nexy')
     cache_dir.mkdir(exist_ok=True)
     sys.pycache_prefix = str(cache_dir)
-
-    app.include_router(Router())
+    
+    
     return app
 
 

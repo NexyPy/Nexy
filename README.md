@@ -1,111 +1,162 @@
 
-# 🌟 **Nexy**
+![Description de l'image](logo.svg)
 
-Bienvenue dans l'univers de **Nexy**, un framework de développement back-end **innovant et performant**, conçu pour **optimiser votre productivité**.  
-🚀 **Simplicité**, 🌍 **dynamisme**, et **efficacité maximale** : Nexy vous permet de **concevoir, tester et déployer vos applications** avec rapidité et fluidité, tout en réduisant la complexité du processus de développement.
+## 🌟 **Nexy**  
 
----
-
-### **🧩 Pourquoi Choisir Nexy ?**  
-
-👉 **Configuration simplifiée** : La structure de vos dossiers se transforme automatiquement en un routeur, sans nécessiter de décorateurs ou d'importations complexes.  
-
-👉 **Gagnez du temps** : Ajoutez simplement un fichier ou un dossier dans `app/`, et Nexy génère les routes pour vous, automatiquement.  
-
-👉 **Simplicité et puissance** : Libérez-vous des contraintes inutiles pour vous concentrer sur l’essentiel — votre logique métier.  
-
-👉 **Un projet open-source, une communauté engagée** : Nexy est un projet open-source, conçu avec passion ❤️. Rejoignez notre communauté pour contribuer et façonner l'avenir du développement web.
+> *Un framework Python conçu pour allier simplicité, performance et plaisir du développement.*  
 
 ---
 
-### **📂 Structure de Projet avec Nexy**  
+## **📢 Un message de l'équipe Nexy**  
 
-Voici comment structurer votre projet en utilisant Nexy :  
+⚠️ *Cette documentation est en cours de création.*  
+L’équipe de développement travaille activement sur un **site dédié**, pour offrir une documentation complète, claire et accessible. Notre objectif est de vous fournir une **expérience développeur exceptionnelle**, adaptée aussi bien aux débutants qu'aux experts.
+
+---
+
+## **🐍 La philosophie Python au cœur de Nexy**  
+
+Python est un langage qui se distingue par sa **simplicité, sa lisibilité** et sa grande efficacité. C'est cette philosophie qui a inspiré Nexy : rendre le développement **plus simple**, **plus rapide**, mais sans jamais sacrifier la performance.
+
+### **Un constat**
+
+Aujourd'hui, Python regorge de frameworks backend puissants, tels que :
+- **Flask**
+- **FastAPI**
+- **Starlette**, etc.
+
+Ces outils sont indéniablement **performants et modulaires**, mais leur **documentation** peut parfois être intimidante et les **configurations** complexes. Même un framework complet comme **Django** peut parfois sembler lourd et difficile à aborder, même pour les développeurs expérimentés.
+
+### **Nexy : simplicité et efficacité**  
+
+Chez Nexy, nous croyons que **simple ne signifie pas limité**.  
+Nous avons conçu Nexy pour que les développeurs puissent se concentrer sur l'essentiel sans avoir à se perdre dans des configurations complexes.
+
+**Ce que nous vous proposons :**  
+- **Démarrage rapide** : Pas de longue configuration. Vous êtes opérationnel en quelques lignes de code.
+- **Code propre et modulaire** : Organisez vos projets de manière fluide et maintenez un code lisible, même pour des projets de grande envergure.
+- **Performance optimale** : Profitez de la rapidité de Python tout en préservant la simplicité.
+
+**Le code, c’est de l’art**. Chez Nexy, chaque ligne doit être un plaisir à écrire, et votre expérience développeur compte autant que la performance du code.
+
+---
+
+## **🎯 Nos Objectifs**  
+
+1. **Expérience développeur** : Rendre chaque étape du projet, du démarrage au déploiement, intuitive et agréable.
+2. **Performance** : Maximiser les performances sans sacrifier la simplicité.
+3. **Simplicité évolutive** : Débutez simplement et restez productif même lorsque votre projet se complexifie.
+
+### **Ce qui nous différencie :**
+
+- **Structure modulaire** : Organisez vos projets de manière claire et évolutive.
+- **Configuration automatique** : Nexy détecte automatiquement les routes et fichiers sans que vous ayez à vous en soucier.
+- **Philosophie "Plug & Play"** : Avancez rapidement sans perdre de temps dans des configurations compliquées.
+
+---
+
+## **📂 Structure de Projet**  
+
+Voici un exemple d'organisation typique avec Nexy :
 
 ```plaintext
 nexy/
- ├── app/                # Dossier contenant les contrôleurs et routes
- │   ├── controller.py   # Route par défaut /
- │   ├── documents/      # Dossier pour /documents
- │   │   ├── controller.py  # Route /documents
- │   │   └── [documentId]/  # Dossier dynamique pour /documents/{documentId}
- │   │       └── controller.py  # Route /documents/{documentId}
- │   └── users/          # Dossier pour /users
- │       └── controller.py  # Route /users
- └── main.py             # Fichier de configuration de Nexy
+ ├── app/
+ │   ├── controller.py       # Contrôleur principal pour `/`
+ │   ├── model.py            # Gestion des données pour `/`
+ │   ├── service.py          # Logique métier pour `/`
+ │   ├── documents/          # Endpoint `/documents`
+ │   │   ├── controller.py   # Contrôleur pour `/documents`
+ │   │   ├── model.py        # Gestion des données pour `/documents`
+ │   │   ├── service.py      # Logique métier pour `/documents`
+ │   │   └── [documentId]/   # Endpoint dynamique `/documents/{documentId}`
+ │   │       ├── controller.py
+ │   │       ├── model.py
+ │   │       └── service.py
+ │   └── users/
+ │       ├── controller.py   # Contrôleur pour `/users`
+ │       ├── model.py        # Gestion des données pour `/users`
+ │       └── service.py      # Logique métier pour `/users`
+ └── main.py                 # Point d'entrée de l'application
 ```
 
-📝 **Chaque fichier `controller.py`** définit les routes de la section correspondante.  
-🎯 **La structure des dossiers correspond aux routes de l'API**, générées automatiquement.
+**💡 Astuce** : La structure des dossiers reflète vos routes, vous offrant ainsi une lisibilité immédiate et une organisation naturelle.
 
 ---
 
-### **🌐 Exemple de Code avec Nexy**  
+## **🚀 Installation et Démarrage**  
 
-#### **Route par défaut `/`**  
+### Étape 1 : Créez et activez un environnement virtuel
 
-**Fichier** : `app/controller.py`  
+Avant de commencer, il est fortement recommandé de créer un environnement virtuel pour isoler les dépendances de votre projet.
 
-```python
-async def GET():
-    return {"message": "Bienvenue sur l'API Nexy"}
+1. **Créez un environnement virtuel** :
+   ```bash
+   python -m venv venv
+   ```
 
-async def POST(data: dict):
-    return {"message": "Données reçues avec succès", "data": data}
-```
+2. **Activez l'environnement virtuel** :
+   - **Sous Windows** :
+     ```bash
+     venv\Scripts\activate
+     ```
+   - **Sous macOS/Linux** :
+     ```bash
+     source venv/bin/activate
+     ```
+
+### Étape 2 : Initialisez votre projet  
+
+1. Créez un répertoire pour votre projet et placez-vous dedans :
+   ```bash
+   mkdir nexy-app && cd nexy-app
+   ```
+
+2. Installez Nexy et ses dépendances :
+   ```bash
+   pip install nexy uvicorn
+   ```
+
+3. Créez les fichiers nécessaires au projet :
+   - **main.py** : Le fichier principal de votre application.
+   - **app/controller.py** : Le contrôleur de base pour gérer vos routes.
+
+4. Exemple de code pour **`main.py`** :
+
+   ```python
+   from nexy import Nexy
+
+   app = Nexy()
+
+   # Appel à un contrôleur dans 'app/controller.py'
+   ```
+
+5. Exemple de code pour **`app/controller.py`** :
+
+   ```python
+   # app/controller.py
+   async def GET():
+       return {"message": "Bienvenue sur Nexy"}
+
+   def POST():
+       return 12
+   ```
+
+6. Lancez le serveur avec `uvicorn` :
+   ```bash
+   uvicorn main:app --reload
+   ```
 
 ---
 
-#### **Route dynamique pour `/documents/{documentId}` avec WebSocket**  
+## **📚 Pourquoi Nexy ?**  
 
-**Fichier** : `app/documents/[documentId]/controller.py`  
+- **Pour les débutants** : Vous trouverez une approche simple, sans surcharge de concepts, pour apprendre à coder rapidement.
+- **Pour les experts** : La structure modulaire et la performance vous permettront de réaliser des projets de grande envergure tout en gardant un code propre et bien organisé.
+- **Pour tous les développeurs** : Profitez de la facilité d’utilisation tout en écrivant un code performant et élégant.
 
-```python
-async def GET(documentId: int):
-    return {"documentId": documentId, "message": "Voici votre document"}
+Avec Nexy, vous allez découvrir un framework **simple, puissant et agréable à utiliser**. Ce n’est pas seulement un framework : c'est un outil pour **libérer votre créativité**, **accélérer votre développement**, et surtout, **vous faire apprécier chaque ligne de code**.
 
-async def PUT(documentId: int, document: dict):
-    return {"message": "Document mis à jour", "documentId": documentId, "document": document}
 
-async def DELETE(documentId: int):
-    return {"message": f"Document {documentId} supprimé"}
 
-async def Socket(websocket):
-    await websocket.accept()
-    await websocket.send_text("Connexion WebSocket établie.")
-    await websocket.close()
-```
-
----
-
-#### **Route pour `/users`**  
-
-**Fichier** : `app/users/controller.py`  
-
-```python
-async def GET():
-    return {"message": "Liste des utilisateurs"}
-
-async def POST(user: dict):
-    return {"message": "Nouvel utilisateur ajouté", "user": user}
-```
-
----
-
-### **✨ Pourquoi Contribuer à Nexy ?**  
-
-🚀 **Rejoignez une aventure passionnante** : Nexy est en constante évolution, et nous avons besoin de votre expertise pour continuer à repousser les limites de l'innovation.  
-🤝 **Collaborez avec une communauté dynamique** : Venez partager vos idées et apprendre aux côtés de développeurs de talent.  
-🌟 **Participez à un projet qui transforme l’industrie** : Votre contribution pourrait simplifier la vie de milliers de développeurs à travers le monde.  
-
----
-
-### **💬 Un Message pour Vous, Contributeurs et Passionnés**  
-
-**Nexy est conçu pour vous** 💛. Que vous soyez débutant ou expert, ce framework est pensé pour rendre le développement **plus intuitif, rapide et agréable**.  
-
-👉 **Testez-le dès aujourd’hui** : Téléchargez Nexy et découvrez sa simplicité.  
-👉 **Envie de contribuer ?** Rejoignez-nous sur [GitHub](#) et aidez-nous à bâtir le framework full-stack de demain.  
-
-**💡 Nexy : Simplifions ensemble le développement web avec Python.** 🌍✨
 

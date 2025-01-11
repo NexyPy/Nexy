@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nexy"
-version = "0.0.26.3"
+version = "0.0.26.4"
 description = ""
 authors = ["Espoir-Loem <hopcy.forcy@gmail.com>"]
 readme = "README.md"
