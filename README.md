@@ -91,29 +91,29 @@ nexy/
 Avant de commencer, il est fortement recommandé de créer un environnement virtuel pour isoler les dépendances de votre projet.
 
 1. **Créez un environnement virtuel** :
-   ```bash
+   ```shell
    python -m venv venv
    ```
 
 2. **Activez l'environnement virtuel** :
    - **Sous Windows** :
-     ```bash
+     ```shell
      venv\Scripts\activate
      ```
    - **Sous macOS/Linux** :
-     ```bash
+     ```shell
      source venv/bin/activate
      ```
 
 ### Étape 2 : Initialisez votre projet  
 
 1. Créez un répertoire pour votre projet et placez-vous dedans :
-   ```bash
+   ```shell
    mkdir nexy-app && cd nexy-app
    ```
 
 2. Installez Nexy et ses dépendances :
-   ```bash
+   ```shell
    pip install nexy uvicorn
    ```
 
@@ -121,33 +121,92 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
    - **main.py** : Le fichier principal de votre application.
    - **app/controller.py** : Le contrôleur de base pour gérer vos routes.
 
-4. Exemple de code pour **`main.py`** :
+4. Configurez votre application Dans le fichier `main.py` :
 
    ```python
-   from nexy import Nexy
+    from nexy import Nexy
 
-   app = Nexy()
+    app = Nexy()  # Initialisation de l'application
 
-   # Appel à un contrôleur dans 'app/controller.py'
    ```
 
-5. Exemple de code pour **`app/controller.py`** :
+5. Créez un répertoire `app/` et ajoutez un fichier `controller.py` pour vos routes de base. Exemple :
 
    ```python
    # app/controller.py
-   async def GET():
-       return {"message": "Bienvenue sur Nexy"}
+    async def GET():
+        return {"message": "Bienvenue sur Nexy"}
 
-   def POST():
-       return 12
+    async def POST(data: dict):
+        return {"message": "Données reçues", "data": data}
+
    ```
 
 6. Lancez le serveur avec `uvicorn` :
-   ```bash
-   uvicorn main:app --reload
+   ```shell
+        uvicorn main:app --reload
    ```
+Votre API est maintenant accessible sur **http://127.0.0.1:8000** 🎉  
 
 ---
+
+## **🧩 Concepts Clés avec des Exemples**  
+
+### 1. **Contrôleur de Base**  
+
+Chaque route est définie dans un fichier `controller.py`. Exemple :  
+```python
+# app/controller.py
+async def GET():
+    return {"message": "Hello, world"}
+
+async def POST(data: dict):
+    return {"message": "Voici vos données", "data": data}
+```  
+
+### 2. **Routes Dynamiques**  
+
+Les routes dynamiques sont automatiquement détectées :  
+```plaintext
+app/documents/[documentId]/controller.py
+```  
+```python
+# app/documents/[documentId]/controller.py
+async def GET(documentId: int):
+    return {"documentId": documentId, "message": "Document trouvé"}
+```  
+
+### 3. **Architecture Modulaire avec `model` et `service`**  
+
+Séparez la logique métier et la gestion des données :  
+```python
+# app/users/controller.py
+from .service import get_users, add_user
+
+async def GET():
+    users = get_users()
+    return {"users": users}
+
+async def POST(user: dict):
+    return add_user(user)
+```  
+
+```python
+# app/users/service.py
+from .model import User
+
+def get_users():
+    return User.all()
+
+def add_user(data: dict):
+    user = User(**data)
+    user.save()
+    return {"message": "Utilisateur ajouté", "user": user}
+```  
+
+---
+
+
 
 ## **📚 Pourquoi Nexy ?**  
 
@@ -157,6 +216,14 @@ Avant de commencer, il est fortement recommandé de créer un environnement virt
 
 Avec Nexy, vous allez découvrir un framework **simple, puissant et agréable à utiliser**. Ce n’est pas seulement un framework : c'est un outil pour **libérer votre créativité**, **accélérer votre développement**, et surtout, **vous faire apprécier chaque ligne de code**.
 
+---
 
+
+## **📢 Contribuez à Nexy !**  
+
+🚀 Nexy est open-source et vous attend sur [GitHub](https://github.com/NexyPy/Nexy). Partagez vos idées, améliorez le framework et faites partie de la révolution backend Python.  
+
+**💡 Nexy : Plus qu'un framework, un outil pour vous.**  
+---
 
 
