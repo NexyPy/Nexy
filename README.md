@@ -86,7 +86,7 @@ nexy/
 
 # Pré-requis
 
-> Veuillez vous assurer que vous utilisez `Python >= 3.12`, car ce projet n'est **pas compatible** avec les versions `Python < 3.12`.
+> Veuillez vous assurer que vous utilisez `Python >= 3.12`, car Nexy n'est **pas compatible** avec les versions `Python < 3.12`.
 
 ## Comment vérifier votre version de Python ?
 Exécutez cette commande dans votre terminal :
