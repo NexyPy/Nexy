@@ -14,7 +14,7 @@ def FIND_ROUTES(base_path):
             dirs[:] = [d for d in dirs if not d.startswith("_")]
 
             route = {
-                "pathname": f"{'/' if os.path.basename(root) == base_path else '/' +  deleteFistDotte(os.path.relpath(root, base_path).replace("\\","/"))}",
+                "pathname": f"{'/' if os.path.basename(root) == base_path else '/' +  deleteFistDotte(os.path.relpath(root, base_path).replace('\\','/'))}",
                 "dirName": root
             }
             controller = os.path.join(root, 'controller.py')

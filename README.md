@@ -84,6 +84,21 @@ nexy/
 
 ---
 
+# Pré-requis
+
+> Veuillez vous assurer que vous utilisez `Python >= 3.12`, car ce projet n'est **pas compatible** avec les versions `Python < 3.12`.
+
+## Comment vérifier votre version de Python ?
+Exécutez cette commande dans votre terminal :
+
+```shell
+    python --version
+
+```
+
+
+
+----
 ## **🚀 Installation et Démarrage**  
 
 ### Étape 1 : Créez un répertoire pour votre projet et placez-vous dedans 
@@ -91,6 +106,7 @@ nexy/
  ```shell
    mkdir nexy-app && cd nexy-app
 ```
+
 
 ### Étape 2 : Créez et activez un environnement virtuel
 

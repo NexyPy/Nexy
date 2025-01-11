@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI,Response, Depends
 from fastapi.datastructures import Default, DefaultPlaceholder
 from fastapi.responses import FileResponse,JSONResponse
@@ -31,7 +32,9 @@ def Nexy(title: str = None , favicon:str = svg_data_uri,**args):
             title=app.title,
             scalar_favicon_url= favicon
         )
-    app.mount("/public",StaticFiles(directory="public"), name="Public")
+    directory = "public"
+    if  os.path.exists(directory):
+        app.mount("/public",StaticFiles(directory=directory), name="Public")
     app.include_router(Router())
     # Configurer le cache
     cache_dir = Path('./__pycache__/nexy')
