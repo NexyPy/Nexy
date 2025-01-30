@@ -1,17 +1,24 @@
 [tool.poetry]
 name = "nexy"
-version = "0.0.27.6"
-description = "Un framework Python conçu pour allier simplicité, performance et plaisir du développement."
+version = "0.0.45"
+description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
 authors = ["Espoir-Loem <hopcy.forcy@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.12"
 fastapi = ">0.115.0"
 jinja2 = "^3.1.5"
 scalar-fastapi = "^1.0.3"
+uvicorn = "^0.34.0"
+typer = "^0.15.1"
+
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+nexy = "nexy.main:app"
+

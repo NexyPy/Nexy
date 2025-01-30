@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+    <header style="background-color: rgb(2, 161, 63);">
+      <ul>
+        <li>Home</li>
+        <li>About</li>
+      </ul>
+    </header>
+    <h1>home  </h1>
+    {{children | safe }}
+  </body>
+</html>
+
+<style>
+    body{
+        background-color: rgb(74, 178, 105);
+    }
+</style>

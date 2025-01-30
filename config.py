@@ -1,0 +1,2 @@
+class NEXY_CONFIGS():
+    PORT = 3000

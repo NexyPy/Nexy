@@ -1,0 +1,23 @@
+
+{% set title="Profil"%}
+
+<form action="" method="get">
+  <button type="submit">All Users</button>
+</form>
+
+<form action="?add=true" method="post">
+  <button type="submit">Add user</button>
+</form>
+
+<form action="?delete=1" method="post">
+    <button type="submit">Delete user</button>
+  </form>
+<ul>
+  {% for user in users %}
+  <li>{{user}}</li>
+  {% endfor %}
+</ul>
+
+
+   
+
