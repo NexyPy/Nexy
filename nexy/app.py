@@ -44,9 +44,10 @@ def Nexy(title: str = None, favicon: str = SVG_DATA_URI, **args) -> FastAPI:
         Provides a custom OpenAPI documentation view with defined icon.
         """
         return get_scalar_api_reference(
+            servers=["nexy"],
             openapi_url=app.openapi_url,
             title=app.title,
-            scalar_favicon_url=favicon
+            scalar_favicon_url=favicon,
         )
 
     # Mount static folder if it exists

@@ -249,8 +249,15 @@ def create_project_structure(
             sleep(0.1)
         
         files_to_create = {
+            "nexy-config.py":"""
+from nexy import Nexy
+app = Nexy()
+""",
             "app/controller.py": """
 async def GET():
+    return {"name": "hello world"}
+
+async def POST():
     return {"name": "hello world"}
 """,
             "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
@@ -425,9 +432,17 @@ def load_config():
         echo(f"❌ Erreur lors du chargement de 'config.py' : {e}")
         raise Exit(code=1)
 
-    
 
 
+def is_port_in_use(port: int, host: str = "localhost") -> bool:
+    """Vérifie si un port est déjà utilisé sur l'hôte."""
+    with socket(AF_INET, SOCK_STREAM) as s:
+        result = s.connect_ex((host, port))
+        return result == 0  # Si le résultat est 0, cela signifie que le port est utilisé
 
-
-    
+def get_next_available_port(starting_port: int = 3000, host: str = "localhost") -> int:
+    """Trouve un port disponible à partir d'un port de départ."""
+    port = starting_port
+    while is_port_in_use(port, host):
+        port += 1
+    return port

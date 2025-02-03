@@ -1,23 +1,60 @@
+@! from "app/button.html" import Button,Buttons!
+<!-- {% set title="Profil"%} -->
 
-{% set title="Profil"%}
+
 
 <form action="" method="get">
   <button type="submit">All Users</button>
+  <a href=""> hhhhd</a>
 </form>
 
-<form action="?add=true" method="post">
+<form action="add" method="get">
   <button type="submit">Add user</button>
 </form>
 
-<form action="?delete=1" method="post">
-    <button type="submit">Delete user</button>
-  </form>
+<form action="delete" method="post">
+  <input type="text" name="id" hidden />
+  <button type="submit">Delete user</button>
+</form> 
 <ul>
-  {% for user in users %}
-  <li>{{user}}</li>
-  {% endfor %}
+  @! for user in users!
+    <Button > {{user.name}} </Button>
+    @! call Button() !
+     {{user.name}} 
+    
+    @! endcall!
+    <Buttons />
+  @! endfor!
+
+
+
 </ul>
 
+<style>
+  ul {
+    display: flex;
+    flex-flow: wrap;
+    gap: 10px;
+  }
+  li {
+    background-color: rgb(131, 235, 157);
+    /* margin: 20px; */
+    width: fit-content;
+    padding: 4px 10px;
+  }
+</style>
+<span href="/users">Go</Link>
+<button onclick="useAction('add')">Add user fetch</button> 
+<button onclick="useAction('delete')">Delete users fetch</button>
+<div action="add" on="click" target="out"  response="me">User patch</div>
 
-   
+{{action}}
+<button action="/actions/go" method="GET" target="users" >+10</button>
+<span response="users" >{{count}}</span>
+<button action="/actions/reset" method="delete"  target="users" >-1</button>
+
+
+
+<h1 response="users">rep {{count}}</h1>
+<Buttons  />
 

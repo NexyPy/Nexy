@@ -1,5 +1,5 @@
 from typing import List, Optional
-from nexy.cli.core.models import ProjectType, Database, ORM, TestFramework
+from nexy.cli.core.models import CssFramework, ProjectType, Database, ORM, TestFramework
 
 class ProjectBuilder:
     def __init__(self, project_name: str):
@@ -25,10 +25,15 @@ class ProjectBuilder:
     def set_test_framework(self, test_framework: TestFramework) -> 'ProjectBuilder':
         self.test_framework = test_framework
         return self
+    def set_css_framework(self, css_framework:CssFramework) -> 'ProjectBuilder':
+        self.css_framework = css_framework
+        return self
+
 
     def add_feature(self, feature: str) -> 'ProjectBuilder':
         self.features.append(feature)
         return self
+    
     
 
     def build(self) -> None:

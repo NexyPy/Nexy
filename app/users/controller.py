@@ -5,7 +5,6 @@ from nexy import CustomResponse, HTMLResponse
 users = ["user 1"]
 @CustomResponse(type=HTMLResponse)
 def GET():
-    print("yes")
     return {"users":users}
 
 @CustomResponse(type=HTMLResponse)

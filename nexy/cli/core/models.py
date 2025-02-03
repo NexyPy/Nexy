@@ -3,29 +3,29 @@ from enum import Enum
 
 
 class ProjectType(str, Enum):
-    API = "API"
-    WEBAPP = "Web Application"
-    FULLSTACK = "Full Stack Application"
+    # API = "API"
     MICROSERVICE = "Microservice"
+    WEBAPP = "Web Application"
+    # FULLSTACK = "Full Stack Application"
 
 class Database(str, Enum):
     MYSQL = "MySQL"
     POSTGRESQL = "PostgreSQL" 
     SQLITE = "SQLite"
-    MONGODB = "MongoDB"
-    REDIS = "Redis"
+    # MONGODB = "MongoDB"
+    # REDIS = "Redis"
     NONE = "None"
 
 class ORM(str, Enum):
     PRISMA = "Prisma"
     SQLALCHEMY = "SQLAlchemy"
-    SQLMODEL = "SQLModel"
+    # SQLMODEL = "SQLModel"
     NONE = "None"
 
 class TestFramework(str, Enum):
     PYTEST = "Pytest"
     UNITTEST = "Unittest"
-    ROBOT = "Robot Framework"
+    # ROBOT = "Robot Framework"
     NONE = "None"
 
 class RouterType(str, Enum):
@@ -53,3 +53,20 @@ class Languages(str, Enum):
     CHINESE = "中文"
     PORTUGUESE = "Português"
     GERMAN = "Deutsch"
+
+class CssFramework(str,Enum):
+    TAILWIND = "Tailwindcss"
+    # SASS = "Sass"
+    # UNOCSS = "Unocss"
+    NONE = "None"
+
+class TemplateEngine(str,Enum):
+    JINJA2 = "Jinja2"
+    MASONITE = "Masonite"
+    NONE = "None"
+
+class JsFramework(str,Enum):
+    REACT = "React"
+    NEXTJS = "Nextjs"
+    NUXTJS = "Nuxtjs"
+    NONE = "None"

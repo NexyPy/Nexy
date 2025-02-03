@@ -1,23 +1,90 @@
 <!DOCTYPE html>
+
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- <title>{% block title %}{% endblock %}</title> -->
   </head>
-  <body>
-    <header style="background-color: rgb(2, 161, 63);">
-      <ul>
+  <body response="out">
+    <header style="background-color: rgb(2, 161, 63)">
+      <ol>
         <li>Home</li>
         <li>About</li>
-      </ul>
+      </ol>
     </header>
-    <h1>home  </h1>
+    <h1>home layout</h1>
     {{children | safe }}
   </body>
 </html>
 
+
 <style>
-    body{
-        background-color: rgb(74, 178, 105);
-    }
+  body {
+    background-color: rgb(74, 178, 105);
+   
+   
+    
+  }
+  
+
 </style>
+
+<script>
+  const useAction = async (name, { reload = false, target = "" } = {}) => {
+    const path = name[0]=="/"? name : `?${name}=2`;
+    const response = await fetch(path, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const contentType = response.headers.get("content-type");
+
+    let data;
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    if (reload) {
+      window.location.reload();
+    }
+    if (target) {
+      const targetResponse = document.querySelectorAll(
+        `[response="${target}"]`
+      );
+
+      targetResponse.forEach((item) => {
+        item.innerHTML = data;
+      });
+    } else {
+      document.body.innerHTML = data;
+    }
+
+    return data;
+  };
+
+  const EVENTS_LIST = ["click", "submit"];
+  for (const type of EVENTS_LIST) {
+    addEventListener(type, (e) => {
+      e.preventDefault();
+      const element = e.target.closest("form") || e.target || "";
+      const event = String(e.target.type || e.target.getAttribute("on") || "click");
+      const passport = element.hasAttribute('action') || (element.hasAttribute("action") && (event === type || e.target.closest("form")?.tagName === "FORM"))
+      if (passport) {
+        const action = element.getAttribute("action");
+        const target = element.getAttribute("target") || "";
+        const reload = element.hasAttribute("reload");
+        useAction(action, { target, reload });
+      }
+      if(e.target.hasAttribute("href")){
+        window.location.href = e.target.getAttribute("href");
+      }
+    });
+  }
+</script>
