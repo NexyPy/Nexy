@@ -1,13 +1,18 @@
-
+import asyncio
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
+import inspect
+import re
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
+import uuid
+from pathlib import Path
 
 from fastapi.datastructures import Default, DefaultPlaceholder
-from fastapi import Depends 
+from fastapi import APIRouter, Depends 
 from fastapi import Response as FastAPIResponse
-from fastapi.responses import JSONResponse 
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.datastructures import Default
 from fastapi.types import IncEx
+from jinja2 import Environment, Template
 
 
 
@@ -44,7 +49,7 @@ def Inject(dependencies:Sequence[Depends] | None = None):
 
 
 
-def CustomResponse(
+def HTTPResponse(
         model:Any = Default(None),
         response_map: Dict[int | str, Dict[str, Any]] | None = None,       
         model_include: IncEx | None = None,
@@ -124,19 +129,281 @@ def Config(
         return wrapper
     return decorator
 
+API_ROUTERS : Dict[str, APIRouter] = {}
 
-def Controller():
-    pass
+class Controller:
+    def __init__(self, path: str = ""):
+        self.path = path
 
-def Get():
-    pass
+    def __call__(self, cls):
+        router = APIRouter(prefix=self.path)
+        for attr_name in dir(cls):
+            attr = getattr(cls, attr_name)
+            if callable(attr) and hasattr(attr, "route_info"):
+                method, route_path = attr.route_info
+                router.add_api_route(route_path, attr, methods=[method])
+        API_ROUTERS.append(router)
+        return cls
 
-def Post():
-    pass
+# Example usage of the Controller decorator
+# @Controller(path="/example")
+# class ExampleController:
+#     def __init__(self):
+#         pass
 
-def Put():
-    pass
+#     @staticmethod
+#     @Get()
+#     def get_example():
+#         return {"message": "This is a GET example"}
 
-def Delete():
-    pass
+#     @staticmethod
+#     @Post()
+#     def post_example():
+#         return {"message": "This is a POST example"}
+
+def Get(path:str):
+    def decorator(func):
+        func.route_info = ("GET", path)
+        return func
+    return decorator
+
+def Post(path:str):
+    def decorator(func):
+        func.route_info = ("POST", path)
+        return func
+    return decorator
+
+def Put(path:str):
+    def decorator(func):
+        func.route_info = ("PUT", path)
+        return func
+    return decorator
+
+def Delete(path:str):
+    def decorator(func):
+        func.route_info = ("DELETE", path)
+        return func
+    return decorator
+
+
+
+
+class ActionStore:
+    def __init__(self, init: Any):
+        self.value = init
+
+# Global action registry
+actionRegistry = ActionStore([])
+
+def action(slug: Optional[List[str]] = None):
+    """
+    Decorator for registering server actions.
+    
+    Args:
+        slug: Optional list of URL path segments
+    """
+    def decorator(func: Callable) -> Callable:
+        action_id = str(uuid.uuid4())
+        slug_path = "/".join(f"{{{s}}}" for s in slug) if slug else ""
+        path = f"/{action_id}/{slug_path}".rstrip("/")
+
+        # Store the path in function attributes for reference
+        func.action_path = path
+        
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            return func(*args, **kwargs)
+        
+        actionRegistry.value.append({"path": path, "func": wrapper})
+        
+        return wrapper
+    return decorator
+
+
+def view(func: Callable) -> Callable:
+    def get_layout_content(module_path: Path) -> str:
+        """
+        Recursively find and load layout content from parent directories.
+        """
+        layout_content = ""
+        current_path = module_path
+        while current_path != current_path.parent:
+            layout_file = current_path / "layout.html"
+            if layout_file.exists():
+                layout_content = "" #load_file_content(layout_file, "div") + layout_content
+            current_path = current_path.parent
+        return layout_content
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        module = inspect.getmodule(func)
+        if module is None or not hasattr(module, '__file__'):
+            raise ValueError("Could not determine module for function")
+        module_path = Path(module.__file__).parent
+
+        result = func(*args, **kwargs)
+        layout_content = get_layout_content(module_path)
+        
+        if isinstance(result, dict):
+            result["layout"] = layout_content
+        else:
+            result = {"content": result, "layout": layout_content}
+        
+        return result
+
+    wrapper.isView = True
+    return wrapper
+
+def layout(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        return func(*args, **kwargs)
+    wrapper.isLayout = True
+    return wrapper
+
+# Cache pour les templates
+template_cache = {}
+
+def get_environment() -> Environment:
+    return Environment(
+        autoescape=True,
+        trim_blocks=True,
+        lstrip_blocks=True
+    )
+
+def get_template(content: str) -> Template:
+    cache_key = hash(content)
+    if cache_key not in template_cache:
+        env = get_environment()
+        template_cache[cache_key] = env.from_string(content)
+    return template_cache[cache_key]
+
+def load_content(file_path: Path, tag: str) -> str:
+    if not file_path.exists():
+        return ""
+    with open(file_path, 'r') as f:
+        content = f.read()
+    return f"<{tag}>{content}</{tag}>".replace("\n", "").replace("\t", "")
+
+
+def component(*, imports: Optional[List[Any]] = None):
+    def decorator(func: Union[Callable, Type]) -> Union[Callable, Type]:
+        
+        def get_context():
+            """Build and return the rendering context from provided imports and 'use'."""
+            base_imports = (imports.copy() if imports else [])
+            base_imports.append(use)
+            return {imp.__name__: imp for imp in base_imports}
+        
+        def load_file_content(file_path: Path, tag: str) -> str:
+            """Load file content, remove newlines/tabs, and wrap in the specified HTML tag."""
+            if not file_path.exists():
+                return ""
+            content = file_path.read_text(encoding='utf-8')
+            content = re.sub(r'[\n\t]', '', content)
+            return f"<{tag}>{content}</{tag}>"
+        
+        def parse_attributes(attr_str: str) -> List[str]:
+            """
+            Parse attributes from a string.
+            Matches key="value", key='value', or key=value (without spaces in value).
+            """
+            return re.findall(r'(\w+=(?:"[^"]*"|\'[^\']*\'|\S+))', attr_str)
+        
+        def construct_html(module_path: Path, obj_name: str, result: Any, kwargs: dict) -> str:
+            # Build file paths.
+            template_path = module_path / f"{obj_name}.html"
+            style_path = module_path / f"{obj_name}.css"
+            script_path = module_path / f"{obj_name}.js"
+            
+            if not template_path.exists():
+                raise ValueError(f"Template file not found: {template_path}")
+            
+            html_content = template_path.read_text(encoding='utf-8')
+            style_content = load_file_content(style_path, "style")
+            script_content = load_file_content(script_path, "script async")
+            
+            def replace_standard(match):
+                tag_name = match.group(1)
+                attrs = match.group(2).strip()
+                children = match.group(3).strip()
+                
+                parsed_attrs = parse_attributes(attrs) if attrs else []
+                attr_str = ", ".join(parsed_attrs)
+                return f"{{% call {tag_name}({attr_str}) %}}{children}{{% endcall %}}"
+            
+            html_content = re.sub(
+                r'<([A-Z][a-zA-Z0-9]*)\b([^>]*)>(.*?)<\/\1>',
+                replace_standard,
+                html_content,
+                flags=re.DOTALL
+            )
+            
+            # Replace self-closing component tags, e.g. <MyComponent attr="value" />
+            def replace_self_closing(match):
+                tag_name = match.group(1)
+                attrs = match.group(2).strip()
+                parsed_attrs = parse_attributes(attrs) if attrs else []
+                attr_str = ", ".join(parsed_attrs)
+                if attr_str:
+                    return f"{{{{ {tag_name}({attr_str}) }}}}"
+                return f"{{{{ {tag_name}() }}}}"
+            
+            html_content = re.sub(
+                r'<([A-Z][a-zA-Z0-9]*)\b([^>]*)\/>',
+                replace_self_closing,
+                html_content
+            )
+            
+            
+            
+            return re.sub(r'[\n\t]', '', f"{style_content}{html_content}{script_content}")
+        
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            module = inspect.getmodule(func)
+            if module is None or not hasattr(module, '__file__'):
+                raise ValueError("Could not determine module for function")
+            module_path = Path(module.__file__).parent
+            
+            base_context = get_context()
+            result = func(*args, **kwargs)
+            
+            def render_result(data):
+                raw_html = construct_html(module_path, func.__name__, data, kwargs)
+                tmpl = Template(raw_html)
+                render_context = data if isinstance(data, dict) else kwargs
+                return tmpl.render(**render_context, **base_context)
+            
+            if inspect.isawaitable(result):
+                async def async_wrapper():
+                    data = await result
+                    return render_result(data)
+                return async_wrapper()
+            else:
+                return render_result(result)
+            
+        return wrapper
+    return decorator
+
+
+def use(func: Callable) -> str:
+    """
+    Get the action path for a decorated function.
+    
+    Args:
+        func: Function decorated with @action
+    
+    Returns:
+        Action path as string
+    
+    Raises:
+        ValueError: If function is not decorated with @action
+    """
+    if not hasattr(func, 'action_path'):
+        raise ValueError("Function is not a server action (missing @action decorator)")
+    return f"use('{func.action_path}')"
+
 

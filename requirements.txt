@@ -6,7 +6,6 @@ fastapi==0.115.6
 h11==0.14.0
 idna==3.10
 inquirerpy==0.3.4
-Jinja2==3.1.5
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2

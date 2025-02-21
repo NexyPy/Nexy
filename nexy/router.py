@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from typing import List, Dict, Any, Optional
+from typing import Callable, List, Dict, Any, Optional
 import logging
 import os
 import sys
 import inspect
+from fastapi.responses import JSONResponse
+from nexy.decorators import actionRegistry
 
-from nexy.hooks import useActionView, useView
 from .utils import deleteFistDotte, dynamicRoute, importModule, convertPathToModulePath
 
 # Analyze the file structure and extract route information
-def FIND_ROUTES(base_path):
+def     FIND_ROUTES(base_path):
     routes: list = []
     
     # Verify if the 'app' folder exists
@@ -82,7 +84,10 @@ class DynamicRouter:
     def load_middleware(self, route: Dict[str, Any]):
         pass
 
-    def load_actions(self, route: Dict[str, Any]):
+    def load_actions(self, route: Dict[str, Any]) -> Optional[Any]:
+        """
+        Loads the actions from the specified path.
+        """
         try:
             path = route["actions"].replace("..", "")
             return importModule(path=path)
@@ -93,59 +98,36 @@ class DynamicRouter:
             self.logger.error(f"Error loading actions {path}: {str(e)}")
             return None
         
-    def registre_actions_http_route(self, app: APIRouter, pathname: str, function: Any, method: str, params: Dict[str, Any]) -> None:
-        try:
-            if params.get("response_class") == HTMLResponse:
-                def action(data = Depends(function)):
-                    return useActionView(
-                        data=data,
-                        path=pathname.strip("/").replace("\\", "/")
-                    )
-                endpoint = action
-            else:
-                endpoint = function
+    def registre_actions_http_route(self, app: APIRouter, pathname: str, function: Any, params: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Registers an HTTP route for actions.
+        """
+        if params is None:
+            params = {"response_class": JSONResponse}
+        else:
+            params = {k: v for k, v in params.items() if k not in ["tags", "include_in_schema"]}
 
-            path = f"{pathname}/actions/{method}"
-
-            app.add_api_route(
-                path=path,
-                endpoint=endpoint,
-                methods=["POST"],
-                include_in_schema=False,
-                **{k: v for k, v in params.items() if k not in ["tags", "include_in_schema"]},
-                tags=[path]
-            )
-            
-        except Exception as e:
-            self.logger.error(f"Failed to register route {path}: {str(e)}")
-            self._register_error_route(app, path, "POST", str(e))
+        app.add_api_route(
+            path=pathname,
+            endpoint=function,
+            methods=["POST"],
+            **params,
+            tags=["actions"]
+        )
 
     def register_http_route(self, app: APIRouter, pathname: str, function: Any, 
                           method: str, params: Dict[str, Any], dirName: str) -> None:
         """
         Registers an HTTP route with appropriate view and error handling.
         """
-        try:
-            if params.get("response_class") == HTMLResponse:
-                def view(data = Depends(function)):
-                    return useView(
-                        data=data,
-                        path=dirName.strip("/").replace("\\", "/")
-                    )
-                endpoint = view
-            else:
-                endpoint = function
-            
-            app.add_api_route(
-                path=pathname,
-                endpoint=endpoint,
-                methods=[method],
-                **{k: v for k, v in params.items() if k != "tags"},
-                tags=[pathname]
-            )
-        except Exception as e:
-            self.logger.error(f"Failed to register route {pathname} [{method}]: {str(e)}")
-            self._register_error_route(app, pathname, method, str(e))
+        
+        app.add_api_route(
+            path=pathname,
+            endpoint=function,
+            methods=[method],
+            **{k: v for k, v in params.items() if k != "tags"},
+            tags=[pathname]
+        )
 
     def register_websocket_route(self, app: APIRouter, pathname: str, 
                                function: Any) -> None:
@@ -191,7 +173,7 @@ class DynamicRouter:
         Creates and configures all routers from found routes.
         """
         routes = FIND_ROUTES(base_path=self.base_path)
-        actions_routes = FIND_ROUTES(base_path=".")
+        actions_routes = actionRegistry.value
         
         for route in routes:
             app = APIRouter()
@@ -215,6 +197,7 @@ class DynamicRouter:
                     
                 params = getattr(function, "params", {})
                 
+                
                 if function_name in self.HTTP_METHODS:
                     self.register_http_route(app, pathname, function, 
                                           function_name, params, dirName)
@@ -223,27 +206,8 @@ class DynamicRouter:
 
         for route in actions_routes:
             app = APIRouter()
-            self.apps.append(app)
-            
-            if "actions" not in route:
-                continue
-
-            pathname = dynamicRoute(route_in=route["pathname"])
-            actions = self.load_actions(route)
-            
-            if not actions:
-                continue
-
-            for function_name in dir(actions):
-                function = getattr(actions, function_name)
-                
-                if not (inspect.isfunction(function) and hasattr(function, "__annotations__") and not function_name.startswith("_")):
-                    continue
-                    
-                params = getattr(function, "params", {})
-                pathname = "" if pathname == "/" else pathname
-                
-                self.registre_actions_http_route(app, pathname, function, function_name, params)
+            self.apps.append(app)    
+            self.registre_actions_http_route(app, pathname=route["path"], function=route["func"])
 
         return self.apps
 
@@ -253,3 +217,15 @@ def Router():
     """
     router = DynamicRouter()
     return router.create_routers()
+
+def ensure_init_files(base_path):
+    """
+    Ensures that __init__.py files exist in all directories within the base path.
+    """
+    for root, dirs, files in os.walk(base_path):
+        if '__init__.py' not in files:
+            with open(os.path.join(root, '__init__.py'), 'w') as f:
+                pass
+
+# Call this function with the base path of your app
+ensure_init_files('app')

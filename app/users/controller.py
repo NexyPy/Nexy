@@ -1,13 +1,13 @@
-from nexy import CustomResponse, HTMLResponse
+from nexy import HTTPResponse, HTMLResponse
 
 
 
 users = ["user 1"]
-@CustomResponse(type=HTMLResponse)
+@HTTPResponse(type=HTMLResponse)
 def GET():
     return {"users":users}
 
-@CustomResponse(type=HTMLResponse)
+@HTTPResponse(type=HTMLResponse)
 def POST(delete = None, add= None):
     if delete and len(users)>=1 :
         users.pop(len(users)-1)

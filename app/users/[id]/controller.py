@@ -1,8 +1,8 @@
 from fastapi.responses import HTMLResponse
-from nexy.decorators import CustomResponse
+from nexy.decorators import HTTPResponse
 
 
-@CustomResponse(type=HTMLResponse)
+@HTTPResponse(type=HTMLResponse)
 def GET(id:int):
     print("yes")
     return {"id":id}
