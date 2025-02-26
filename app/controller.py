@@ -2,20 +2,26 @@ from typing import Any
 from actions import count, go, reset
 from components.Button import Button,Card
 from nexy import HTTPResponse, HTMLResponse
-from nexy.decorators import action, component,  use
+from nexy.decorators import Action, Component,  use
 
-@component(
+@Component(
     imports=[Button, Card]
 )
 def View():
     
-    return {"users":"<h1>Hello</h1>"}
+    return {"users":"<h1>Hello</h1>","id":23}
 
 users = [{"id":1, "name":"Espoir"}]
-@HTTPResponse(type=HTMLResponse)
-def GET():
 
-   return  View()
+@Component(
+    imports=[Button, Card]
+)
+def Layout(children):
+    return {"children":children}
+# @HTTPResponse(type=HTMLResponse)
+# def GET():
+
+#    return  View()
 
 
     
@@ -33,17 +39,17 @@ async def POST(delete = None, add= None, id=None,name=None):
     return {"users":users,"count":count.value , "add":go.action_path,"reset":reset.action_path}
 
 
-@action()
+@Action()
 async def add():
     return "salue"
 
 
 
-@action()
+@Action()
 async def delete():
     return {"message":"Espoir serait beau", "action":use(add)}
 
-@action(["id"])
+@Action(["id"])
 async def delete(id:Any):
     return id
 

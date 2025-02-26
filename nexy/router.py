@@ -1,19 +1,23 @@
+"""
+Author: Espoir Loém
+
+This module handles dynamic route loading for the Nexy application.
+"""
+
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from typing import Callable, List, Dict, Any, Optional
 import logging
 import os
 import sys
 import inspect
-from fastapi.responses import JSONResponse
 from nexy.decorators import actionRegistry
-
 from .utils import deleteFistDotte, dynamicRoute, importModule, convertPathToModulePath
 
 # Analyze the file structure and extract route information
-def     FIND_ROUTES(base_path):
-    routes: list = []
+def find_routes(base_path: str) -> List[Dict[str, Any]]:
+    routes = []
     
     # Verify if the 'app' folder exists
     if os.path.exists(base_path) and os.path.isdir(base_path):
@@ -24,15 +28,8 @@ def     FIND_ROUTES(base_path):
             
         # Explore the 'app' folder and its subfolders
         for root, dirs, files in os.walk(base_path):
-            # Remove _folders
-            dirs[:] = [d for d in dirs if not d.startswith("_")]
-            dirs[:] = [d for d in dirs if not d.startswith("node_module")]
-            dirs[:] = [d for d in dirs if not d.startswith("env")]
-            dirs[:] = [d for d in dirs if not d.startswith("venv")]
-            dirs[:] = [d for d in dirs if not d.startswith("nexy")]
-            dirs[:] = [d for d in dirs if not d.startswith(".")]
-            dirs[:] = [d for d in dirs if not d.startswith("public")]
-            dirs[:] = [d for d in dirs if not d.startswith("configs")]
+            # Remove unwanted folders
+            dirs[:] = [d for d in dirs if not d.startswith(("_", "node_module", "env", "venv", "nexy", ".", "public", "configs"))]
 
             route = {
                 "pathname": f"{'/' if os.path.basename(root) == base_path else '/' + deleteFistDotte(os.path.relpath(root, base_path).replace('\\','/'))}",
@@ -61,7 +58,7 @@ class DynamicRouter:
     """
     Class managing dynamic route loading from the 'app' directory.
     """
-    HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"]
+    HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE","View"]
     
     def __init__(self, base_path: str = "app"):
         self.base_path = base_path
@@ -84,20 +81,7 @@ class DynamicRouter:
     def load_middleware(self, route: Dict[str, Any]):
         pass
 
-    def load_actions(self, route: Dict[str, Any]) -> Optional[Any]:
-        """
-        Loads the actions from the specified path.
-        """
-        try:
-            path = route["actions"].replace("..", "")
-            return importModule(path=path)
-        except ModuleNotFoundError as e:
-            self.logger.error(f"Actions not found: {path} - {str(e)}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Error loading actions {path}: {str(e)}")
-            return None
-        
+   
     def registre_actions_http_route(self, app: APIRouter, pathname: str, function: Any, params: Optional[Dict[str, Any]] = None) -> None:
         """
         Registers an HTTP route for actions.
@@ -120,7 +104,16 @@ class DynamicRouter:
         """
         Registers an HTTP route with appropriate view and error handling.
         """
-        
+        if method == "View":
+            app.add_api_route(
+                path=pathname,
+                endpoint=function,
+                methods=["GET"],
+                
+                **{k: v for k, v in params.items() if k != ["tags", "response_class"]},
+                tags=[pathname]
+            )
+
         app.add_api_route(
             path=pathname,
             endpoint=function,
@@ -172,7 +165,7 @@ class DynamicRouter:
         """
         Creates and configures all routers from found routes.
         """
-        routes = FIND_ROUTES(base_path=self.base_path)
+        routes = find_routes(base_path=self.base_path)
         actions_routes = actionRegistry.value
         
         for route in routes:
@@ -218,7 +211,7 @@ def Router():
     router = DynamicRouter()
     return router.create_routers()
 
-def ensure_init_files(base_path):
+def ensure_init_files(base_path: str) -> None:
     """
     Ensures that __init__.py files exist in all directories within the base path.
     """

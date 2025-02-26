@@ -1,18 +1,18 @@
-from nexy.decorators import action, component, use
+from nexy.decorators import Action, Component, use
 from typing import Any
 
-@action()
+@Action()
 async def delete():
     return "delete"
 
-@component(
+@Component(
     imports=[delete]
 )
 def Card(caller: Any):
     children = caller()
     return { "children": children }
 
-@component(
+@Component(
     imports=[delete,Card]
 )
 def Button(text: str, type: str = "primary", action: str = None):

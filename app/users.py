@@ -1,7 +1,7 @@
-from nexy.decorators import action
+from nexy.decorators import Action
 
 
-@action()
+@Action()
 async def hello():
     return "hello"
 

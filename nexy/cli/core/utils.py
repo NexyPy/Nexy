@@ -1,3 +1,7 @@
+"""
+Author: Espoir Loém
+"""
+
 import importlib
 from os import makedirs, name, path
 import subprocess
@@ -5,7 +9,7 @@ from pathlib import Path
 from socket import AF_INET, SOCK_STREAM, socket
 import sys
 from time import sleep
-from typing import  List
+from typing import List
 from rich.columns import Columns
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -13,8 +17,6 @@ from typer import Exit, echo
 
 from nexy.cli.core.constants import Console
 from nexy.cli.core.models import ORM, Database, ProjectType, TestFramework
-
-
 
 
 def print_banner():
@@ -62,8 +64,6 @@ def display_port_choices(available_ports: list[int], host: str) -> None:
             padding=1
         ))
     Console.print(Columns(panels))
-
-
 
 
 # Fonctions de génération de fichiers
@@ -230,11 +230,10 @@ def create_project_structure(
         "app",
         "public",
         "tests",
-        "config"
     ]
     
     if project_type == ProjectType.WEBAPP:
-        base_dirs.extend(["app/templates", "app/static", "app/static/css", "app/static/js"])
+        base_dirs.extend(["src/components/","src/utils/"])
     
     with Progress(
         SpinnerColumn(),
@@ -249,17 +248,8 @@ def create_project_structure(
             sleep(0.1)
         
         files_to_create = {
-            "nexy-config.py":"""
-from nexy import Nexy
-app = Nexy()
-""",
-            "app/controller.py": """
-async def GET():
-    return {"name": "hello world"}
-
-async def POST():
-    return {"name": "hello world"}
-""",
+            "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
+            "app/controller.py": """async def GET():\n\treturn {"name": "hello world"}\nasync def POST():\n\treturn {"name": "hello world"}""",
             "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
             ".env": generate_env_file(database),
             "README.md": generate_readme(project_name, project_type, database, orm, test_framework, features),
@@ -313,18 +303,14 @@ cd {project_name}
 
 2. Installer les dépendances
 ```bash
-pip install -r requirements.txt
+nexy install
 ```
 
-3. Configurer les variables d'environnement
-```bash
-cp .env.example .env
-# Modifier les variables dans .env
-```
+
 
 4. Lancer le serveur de développement
 ```bash
-python main.py
+nexy dev
 ```
 {testing_section}
 """
@@ -333,25 +319,17 @@ python main.py
 
 # Nouvelles fonctions pour la génération de composants
 def generate_controller(name: str) -> str:
-    return f"""from nexy.app import Controller
-
-class {name.capitalize()}Controller(Controller):
-    def __init__(self):
-        super().__init__()
-    
-    async def index(self):
+    return f"""
+    async def GET():
         return {{"message": "Welcome to {name} controller"}}
     
-    async def get_by_id(self, id: int):
-        return {{"id": id, "name": "{name}"}}
+    async def POST():
+        return {{"message": "Welcome to {name} controller"}}
     
-    async def create(self, data: dict):
-        return {{"message": f"Created {name}", "data": data}}
-    
-    async def update(self, id: int, data: dict):
+    async def PUT():
         return {{"message": f"Updated {name} {{id}}", "data": data}}
     
-    async def delete(self, id: int):
+    async def DELETE():
         return {{"message": f"Deleted {name} {{id}}"}}
 """
 
@@ -404,35 +382,15 @@ class {name.capitalize()}(Base):
         }}
 """
 
-
-
-def load_config():
+def generate_component(name: str) -> str:
+    return f"""
+    from nexy import Component
+    @Component(imports=[])
+    def {name}(name: str):
+        return {{
+            "message": f"Welcome  {{name}}"
+        }}
     """
-    Vérifie si config.py existe à la racine du projet et l'importe dynamiquement.
-    """
-    # Chemin du répertoire courant
-    root_path = Path.cwd()
-    
-    # Chemin potentiel vers config.py
-    config_file = root_path / "config.py"
-    
-    # Vérifier l'existence de config.py
-    if not config_file.exists():
-        echo("❌ Le fichier 'config.py' n'a pas été trouvé à la racine du projet.")
-        raise Exit(code=1)
-    
-    # Importer dynamiquement config.py
-    try:
-        spec = importlib.util.spec_from_file_location("config", config_file)
-        config = importlib.util.module_from_spec(spec)
-        sys.modules["config"] = config
-        spec.loader.exec_module(config)
-        return config
-    except Exception as e:
-        echo(f"❌ Erreur lors du chargement de 'config.py' : {e}")
-        raise Exit(code=1)
-
-
 
 def is_port_in_use(port: int, host: str = "localhost") -> bool:
     """Vérifie si un port est déjà utilisé sur l'hôte."""

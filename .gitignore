@@ -2,6 +2,7 @@
 __pycache__/
 venv
 dist
+venv3
 # Ignorer les fichiers compilés Python 
 *.pyc
 *.pyo

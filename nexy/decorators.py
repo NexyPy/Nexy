@@ -1,3 +1,10 @@
+"""
+Author: Espoir Loém
+
+This module provides various decorators for use in the Nexy framework, including dependency injection,
+HTTP response handling, and component rendering.
+"""
+
 import asyncio
 from functools import wraps
 import inspect
@@ -14,9 +21,7 @@ from fastapi.datastructures import Default
 from fastapi.types import IncEx
 from jinja2 import Environment, Template
 
-
-
-
+from nexy.hooks import useView
 
 T = TypeVar("T")
 DependencyType = Union[Callable[..., Any], Type[Any]]
@@ -25,32 +30,25 @@ def Injectable() -> Any:
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Appeler la fonction originale et obtenir son résultat
             result = func(*args, **kwargs)
             return Depends(result)
         return wrapper
     return decorator
 
-
-
-def Inject(dependencies:Sequence[Depends] | None = None):
+def Inject(dependencies: Sequence[Depends] | None = None):
     def decorator(func):
         func.params = {
             "dependencies": dependencies,
         }
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Appeler la fonction originale et obtenir son résultat
             result = func(*args, **kwargs)
             return result
-
         return wrapper
     return decorator
 
-
-
 def HTTPResponse(
-        model:Any = Default(None),
+        model: Any = Default(None),
         response_map: Dict[int | str, Dict[str, Any]] | None = None,       
         model_include: IncEx | None = None,
         model_exclude: IncEx | None = None,
@@ -74,32 +72,26 @@ def HTTPResponse(
         }
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Appeler la fonction originale et obtenir son résultat
             result = func(*args, **kwargs)
             return result
-
         return wrapper
     return decorator
 
-
 def Describe(
       summary: str | None = None,
-      decription: str | None = None,
+      description: str | None = None,
       response: str = "Successful Response",
       ):
     def decorator(func):
         func.params = {
             "summary": summary,
-            "description": decription,
+            "description": description,
             "response_description": response,
-
         }
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Appeler la fonction originale et obtenir son résultat
             result = func(*args, **kwargs)
             return result
-
         return wrapper
     return decorator
 
@@ -122,14 +114,12 @@ def Config(
         }
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Appeler la fonction originale et obtenir son résultat
             result = func(*args, **kwargs)
             return result
-
         return wrapper
     return decorator
 
-API_ROUTERS : Dict[str, APIRouter] = {}
+API_ROUTERS: Dict[str, APIRouter] = {}
 
 class Controller:
     def __init__(self, path: str = ""):
@@ -142,51 +132,32 @@ class Controller:
             if callable(attr) and hasattr(attr, "route_info"):
                 method, route_path = attr.route_info
                 router.add_api_route(route_path, attr, methods=[method])
-        API_ROUTERS.append(router)
+        API_ROUTERS[self.path] = router
         return cls
 
-# Example usage of the Controller decorator
-# @Controller(path="/example")
-# class ExampleController:
-#     def __init__(self):
-#         pass
-
-#     @staticmethod
-#     @Get()
-#     def get_example():
-#         return {"message": "This is a GET example"}
-
-#     @staticmethod
-#     @Post()
-#     def post_example():
-#         return {"message": "This is a POST example"}
-
-def Get(path:str):
+def Get(path: str):
     def decorator(func):
         func.route_info = ("GET", path)
         return func
     return decorator
 
-def Post(path:str):
+def Post(path: str):
     def decorator(func):
         func.route_info = ("POST", path)
         return func
     return decorator
 
-def Put(path:str):
+def Put(path: str):
     def decorator(func):
         func.route_info = ("PUT", path)
         return func
     return decorator
 
-def Delete(path:str):
+def Delete(path: str):
     def decorator(func):
         func.route_info = ("DELETE", path)
         return func
     return decorator
-
-
-
 
 class ActionStore:
     def __init__(self, init: Any):
@@ -195,7 +166,7 @@ class ActionStore:
 # Global action registry
 actionRegistry = ActionStore([])
 
-def action(slug: Optional[List[str]] = None):
+def Action(slug: Optional[List[str]] = None):
     """
     Decorator for registering server actions.
     
@@ -220,7 +191,6 @@ def action(slug: Optional[List[str]] = None):
         
         return wrapper
     return decorator
-
 
 def view(func: Callable) -> Callable:
     def get_layout_content(module_path: Path) -> str:
@@ -263,7 +233,7 @@ def layout(func: Callable) -> Callable:
     wrapper.isLayout = True
     return wrapper
 
-# Cache pour les templates
+# Cache for templates
 template_cache = {}
 
 def get_environment() -> Environment:
@@ -273,22 +243,7 @@ def get_environment() -> Environment:
         lstrip_blocks=True
     )
 
-def get_template(content: str) -> Template:
-    cache_key = hash(content)
-    if cache_key not in template_cache:
-        env = get_environment()
-        template_cache[cache_key] = env.from_string(content)
-    return template_cache[cache_key]
-
-def load_content(file_path: Path, tag: str) -> str:
-    if not file_path.exists():
-        return ""
-    with open(file_path, 'r') as f:
-        content = f.read()
-    return f"<{tag}>{content}</{tag}>".replace("\n", "").replace("\t", "")
-
-
-def component(*, imports: Optional[List[Any]] = None):
+def Component(*, imports: Optional[List[Any]] = None):
     def decorator(func: Union[Callable, Type]) -> Union[Callable, Type]:
         
         def get_context():
@@ -322,8 +277,8 @@ def component(*, imports: Optional[List[Any]] = None):
                 raise ValueError(f"Template file not found: {template_path}")
             
             html_content = template_path.read_text(encoding='utf-8')
-            style_content = load_file_content(style_path, "style")
-            script_content = load_file_content(script_path, "script async")
+            style_content = load_file_content(style_path, "style type='text/css' class='scoped-style'")
+            script_content = load_file_content(script_path, "script type='module' async class='scoped-script '")
             
             def replace_standard(match):
                 tag_name = match.group(1)
@@ -357,37 +312,49 @@ def component(*, imports: Optional[List[Any]] = None):
                 html_content
             )
             
-            
-            
-            return re.sub(r'[\n\t]', '', f"{style_content}{html_content}{script_content}")
-        
+            return re.sub(r'[\n\t]', '', f"{style_content}{script_content}{html_content}")
         @wraps(func)
         def wrapper(*args, **kwargs):
+            # Validate module
             module = inspect.getmodule(func)
             if module is None or not hasattr(module, '__file__'):
                 raise ValueError("Could not determine module for function")
-            module_path = Path(module.__file__).parent
+            module_path = Path(module.__file__).resolve().parent
             
             base_context = get_context()
             result = func(*args, **kwargs)
             
             def render_result(data):
+                # Generate HTML from template
                 raw_html = construct_html(module_path, func.__name__, data, kwargs)
                 tmpl = Template(raw_html)
-                render_context = data if isinstance(data, dict) else kwargs
-                return tmpl.render(**render_context, **base_context)
+                
+                # Build render context
+                render_context = {
+                    **base_context,
+                    **(data if isinstance(data, dict) else kwargs)
+                }
+                
+                # Special handling for View components
+                if func.__name__ == "View":
+                    code = tmpl.render(**render_context)
+                    path = str(module_path)
+                    path = "app" + (path.split("app", 1)[1] if "app" in path else path)
+                    return useView(code=code, path=path)
+                
+                return tmpl.render(**render_context)
             
+            # Handle async or sync response
             if inspect.isawaitable(result):
                 async def async_wrapper():
                     data = await result
                     return render_result(data)
                 return async_wrapper()
-            else:
-                return render_result(result)
+            
+            return render_result(result)
             
         return wrapper
     return decorator
-
 
 def use(func: Callable) -> str:
     """
@@ -405,5 +372,6 @@ def use(func: Callable) -> str:
     if not hasattr(func, 'action_path'):
         raise ValueError("Function is not a server action (missing @action decorator)")
     return f"use('{func.action_path}')"
+
 
 

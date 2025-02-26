@@ -1,11 +1,15 @@
-import os
+"""
+Author: Espoir Loém
+
+This module provides functionality for updating Nexy to the latest version via the command line interface.
+"""
+
 import sys
 import subprocess
-from pathlib import Path
 
 def update():
     """
-    Updates Nexy to the latest version using pip
+    Updates Nexy to the latest version using pip.
     """
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "nexy"])

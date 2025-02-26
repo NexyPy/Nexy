@@ -1,3 +1,9 @@
+"""
+Author: Espoir Loém
+
+This module provides functionality for installing Nexy dependencies via the command line interface.
+"""
+
 import os
 import sys
 import subprocess

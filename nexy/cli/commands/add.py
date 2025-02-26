@@ -1,22 +1,26 @@
-from os import system, path
-from typer import Argument,Exit
+"""
+Author: Espoir Loém
+
+This module provides functionality for adding a package to a Nexy project via the command line interface.
+"""
+
+from subprocess import run, CalledProcessError
+from os import path
+from typer import Argument, Exit
 from rich.progress import Progress, SpinnerColumn, TextColumn
-import sys
 
-from nexy.cli.core.constants import Console,CMD
+from nexy.cli.core.constants import Console, CMD
 from nexy.cli.core.utils import print_banner
-
-
 
 @CMD.command()
 def add(
-    package: str = Argument(..., help="Package à ajouter au projet")
+    package: str = Argument(..., help="Package to add to the project")
 ):
-    """Ajoute une dépendance au projet"""
+    """Adds a dependency to the project."""
     print_banner()
     
     if not path.exists("requirements.txt"):
-        Console.print("[yellow]⚠️  Fichier requirements.txt non trouvé. Création...[/yellow]\n")
+        Console.print("[yellow]⚠️  requirements.txt file not found. Creating...[/yellow]\n")
     
     try:
         with Progress(
@@ -24,14 +28,14 @@ def add(
             TextColumn("[progress.description]{task.description}"),
             transient=True,
         ) as progress:
-            task = progress.add_task(f"[green]Installation de {package}...", total=None)
+            progress.add_task(f"[green]Installing {package}...", total=None)
             print("\n")
-            system(f"pip install {package}")
+            run(["pip", "install", package], check=True)
             
-            # Mettre à jour requirements.txt
-            system(f"pip freeze > requirements.txt")
+            # Update requirements.txt
+            run(["pip", "freeze"], stdout=open("requirements.txt", "w"), check=True)
             
-        Console.print(f"[green]✨ Package {package} installé et ajouté à requirements.txt[/green]\n")
-    except Exception as e:
-        Console.print(f"[red]❌ Erreur lors de l'installation: {str(e)}[/red]")
+        Console.print(f"[green]✨ Package {package} installed and added to requirements.txt[/green]\n")
+    except CalledProcessError as e:
+        Console.print(f"[red]❌ Error during installation: {str(e)}[/red]")
         raise Exit(1)

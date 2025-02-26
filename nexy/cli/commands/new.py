@@ -1,172 +1,153 @@
+"""
+Author: Espoir Loém
+
+This module provides functionality for creating new Nexy projects via the command line interface.
+It includes the ProjectManager class, which handles project creation, configuration, and success messaging.
+"""
+
 from os import path
 from sys import platform
 from typing import Optional
-from click import prompt
 from typing_extensions import Annotated
 from typer import Argument
 from InquirerPy import inquirer
 from rich.prompt import Prompt
 
-
 from nexy.cli.core.constants import Console, CMD
 from nexy.cli.core.models import ORM, Database, ProjectType, TestFramework
 from nexy.cli.core.project_builder import ProjectBuilder
-from InquirerPy.validator import Validator, ValidationError
 from pathlib import Path
 
+class ProjectManager:
+    def __init__(self, project_name: Optional[str] = None):
+        self.project_name = project_name
+        self.builder = None
 
-def print_success_message(project_name: str, test_framework: TestFramework):
-    """Affiche le message de succès après la création du projet"""
-    success_message = f"""
-[bold green]✨ Projet créé avec succès![/bold green]
+    def print_success_message(self, test_framework: TestFramework):
+        """Displays a success message after project creation."""
+        activation_command = "./nexy_env/Scripts/activate" if platform == "win32" else "source nexy_env/bin/activate"
+        success_message = f"[bold green]✨ Project created successfully![/bold green]\n\nTo get started:\n[yellow]cd {self.project_name}\n{activation_command}\nnexy dev\n[/yellow]"
 
-Pour démarrer:
-[yellow]cd {project_name}
-{"./nexy_env/Scripts/activate" if platform == "win32" else "source nexy_env/bin/activate"}
-nexy dev
-[/yellow]
-"""
+        if test_framework != TestFramework.NONE:
+            test_commands = {
+                TestFramework.PYTEST: "pytest",
+                TestFramework.UNITTEST: "python -m unittest discover tests",
+                TestFramework.ROBOT: "robot tests/",
+            }
+            success_message += f"To run tests:\n[yellow]{test_commands[test_framework]}[/yellow]\n"
 
-    if test_framework != TestFramework.NONE:
-        test_commands = {
-            TestFramework.PYTEST: "pytest",
-            TestFramework.UNITTEST: "python -m unittest discover tests",
-            TestFramework.ROBOT: "robot tests/",
-        }
-        success_message += f"""
-Pour lancer les tests:
-[yellow]{test_commands[test_framework]}[/yellow]
-"""
+        Console.print(success_message)
 
-    Console.print(success_message)
+    def collect_project_options(self):
+        """Collects project configuration options via prompts."""
+        
+        # Project Type
+        project_type = ProjectType(inquirer.select(
+            message="🤔 Starter kit: ",
+            choices=[t.value for t in ProjectType],
+            default=ProjectType.MICROSERVICE.value
+        ).execute())
+        self.builder.set_project_type(project_type)
 
+        if project_type == ProjectType.WEBAPP:
+            self.configure_webapp_options()
 
-
-
-def collect_project_options(builder: ProjectBuilder):
-    """Collecte les options de configuration du projet via des prompts"""
-    
-    # Project Type
-    project_type = ProjectType(inquirer.select(
-        message="🤔 Started kit: ",
-        choices=[t.value for t in ProjectType],
-        default=ProjectType.MICROSERVICE.value
-    ).execute())
-    builder.set_project_type(project_type)
-
-    if project_type == ProjectType.WEBAPP :
+        # Database
         template_engine = Database(inquirer.select(
             message="Which database would you like to use: ",
             choices=[db.value for db in Database],
             default=Database.MYSQL.value
         ).execute())
-        builder.set_database(template_engine)
-        if  inquirer.confirm(message="Voulez-vous utiliser Tailwind CSS?").execute():
-            builder.add_feature("tailwind")
-    # Database
-
-    template_engine = Database(inquirer.select(
-        message="Which database would you like to use: ",
-        choices=[db.value for db in Database],
-        default=Database.MYSQL.value
-    ).execute())
-    builder.set_database(template_engine)
-    
-    # ORM
-    if template_engine != Database.NONE:
-        orm = ORM(inquirer.select(
-            message="Which ORM would you like to use: ",
-            choices=[orm.value for orm in ORM],
-            default=ORM.PRISMA.value
-        ).execute())
-        builder.set_orm(orm)
-
-    # Test Framework
-    test_framework = TestFramework(inquirer.select(
-        message="Framework de test à utiliser:",
-        choices=[tf.value for tf in TestFramework],
-        height=20,
-        default=TestFramework.PYTEST.value
-    ).execute())
-    builder.set_test_framework(test_framework)
-
-    # Features
-    if inquirer.confirm(message="Voulez-vous ajouter l'authentification?").execute():
-        builder.add_feature("auth")
-    if inquirer.confirm(message="Voulez-vous ajouter la validation des données?").execute():
-        builder.add_feature("validation")
-    if inquirer.confirm(message="Voulez-vous ajouter le support CORS?").execute():
-        builder.add_feature("cors")
-    if project_type == ProjectType.API and inquirer.confirm(
-        message="Voulez-vous ajouter la documentation Swagger?"
-    ).execute():
-        builder.add_feature("swagger")
-
-
-from os import path
-from InquirerPy import inquirer
-from nexy.cli.core.constants import Console  # Assurez-vous que Console est bien importé
-
-def verify_project_name(project_name: str) -> str:
-    """
-    Vérifie si le nom de projet est déjà utilisé.
-    Si oui, demande à l'utilisateur s'il souhaite choisir un autre nom.
-    Retourne le nom de projet validé ou None si l'utilisateur annule.
-    """
-    while True:  # Boucle jusqu'à ce qu'un nom unique soit saisi ou que l'utilisateur annule
-        if not project_name:
-            project_name = Console.input("✅ What is your project named ?... ")
-        else:
-            Console.print(f"✅ Project name: [green]{project_name}[/green]\n")
-
-        if path.isdir(project_name):
-            Console.print(f"[red]❌ This project name already exists.[/red]")
-            # Proposer à l'utilisateur de choisir un autre nom
-            if not inquirer.confirm(
-                message="Do you want to choose a different name ?...",
-                qmark= "🤔",
-                default=True
-            ).execute():
-                return None  # L'utilisateur a choisi de ne pas continuer
-            # Réinitialiser le nom de projet pour forcer une nouvelle saisie
-            project_name = None
-        else:
-            return project_name
-
+        self.builder.set_database(template_engine)
         
-def create_project(project_name: Optional[str] = None):
-    """Fonction commune pour créer un nouveau projet"""
-    from nexy.cli.core.utils import print_banner
-    
-    print_banner()
-    
-    
-    
-    name = verify_project_name(project_name)
-    if name is None:
-        return None
+        # ORM
+        if template_engine != Database.NONE:
+            orm = ORM(inquirer.select(
+                message="Which ORM would you like to use: ",
+                choices=[orm.value for orm in ORM],
+                default=ORM.PRISMA.value
+            ).execute())
+            self.builder.set_orm(orm)
 
+        # Test Framework
+        test_framework = TestFramework(inquirer.select(
+            message="Test framework to use:",
+            choices=[tf.value for tf in TestFramework],
+            height=20,
+            default=TestFramework.PYTEST.value
+        ).execute())
+        self.builder.set_test_framework(test_framework)
 
-    # Créer et configurer le projet
-    builder = ProjectBuilder(name)
-    collect_project_options(builder)
+        # Additional Features
+        # self.builder.add_feature("validation")
+        # if inquirer.confirm(message="Voulez-vous ajouter le support CORS?").execute():
+        #     self.builder.add_feature("cors")
+        # if project_type == ProjectType.MICROSERVICE and inquirer.confirm(
+        #     message="Voulez-vous ajouter la documentation Swagger?"
+        # ).execute():
+        #     self.builder.add_feature("swagger")
 
-    # Construire le projet
-    Console.print("\n[bold green]Création du projet...[/bold green]")
-    builder.build()
+    def configure_webapp_options(self):
+        """Configures options specific to webapp projects."""
+        template_engine = Database(inquirer.select(
+            message="Which database would you like to use: ",
+            choices=[db.value for db in Database],
+            default=Database.MYSQL.value
+        ).execute())
+        self.builder.set_database(template_engine)
+        if inquirer.confirm(message="Would you like to use Tailwind CSS?").execute():
+            self.builder.add_feature("tailwind")
 
-    # Afficher le message de succès
-    print_success_message(project_name, builder.test_framework)
+    def verify_project_name(self) -> str:
+        """
+        Checks if the project name is already in use.
+        If so, asks the user if they want to choose a different name.
+        Returns the validated project name or None if the user cancels.
+        """
+        while True:
+            if not self.project_name:
+                self.project_name = Console.input("✅ What is your project named?... ")
+            else:
+                Console.print(f"✅ Project name: [green]{self.project_name}[/green]\n")
 
+            if path.isdir(self.project_name):
+                Console.print(f"[red]❌ This project name already exists.[/red]")
+                if not inquirer.confirm(
+                    message="Do you want to choose a different name?...",
+                    qmark="🤔",
+                    default=True
+                ).execute():
+                    return None
+                self.project_name = None
+            else:
+                return self.project_name
 
+    def create_project(self):
+        """Common function to create a new project."""
+        from nexy.cli.core.utils import print_banner
+        
+        print_banner()
+        
+        name = self.verify_project_name()
+        if name is None:
+            return None
 
+        self.builder = ProjectBuilder(name)
+        self.collect_project_options()
+
+        Console.print("\n[bold green]Creating project...[/bold green]")
+        self.builder.build()
+
+        self.print_success_message(self.builder.test_framework)
 
 @CMD.command()
-def new(project_name: Annotated[Optional[str], Argument(..., help="Nom du projet")] = None):
-    """Crée un nouveau projet Nexy"""
-    create_project(project_name)
+def new(project_name: Annotated[Optional[str], Argument(..., help="Project name")] = None):
+    """Creates a new Nexy project."""
+    manager = ProjectManager(project_name)
+    manager.create_project()
 
 @CMD.command()
-def n(project_name: Annotated[Optional[str], Argument(..., help="Nom du projet")] = None):
-    """Alias pour la commande new"""
-    create_project(project_name)
+def n(project_name: Annotated[Optional[str], Argument(..., help="Project name")] = None):
+    """Alias for the new command."""
+    manager = ProjectManager(project_name)
+    manager.create_project()

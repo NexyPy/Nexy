@@ -1,3 +1,10 @@
+"""
+Author: Espoir Loém
+
+This module initializes a FastAPI application with Nexy configurations,
+including custom API documentation and static file serving.
+"""
+
 import sys
 from pathlib import Path
 from typing import Optional, Any
@@ -6,10 +13,9 @@ from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
 from .router import Router
 
-
 # SVG icon data
 SVG_DATA_URI = (
-    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+CiAgICAgICAgPHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyNCRUNFMycvPgogICAgICAgIDxwYXRoIGQ9J00yNyA3OFYyMkgzMC4xMzc5TDY5LjI0MTQgNjAuMDU3NVYyMkg3Mi4yMTg0Vjc4SDI3WicgZmlsbD0nIzFDQjY4RCcvPgogICAgICAgIDwvc3ZnPgogICAgICAgIA=="
+    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+CiAgICAgICAgPHJlY3Qgd2lkd2g9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyNCRUNFMycvPgogICAgICAgIDxwYXRoIGQ9J00yNyA3OFYyMkgzMC4xMzc5TDY5LjI0MTQgNjAuMDU3NVYyMkg3Mi4yMTg0Vjc4SDI3WicgZmlsbD0nIzFDQjY4RCcvPgogICAgICAgIDwvc3ZnPgogICAgICAgIA=="
 )
 
 def Nexy(title: Optional[str] = None, favicon: str = SVG_DATA_URI, **kwargs: Any) -> FastAPI:
@@ -24,7 +30,6 @@ def Nexy(title: Optional[str] = None, favicon: str = SVG_DATA_URI, **kwargs: Any
     Returns:
         Configured FastAPI instance
     """
-
     # Configure cache directory
     cache_dir = Path('__pycache__')
     cache_dir.mkdir(parents=True, exist_ok=True)

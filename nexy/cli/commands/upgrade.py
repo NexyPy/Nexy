@@ -1,7 +1,5 @@
-import os
 import sys
 import subprocess
-from pathlib import Path
 
 def upgrade():
     """
@@ -11,5 +9,5 @@ def upgrade():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "nexy"])
         print("✨ Nexy has been upgraded successfully!")
     except subprocess.CalledProcessError as e:
-        print("❌ Error upgrading Nexy:", e)
+        print(f"❌ Error upgrading Nexy: {e}")
         sys.exit(1)

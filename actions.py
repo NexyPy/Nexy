@@ -2,7 +2,7 @@
 # from nexy import CustomResponse, JSONResponse
 
 
-from nexy.decorators import action
+from nexy.decorators import Action
 
 
 class Mutable:
@@ -10,14 +10,14 @@ class Mutable:
 
     def __init__(self,init:any):
         self.value = init
-@action()
+@Action()
 async def go():
     count.value += 1
     return  count.value
 
 
 
-@action()
+@Action()
 async def reset():
     count.value -= 1
     return count.value
