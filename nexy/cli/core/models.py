@@ -11,8 +11,8 @@ from enum import Enum
 
 class ProjectType(str, Enum):
     """Enum for different types of projects."""
+    DEFAULT = "Default"
     MICROSERVICE = "Microservice"
-    WEBAPP = "Web Application"
 
 class Database(str, Enum):
     """Enum for supported database types."""

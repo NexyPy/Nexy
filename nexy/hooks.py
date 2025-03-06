@@ -57,7 +57,6 @@ def useView(code, path, **data):
     try:
         controllers = find_controllers(path)
         content = code
-        print("controllers",controllers)
         for controller_path in reversed(controllers):
             controller_path = controller_path.replace(".py", "")
             controller_module = importModule(controller_path)

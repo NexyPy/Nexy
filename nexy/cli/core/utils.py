@@ -100,7 +100,7 @@ def generate_requirements(project_type: ProjectType, database: Database, orm: OR
         }
         requirements.extend(test_requirements.get(test_framework, []))
     
-    if project_type == ProjectType.WEBAPP:
+    if project_type == ProjectType.DEFAULT:
         requirements.extend(["jinja2"])
     
     if "auth" in features:
@@ -128,41 +128,17 @@ def generate_env_file(database: Database) -> str:
 
 def create_test_config(project_name: str, test_framework: TestFramework):
     if test_framework == TestFramework.PYTEST:
-        pytest_ini = """[pytest]
-testpaths = tests
-python_files = test_*.py
-python_classes = Test
-python_functions = test_*
-addopts = -v --cov=app
-"""
+        pytest_ini = "[pytest]\ntestpaths = tests\npython_files = test_*.py\npython_classes = Test\npython_functions = test_*\naddopts = -v --cov=app"
         with open(path.join(project_name, "pytest.ini"), "w") as f:
             f.write(pytest_ini)
             
-        test_example = """import pytest
-from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
-
-def test_read_main():
-    response = client.get("/")
-    assert response.status_code == 200
-"""
+        test_example = """import pytest\nfrom fastapi.testclient import TestClient\nfrom main import app\n\nclient = TestClient(app)\n\ndef test_read_main():\n    response = client.get("/")\n    assert response.status_code == 200"""
         makedirs(path.join(project_name, "tests"), exist_ok=True)
         with open(path.join(project_name, "tests", "test_main.py"), "w") as f:
             f.write(test_example)
 
     elif test_framework == TestFramework.ROBOT:
-        robot_test = """*** Settings ***
-Documentation     Example Test Suite
-Library           RequestsLibrary
-
-*** Test Cases ***
-Test Main Page
-    Create Session    app    http://localhost:3000
-    ${response}=    GET On Session    app    /
-    Status Should Be    200    ${response}
-"""
+        robot_test = """*** Settings ***\nDocumentation Example Test Suite\nLibrary RequestsLibrary\n\n*** Test Cases ***\nTest Main Page\n Create Session app http://localhost:3000\n ${response}= GET On Session app /\n Status Should Be 200 ${response}"""
         makedirs(path.join(project_name, "tests"), exist_ok=True)
         with open(path.join(project_name, "tests", "main.robot"), "w") as f:
             f.write(robot_test)
@@ -247,14 +223,32 @@ def create_project_structure(
             makedirs(full_path, exist_ok=True)
             sleep(0.1)
         
-        files_to_create = {
-            "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
-            "app/controller.py": """async def GET():\n\treturn {"name": "hello world"}\nasync def POST():\n\treturn {"name": "hello world"}""",
-            "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
-            ".env": generate_env_file(database),
-            "README.md": generate_readme(project_name, project_type, database, orm, test_framework, features),
+        # Check if git is installed and initialize a git repository
+        if subprocess.run(["git", "--version"], capture_output=True, text=True).returncode == 0:
+            subprocess.run(["git", "init", project_name], check=True)
+        else:
+            Console.print("[red]Git n'est pas installé. Veuillez installer Git pour initialiser un dépôt.[/red]")
+
+        if project_type == ProjectType.DEFAULT:
+            files_to_create = {
+                "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
+                "app/controller.py": """from nexy import component\n\n@component(\n   imports=[]\n)\ndef Layout(children):\n\treturn {"children":children}\n@component(\n   imports=[]\n)\ndef View():\n\treturn {"name": "hello world"}""",
+                "app/view.html":"generate_view()",
+                "app/Layout.html":" ",
+                "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
+                ".env": generate_env_file(database),
+                "README.md": generate_readme(project_name, project_type, database, orm, test_framework, features),
+            }
+        else:
+            files_to_create = {
+                "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
+                "app/controller.py": """async def GET():\n\treturn {"name": "hello world"}\nasync def POST():\n\treturn {"name": "hello world"}""",
+                "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
+                ".env": generate_env_file(database),
+                ".gitignore": "# Virtual environment\nvenv\n# Python cache\n__pycache__\n# Compiled files\n*.pyc\n",
+                "README.md": generate_readme(project_name, project_type, database, orm, test_framework, features),
         }
-        
+
         for file_name, content in files_to_create.items():
             with open(path.join(project_name, file_name), "w") as f:
                 f.write(content)
@@ -273,49 +267,9 @@ def generate_readme(project_name: str, project_type: ProjectType, database: Data
             TestFramework.ROBOT: "robot tests/",
         }
         test_command = testing_commands.get(test_framework, "")
-        testing_section = f"""
-## Tests
-Pour exécuter les tests :
-```bash
-{test_command}
-```
-"""
+        testing_section = f"## Tests\nPour exécuter les tests :\n```bash\n{test_command}\n```\n"
 
-    return f"""# {project_name}
-
-## Description
-Projet {project_type.value} généré avec Nexy CLI
-
-## Configuration technique
-- Type: {project_type.value}
-- Base de données: {database.value}
-- ORM: {orm.value}
-- Framework de test: {test_framework.value}
-- Fonctionnalités: {', '.join(features)}
-
-## Installation
-
-1. Cloner le projet
-```bash
-git clone <url-du-projet>
-cd {project_name}
-```
-
-2. Installer les dépendances
-```bash
-nexy install
-```
-
-
-
-4. Lancer le serveur de développement
-```bash
-nexy dev
-```
-{testing_section}
-"""
-
-# [Previous imports and code until the CLI commands remain the same...]
+    return f"# {project_name}\n\n## Description\nProjet {project_type.value} généré avec Nexy CLI\n\n## Configuration technique\n- Type: {project_type.value}\n- Base de données: {database.value}\n- ORM: {orm.value}\n- Framework de test: {test_framework.value}\n- Fonctionnalités: {', '.join(features)}\n\n## Installation\n\n1. Cloner le projet\n```bash\ngit clone <url-du-projet>\ncd {project_name}\n```\n\n2. Installer les dépendances\n```bash\nnexy install\n```\n\n4. Lancer le serveur de développement\n```bash\nnexy dev\n```\n{testing_section}\n"
 
 # Nouvelles fonctions pour la génération de composants
 def generate_controller(name: str) -> str:
@@ -383,10 +337,11 @@ class {name.capitalize()}(Base):
 """
 
 def generate_component(name: str) -> str:
+    component_name = name[0].capitalize() + name[1:]
     return f"""
     from nexy import Component
     @Component(imports=[])
-    def {name}(name: str):
+    def {component_name}(name: str):
         return {{
             "message": f"Welcome  {{name}}"
         }}

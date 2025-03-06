@@ -111,8 +111,7 @@ class Section(Component):
 class Header(Component):
     """Represents a header component."""
     def __init__(self, children=None, **attributes):
-        super().__init__(children=children or [], **attributes)
+        super().__init__(children=children or [], **attributes
 
-# Example usage:
-# button = Button(children=[Text(content="Click me")], on_click="handleClick", class_name="btn-primary")
-# print(button)
+
+

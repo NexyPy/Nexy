@@ -45,11 +45,11 @@ class ProjectManager:
         project_type = ProjectType(inquirer.select(
             message="🤔 Starter kit: ",
             choices=[t.value for t in ProjectType],
-            default=ProjectType.MICROSERVICE.value
+            default=ProjectType.DEFAULT.value
         ).execute())
         self.builder.set_project_type(project_type)
 
-        if project_type == ProjectType.WEBAPP:
+        if project_type == ProjectType.DEFAULT:
             self.configure_webapp_options()
 
         # Database
@@ -150,4 +150,4 @@ def new(project_name: Annotated[Optional[str], Argument(..., help="Project name"
 def n(project_name: Annotated[Optional[str], Argument(..., help="Project name")] = None):
     """Alias for the new command."""
     manager = ProjectManager(project_name)
-    manager.create_project()
+    manager.create_project() 

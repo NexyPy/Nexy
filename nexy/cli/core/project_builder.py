@@ -13,7 +13,7 @@ from InquirerPy import inquirer
 class ProjectBuilder:
     def __init__(self, project_name: str):
         self.project_name = project_name
-        self.project_type: Optional[ProjectType] = ProjectType.MICROSERVICE
+        self.project_type: Optional[ProjectType] = ProjectType.DEFAULT
         self.database: Optional[Database] = Database.NONE
         self.orm: Optional[ORM] = ORM.NONE
         self.test_framework: Optional[TestFramework] = TestFramework.NONE

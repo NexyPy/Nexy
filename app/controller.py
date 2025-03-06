@@ -17,7 +17,9 @@ users = [{"id":1, "name":"Espoir"}]
     imports=[Button, Card]
 )
 def Layout(children):
-    return {"children":children}
+
+    menus = [{"href":"/","name":"Home"}, {"href":"/eco","name":"Eco"}, {"href":"/eco/113","name":"Eco 1"}]
+    return {"children":children,"menus":menus}
 # @HTTPResponse(type=HTMLResponse)
 # def GET():
 

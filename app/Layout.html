@@ -1,14 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>home</title>
 </head>
-<body>
-    <h1>Layout</h1>
 
-    {{children}}
-    
+<body>
+    <main>
+        <nav class="menu">
+            <ul>
+
+                {% for menu in menus %}
+                <li><a href="{{menu.href}}">{{menu.name}}</a></li>
+                {% endfor %}
+
+            </ul>
+        </nav>
+
+        <section style="flex: 1;">
+            {{children}}
+        </section>
+    </main>
+
 </body>
+
 </html>
+
+<style>
+    @layer layout {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            list-style: none;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0e111b;
+            color: #fff;
+        }
+
+        main {
+            display: flex;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        nav {
+            width: 230px !important;
+            min-height: 300px;
+            transition: height 0.3s ease-in-out;
+            background-color: #657bc51b;
+            border: 1px solid #657bc51b;
+            border-radius: 20px;
+            padding: 5px;
+
+            & ul {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                background-color: #657cc554;
+                border: 1px solid #657cc51b;
+                border-radius: 15px;
+                padding: 10px;
+
+                & li {
+                    & a {
+                        color: #fff;
+                        font-size: 16px;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+</style>
+
+
+
+<script type="application/json">
+    {"props":
+        {"pageProps":
+        {"toc":"[]","
+            content":"[]","meta":
+            {"id":"home",
+            "title":"React",
+            "permalink":"index.html"},
+            "languages":null},"__N_SSG":true},
+            "page":"/[[...markdownPath]]",
+            "query":{},"buildId":"k0rXWFU4Nnuejp6IYRsaS","isFallback":false,"gsp":true,"scriptLoader":[]}
+</script>
