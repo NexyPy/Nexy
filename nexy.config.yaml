@@ -1,0 +1,20 @@
+plugins:
+  cors:
+    origins: ["http://localhost:5173"]
+    credentials: true
+    
+  static:
+    directory: "public"
+    
+  frontend:
+    type: "react"  # or "next", "vue", etc.
+    port: 5173
+    proxy: true
+    watch: true
+
+
+
+    
+app:
+  port: 3000
+  debug: true

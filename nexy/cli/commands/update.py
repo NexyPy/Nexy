@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for updating Nexy to the latest version via the command line interface.
 """

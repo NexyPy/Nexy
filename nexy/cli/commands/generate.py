@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for generating new components (controller, service, model) via the command line interface.
 """
@@ -16,8 +16,8 @@ RESOURCE_GENERATORS = {
     "co": (generate_controller, "app/{name}", "controller.py"),
     "service": (generate_service, "app/{name}", "service.py"),
     "s": (generate_service, "app/{name}", "service.py"),
-    "model": (generate_model, "app/{name}", "model.py"),
-    "mo": (generate_model, "app/{name}", "model.py"),
+    # "model": (generate_model, "app/{name}", "model.py"),
+    # "mo": (generate_model, "app/{name}", "model.py"),
 }
 
 def validate_resource(resource: str):

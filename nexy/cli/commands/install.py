@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for installing Nexy dependencies via the command line interface.
 """

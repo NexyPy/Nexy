@@ -1,25 +1,49 @@
-[tool.poetry]
-name = "nexy"
-version = "0.0.55"
-description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
-authors = ["Espoir-Loem <hopcy.forcy@gmail.com>"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.12"
-fastapi = ">0.115.0"
-jinja2 = "^3.1.5"
-scalar-fastapi = "^1.0.3"
-uvicorn = "^0.34.0"
-typer = "^0.15.1"
-pyjwt = "^2.10.1"
-
-
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.scripts]
-nexy = "nexy.main:app"
+[project]
+name = "nexy"
+version = "0.1.3"
+description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
+authors = [
+    {name = "Espoir-Loemba", email = "hopcy.forcy@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
 
+dependencies = [
+    "fastapi >=0.115.0,<1.0.0",
+    "scalar-fastapi",
+    "uvicorn >=0.29.0,<1.0.0",
+    "typer >=0.12.0",
+    "pyjwt >=2.8.0,<3.0.0",
+    "inquirerpy ==0.3.4",
+    "jinja2 >=3.1.0,<4.0.0",
+    "h11<0.15",
+]
+
+[project.scripts]
+nexy = "nexy.__main__:app"
+
+[project.urls]
+Homepage = "https://docs-nexy.vercel.app/docs/started"
+Repository = "https://github.com/NexyPy/Nexy"
+PyPI = "https://pypi.org/project/nexy/"
+
+[tool.uv]
+dev-dependencies = [
+    # Ajoutez ici vos dépendances de développement
+    # "pytest>=7.0.0",
+    # "black>=22.0.0",
+    # "ruff>=0.1.0",
+    # "mypy>=1.0.0",
+    "twine>=6.1.0",
+]

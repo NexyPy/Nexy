@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for developing Nexy applications via the command line interface.
 """
@@ -12,7 +12,7 @@ import typer
 from rich.prompt import IntPrompt
 
 from nexy.cli.core.constants import Console, CMD
-from nexy.cli.core.utils import get_next_available_port, print_banner
+from nexy.cli.core.utils import get_next_available_port
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,7 +21,7 @@ def activate_virtualenv():
     if 'VIRTUAL_ENV' in environ:
         return
 
-    venv_path = "venv/Scripts/activate" if platform == "win32" else "venv/bin/activate"
+    venv_path = ".venv/Scripts/activate" if platform == "win32" else ".venv/bin/activate"
     if path.exists(venv_path):
         logging.info("Activating virtual environment...")
         activate_command = f"source {venv_path}" if platform != "win32" else venv_path
@@ -39,28 +39,15 @@ def dev(
     """Starts the server."""
     try:
         activate_virtualenv()
+
         port = get_next_available_port(port)
-        print_banner()
-        Console.print(f"[green]Server started on [yellow]http://{host}:{port}[/yellow][/green]")
-        
+        Console.print(f"[green]Local [yellow]http://{host}:{port}[/yellow][/green]\n")
+
         subprocess.run(
-            ["uvicorn", "nexy-config:run", "--host", host, "--port", str(port), "--reload", "--log-level", "debug"],
+            ["uvicorn", "nexyconfig:app", "--host", host, "--port", str(port), "--reload", "--log-level", "debug"],
             check=True
         )
     except subprocess.CalledProcessError as e:
         logging.error(f"Failed to start server: {e}")
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
-
-def add(package: str):
-    """Adds a package using the virtual environment's pip."""
-    try:
-        pip_path = "venv/Scripts/pip" if platform == "win32" else "venv/bin/pip"
-        if path.exists("venv"):
-            subprocess.run([pip_path, "install", package], check=True)
-        else:
-            subprocess.run(["pip", "install", package], check=True)
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to install package {package}: {e}")
-    except Exception as e:
-        logging.error(f"An unexpected error occurred while installing {package}: {e}")

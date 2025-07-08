@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for creating new Nexy projects via the command line interface.
 It includes the ProjectManager class, which handles project creation, configuration, and success messaging.
@@ -25,7 +25,7 @@ class ProjectManager:
 
     def print_success_message(self, test_framework: TestFramework):
         """Displays a success message after project creation."""
-        activation_command = "./nexy_env/Scripts/activate" if platform == "win32" else "source nexy_env/bin/activate"
+        activation_command = ".venv/Scripts/activate" if platform == "win32" else "source .venv/bin/activate"
         success_message = f"[bold green]✨ Project created successfully![/bold green]\n\nTo get started:\n[yellow]cd {self.project_name}\n{activation_command}\nnexy dev\n[/yellow]"
 
         if test_framework != TestFramework.NONE:
@@ -53,30 +53,30 @@ class ProjectManager:
             self.configure_webapp_options()
 
         # Database
-        template_engine = Database(inquirer.select(
-            message="Which database would you like to use: ",
-            choices=[db.value for db in Database],
-            default=Database.MYSQL.value
-        ).execute())
-        self.builder.set_database(template_engine)
+        # template_engine = Database(inquirer.select(
+        #     message="Which database would you like to use: ",
+        #     choices=[db.value for db in Database],
+        #     default=Database.MYSQL.value
+        # ).execute())
+        # self.builder.set_database(template_engine)
         
         # ORM
-        if template_engine != Database.NONE:
-            orm = ORM(inquirer.select(
-                message="Which ORM would you like to use: ",
-                choices=[orm.value for orm in ORM],
-                default=ORM.PRISMA.value
-            ).execute())
-            self.builder.set_orm(orm)
+        # if template_engine != Database.NONE:
+        #     orm = ORM(inquirer.select(
+        #         message="Which ORM would you like to use: ",
+        #         choices=[orm.value for orm in ORM],
+        #         default=ORM.PRISMA.value
+        #     ).execute())
+        #     self.builder.set_orm(orm)
 
         # Test Framework
-        test_framework = TestFramework(inquirer.select(
-            message="Test framework to use:",
-            choices=[tf.value for tf in TestFramework],
-            height=20,
-            default=TestFramework.PYTEST.value
-        ).execute())
-        self.builder.set_test_framework(test_framework)
+        # test_framework = TestFramework(inquirer.select(
+        #     message="Test framework to use:",
+        #     choices=[tf.value for tf in TestFramework],
+        #     height=20,
+        #     default=TestFramework.PYTEST.value
+        # ).execute())
+        # self.builder.set_test_framework(test_framework)
 
         # Additional Features
         # self.builder.add_feature("validation")
@@ -126,7 +126,7 @@ class ProjectManager:
         """Common function to create a new project."""
         from nexy.cli.core.utils import print_banner
         
-        print_banner()
+        # print_banner()
         
         name = self.verify_project_name()
         if name is None:

@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for adding a package to a Nexy project via the command line interface.
 """
@@ -17,7 +17,7 @@ def add(
     package: str = Argument(..., help="Package to add to the project")
 ):
     """Adds a dependency to the project."""
-    print_banner()
+    # print_banner()
     
     if not path.exists("requirements.txt"):
         Console.print("[yellow]⚠️  requirements.txt file not found. Creating...[/yellow]\n")

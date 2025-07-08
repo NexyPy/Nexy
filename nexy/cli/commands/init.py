@@ -1,6 +1,6 @@
 
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for initializing a new Nexy project via the command line interface.
 """

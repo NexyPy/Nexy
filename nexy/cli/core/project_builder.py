@@ -62,7 +62,7 @@ class ProjectBuilder:
             test_framework=self.test_framework,
             features=self.features
         )
-        setup_virtualenv(self.project_name, 'venv', f'{self.project_name}/requirements.txt')
+        setup_virtualenv(self.project_name, '.venv', f'{self.project_name}/requirements.txt')
 
 # Example usage:
 # builder = ProjectBuilder("MyProject")

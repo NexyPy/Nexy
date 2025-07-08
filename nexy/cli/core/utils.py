@@ -25,9 +25,9 @@ def print_banner():
 [green]
        _   __                
       / | / /__  _  ____  __
-     /  |/ / _ \| |/_/ / / /
+     /  |/ / _ \\| |/_/ / / /
     / /|  /  __/>  </ /_/ / 
-   /_/ |_/\___/_/|_|\__, /  
+   /_/ |_/\\___/_/|_|\\__, /  
                    /____/   
 [/green]
 """
@@ -71,9 +71,7 @@ def generate_requirements(project_type: ProjectType, database: Database, orm: OR
                         test_framework: TestFramework, features: List[str]) -> str:
     requirements = [
         "nexy",
-        "uvicorn",
         "python-dotenv",
-        "inquirerpy==0.3.4"
     ]
     
     if database != Database.NONE:
@@ -162,7 +160,7 @@ def setup_virtualenv(project_name: str, env_name: str, requirements_file: str = 
         # Create virtual environment
         Console.print(f"[blue]Création de l'environnement virtuel {env_name}...[/blue]")
         result = subprocess.run(
-            [sys.executable, '-m', 'venv', venv_path],
+            [sys.executable, '-m', '.venv', venv_path],
             capture_output=True,
             text=True,
             check=True
@@ -208,7 +206,7 @@ def create_project_structure(
         "tests",
     ]
     
-    if project_type == ProjectType.WEBAPP:
+    if project_type == ProjectType.DEFAULT:
         base_dirs.extend(["src/components/","src/utils/"])
     
     with Progress(

@@ -1,5 +1,5 @@
 """
-Author: Espoir Loém
+Author: Espoir Loémba
 
 This module provides functionality for serving Nexy applications via the command line interface.
 """
@@ -22,16 +22,11 @@ def serve(
 ) -> None:
     """Starts the server."""
     port = get_next_available_port(port)
-    print_banner()
+    # print_banner()
     Console.print(f"[green]Server started on [yellow]http://{host}:{port}[/yellow][/green]")
     
-    command = f"uvicorn nexy-config:run --host {host} --port {port} --reload --log-level debug"
+    
+    command = f"uvicorn nexyconfig:app --host {host} --port {port}  --log-level debug"
     system(command)
 
-def add(package: str):
-    """Installs a package using the virtual environment's pip."""
-    pip_path = "nexy_env/Scripts/pip" if platform == "win32" else "nexy_env/bin/pip"
-    if path.exists("nexy_env"):
-        system(f"{pip_path} install {package}")
-    else:
-        system(f"pip install {package}")
+
