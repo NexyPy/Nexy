@@ -1,15 +1,25 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.13", "hatch-vcs"]
 build-backend = "hatchling.build"
+
 
 [project]
 name = "nexy"
 version = "0.1.8"
+# dynamic = ["version"]
 description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
-authors = [
-    {name = "Espoir-Loemba", email = "hopcy.forcy@gmail.com"}
-]
 readme = "README.md"
+
+authors = [
+    {name = "LOEMBA PACKA Force Espoir (Espoir Loémba)", email = "hopcy.forcy@gmail.com"}
+]
+
+keywords = ["nexy","web", "framework", "fastapi",  "routing", "components"]
+
+maintainers = [
+    { name = "LOEMBA PACKA Force Espoir (Espoir Loémba)", email = "hopcy.forcy@gmail.com" }
+]
+
 requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -31,7 +41,7 @@ dependencies = [
 ]
 
 [project.scripts]
-nexy = "nexy.__main__:app"
+nexy = "nexy.cli.main:app"
 
 [project.urls]
 Homepage = "https://docs-nexy.vercel.app/docs/started"
