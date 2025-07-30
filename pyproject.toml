@@ -51,9 +51,27 @@ PyPI = "https://pypi.org/project/nexy/"
 [tool.uv]
 dev-dependencies = [
     # Ajoutez ici vos dépendances de développement
-    # "pytest>=7.0.0",
+    "pytest>=7.0.0",
     # "black>=22.0.0",
     # "ruff>=0.1.0",
     # "mypy>=1.0.0",
     "twine>=6.1.0",
 ]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexy"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/examples",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+]
+
