@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nexy"
-version = "0.1.3"
+version = "0.1.8"
 description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
 authors = [
     {name = "Espoir-Loemba", email = "hopcy.forcy@gmail.com"}

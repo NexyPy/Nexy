@@ -160,7 +160,7 @@ def setup_virtualenv(project_name: str, env_name: str, requirements_file: str = 
         # Create virtual environment
         Console.print(f"[blue]Création de l'environnement virtuel {env_name}...[/blue]")
         result = subprocess.run(
-            [sys.executable, '-m', '.venv', venv_path],
+            [sys.executable, '-m', 'venv', venv_path],
             capture_output=True,
             text=True,
             check=True
@@ -229,17 +229,17 @@ def create_project_structure(
 
         if project_type == ProjectType.DEFAULT:
             files_to_create = {
-                "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
-                "app/controller.py": """from nexy import component\n\n@component(\n   imports=[]\n)\ndef Layout(children):\n\treturn {"children":children}\n@component(\n   imports=[]\n)\ndef View():\n\treturn {"name": "hello world"}""",
-                "app/view.html":"generate_view()",
-                "app/Layout.html":" ",
+                "nexyconfig.py":"""from nexy import Nexy\napp = Nexy()\n""",
+                "app/controller.py": """from nexy import Component\n\n@Component(\n   imports=[]\n)\ndef Layout(children):\n\treturn {"children":children}\n@Component(\n   imports=[]\n)\ndef View():\n\treturn {"name": "hello world"}""",
+                "app/view.html":"<main>Wellcome to Nexy</main>",
+                "app/Layout.html":" {{children}} ",
                 "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
                 ".env": generate_env_file(database),
                 "README.md": generate_readme(project_name, project_type, database, orm, test_framework, features),
             }
         else:
             files_to_create = {
-                "nexy-config.py":"""from nexy import Nexy\nrun = Nexy()\n""",
+                "nexyconfig.py":"""from nexy import Nexy\napp = Nexy()\n""",
                 "app/controller.py": """async def GET():\n\treturn {"name": "hello world"}\nasync def POST():\n\treturn {"name": "hello world"}""",
                 "requirements.txt": generate_requirements(project_type, database, orm, test_framework, features),
                 ".env": generate_env_file(database),
@@ -262,7 +262,6 @@ def generate_readme(project_name: str, project_type: ProjectType, database: Data
         testing_commands = {
             TestFramework.PYTEST: "pytest",
             TestFramework.UNITTEST: "python -m unittest discover tests",
-            TestFramework.ROBOT: "robot tests/",
         }
         test_command = testing_commands.get(test_framework, "")
         testing_section = f"## Tests\nPour exécuter les tests :\n```bash\n{test_command}\n```\n"

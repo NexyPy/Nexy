@@ -4,11 +4,11 @@ Nexy: A Python framework designed to combine simplicity, performance, and the jo
 A modern, efficient framework that prioritizes developer experience while maintaining high performance.
 
 Author: Espoir Loémba
-Version: 0.1.3
+Version: 0.1.8
 """
 
 # Version identifier
-__version__  = "0.1.3"
+__version__  = "0.1.8"
 
 # Import core Nexy decorators and functionality
 import  nexy.decorators, nexy.app
@@ -18,9 +18,9 @@ Config = nexy.decorators.Config
 Inject = nexy.decorators.Inject
 HTTPResponse = nexy.decorators.HTTPResponse
 Describe = nexy.decorators.Describe
-action = nexy.decorators.action
+Action = nexy.decorators.action
 Nexy = nexy.app.Nexy
-
+Component = nexy.decorators.component
 
 # Import FastAPI core components for request handling and utilities
 import  fastapi ,fastapi.responses,fastapi.websockets 

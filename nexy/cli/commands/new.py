@@ -89,14 +89,15 @@ class ProjectManager:
 
     def configure_webapp_options(self):
         """Configures options specific to webapp projects."""
-        template_engine = Database(inquirer.select(
-            message="Which database would you like to use: ",
-            choices=[db.value for db in Database],
-            default=Database.MYSQL.value
-        ).execute())
-        self.builder.set_database(template_engine)
-        if inquirer.confirm(message="Would you like to use Tailwind CSS?").execute():
-            self.builder.add_feature("tailwind")
+        # template_engine = Database(inquirer.select(
+        #     message="Which database would you like to use: ",
+        #     choices=[db.value for db in Database],
+        #     default=Database.MYSQL.value
+        # ).execute())
+        # self.builder.set_database(template_engine)
+        # if inquirer.confirm(message="Would you like to use Tailwind CSS?").execute():
+        #     self.builder.add_feature("tailwind")
+        pass
 
     def verify_project_name(self) -> str:
         """

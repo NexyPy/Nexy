@@ -10,6 +10,7 @@ import asyncio
 from functools import wraps, lru_cache
 import hashlib
 import inspect
+import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
 from pathlib import Path
 
@@ -20,7 +21,11 @@ from fastapi import Response as FastAPIResponse
 from fastapi.responses import JSONResponse
 from fastapi.types import IncEx
 
+from jinja2 import Environment, Template
+
+from nexy.hooks import useView
 from nexy.utils import generate_js_action
+
 
 # Type definitions
 T = TypeVar("T")
@@ -199,3 +204,137 @@ def action(slug: Optional[List[str]] = None):
         
         return wrapper
     return decorator
+
+template_cache = {}
+
+def use(func: Callable) -> str:
+    """
+    Get the action path for a decorated function.
+    
+    Args:
+        func: Function decorated with @action
+    
+    Returns:
+        Action path as string
+    
+    Raises:
+        ValueError: If function is not decorated with @action
+    """
+    if not hasattr(func, 'action_path'):
+        raise ValueError("Function is not a server action (missing @action decorator)")
+    return f"use('{func.action_path}')"
+
+
+def component(*, imports: Optional[List[Any]] = None):
+    def decorator(func: Union[Callable, Type]) -> Union[Callable, Type]:
+        
+        def get_context():
+            """Build and return the rendering context from provided imports and 'use'."""
+            base_imports = (imports.copy() if imports else [])
+            base_imports.append(use)
+            return {imp.__name__: imp for imp in base_imports}
+        
+        def load_file_content(file_path: Path, tag: str) -> str:
+            """Load file content, remove newlines/tabs, and wrap in the specified HTML tag."""
+            if not file_path.exists():
+                return ""
+            content = file_path.read_text(encoding='utf-8')
+            content = re.sub(r'\s+', ' ', content).strip()
+            return f"<{tag}>{content}</{tag}>"
+        
+        def parse_attributes(attr_str: str) -> List[str]:
+            """
+            Parse attributes from a string.
+            Matches key="value", key='value', or key=value (without spaces in value).
+            """
+            return re.findall(r'(\w+=(?:"[^"]*"|\'[^\']*\'|\S+))', attr_str)
+        
+        def construct_html(module_path: Path, obj_name: str, result: Any, kwargs: dict) -> str:
+            # Build file paths.
+            template_path = module_path / f"{obj_name}.html"
+            style_path = module_path / f"{obj_name}.css"
+            script_path = module_path / f"{obj_name}.js"
+            
+            if not template_path.exists():
+                raise ValueError(f"Template file not found: {template_path}")
+            
+            html_content = template_path.read_text(encoding='utf-8')
+            style_content = load_file_content(style_path, "style type='text/css' class='scoped-style'")
+            script_content = load_file_content(script_path, "script type='module' async defer")
+            
+            def replace_standard(match):
+                tag_name = match.group(1)
+                attrs = match.group(2).strip()
+                children = match.group(3).strip()
+                
+                parsed_attrs = parse_attributes(attrs) if attrs else []
+                attr_str = ", ".join(parsed_attrs)
+                return f"{{% call {tag_name}({attr_str}) %}}{children}{{% endcall %}}"
+            
+            html_content = re.sub(
+                r'<([A-Z][a-zA-Z0-9]*)\b([^>]*)>(.*?)<\/\1>',
+                replace_standard,
+                html_content,
+                flags=re.DOTALL
+            )
+            
+            # Replace self-closing component tags, e.g. <MyComponent attr="value" />
+            def replace_self_closing(match):
+                tag_name = match.group(1)
+                attrs = match.group(2).strip()
+                parsed_attrs = parse_attributes(attrs) if attrs else []
+                attr_str = ", ".join(parsed_attrs)
+                if attr_str:
+                    return f"{{{{ {tag_name}({attr_str}) }}}}"
+                return f"{{{{ {tag_name}() }}}}"
+            
+            html_content = re.sub(
+                r'<([A-Z][a-zA-Z0-9]*)\b([^>]*)\/>',
+                replace_self_closing,
+                html_content
+            )
+            
+            return re.sub(r'[\n\t]', '', f"{style_content}{script_content}{html_content}".replace("nexy:","/nexy_public/"))
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Validate module
+            module = inspect.getmodule(func)
+            if module is None or not hasattr(module, '__file__'):
+                raise ValueError("Could not determine module for function")
+            module_path = Path(module.__file__).resolve().parent
+            
+            base_context = get_context()
+            result = func(*args, **kwargs)
+            
+            def render_result(data):
+                # Generate HTML from template
+                raw_html = construct_html(module_path, func.__name__, data, kwargs)
+                tmpl = Template(raw_html)
+                
+                # Build render context
+                render_context = {
+                    **base_context,
+                    **(data if isinstance(data, dict) else kwargs)
+                }
+                
+                # Special handling for View components
+                if func.__name__ == "View":
+                    code = tmpl.render(**render_context)
+                    path = str(module_path)
+                    path = "app" + (path.split("app", 1)[1] if "app" in path else path)
+                    return useView(code=code, path=path)
+                
+                return tmpl.render(**render_context)
+            
+            # Handle async or sync response
+            if inspect.isawaitable(result):
+                async def async_wrapper():
+                    data = await result
+                    return render_result(data)
+                return async_wrapper()
+            
+            return render_result(result)
+            
+        return wrapper
+    return decorator
+

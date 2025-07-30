@@ -20,7 +20,7 @@ class DynamicRouter:
     Handles HTTP and WebSocket routes dynamically.
     """
     # Supported HTTP methods according to RFC 7231
-    HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"]
+    HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE","View"]
     
     def __init__(self, base_path: str = "app"):
         """
@@ -72,6 +72,15 @@ class DynamicRouter:
         Ensures proper route configuration for each HTTP method.
         """
         filtered_params = {k: v for k, v in params.items() if k != "tags"}
+        
+        if method == "View":
+            app.add_api_route(
+                path=pathname,
+                endpoint=function,
+                methods=["GET"],
+                **{k: v for k, v in params.items() if k != ["tags", "response_class"]},
+                tags=[pathname]
+            )
         app.add_api_route(
             path=pathname,
             endpoint=function,

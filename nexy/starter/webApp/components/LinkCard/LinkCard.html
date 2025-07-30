@@ -1,0 +1,27 @@
+<a 
+  href="{{href}}"
+  target=" _blank"
+  class="group relative bg-gray-50/50 dark:bg-[#24262B]/20 border border-gray-600/20 dark:border-gray-50/8 border-dashed rounded-3xl p-1.5 transition-all duration-200  font-medium no-underline w-full max-w-[350px] min-w-[200px] text-[#F6F6F6] hover:scale-105">
+    
+  <span className="  absolute -z-10 -left-2 -top-2 rounded-full blur-2xl  size-4 bg-green-700 dark:bg-[#A9FFEA]  "></span>
+  <span class="  absolute -z-10 -left-2 -bottom-2 rounded-full blur-2xl  size-4 bg-yellow-700 darkbg-gray-50 "></span>
+  <span class="  absolute -z-10 -right-2 -top-2 rounded-full blur-2xl  size-4 bg-green-700 dark:bg-[#A9F5FF] "></span>
+  <span class="  absolute -z-10 -right-2 -bottom-2 rounded-full blur-2xl  size-4 bg-yellow-700 dark:bg-yellow-100 "></span>
+  
+  <div
+    class="relative p-5 backdrop-blur-xs transition duration-300 group-hover:bg-[#2BA266]/10  dark:group-hover:bg-gray-50/3 group-hover:border border-[#2BA266]/20 dark:border-gray-50/8 rounded-2xl rounded-2xl "
+  >
+    <h2 class="text-[#011711]/80 dark:text-gray-100 text-xl font-bold mb-3">{{title}}</h2>
+    <p class="text-[#3F3F3F] dark:text-[#ddddddd8] text-sm">
+      {{description}}
+    </p>
+    <button
+      class="arrow absolute right-1 top-1 cursor-pointer  border border-gray-200 group-hover:border-gray-300  dark:bg-gray-50/3 dark:border-none text-gray-600 dark:text-[#F6F6F6] rounded-full p-2 grid place-content-center transition-transform duration-200 hover:scale-110"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-3 h-3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+      </svg>
+    </button>
+  </div>
+</a>
