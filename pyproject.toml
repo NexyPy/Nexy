@@ -1,77 +1,28 @@
-[build-system]
-requires = ["hatchling>=1.13", "hatch-vcs"]
-build-backend = "hatchling.build"
-
-
 [project]
 name = "nexy"
-version = "0.1.8"
-# dynamic = ["version"]
-description = "Nexy a Python framework designed to combine simplicity, performance, and the joy of development."
+version = "0.1.9"
+description = "Add your description here"
 readme = "README.md"
-
-authors = [
-    {name = "LOEMBA PACKA Force Espoir (Espoir Loémba)", email = "hopcy.forcy@gmail.com"}
-]
-
-keywords = ["nexy","web", "framework", "fastapi",  "routing", "components"]
-
-maintainers = [
-    { name = "LOEMBA PACKA Force Espoir (Espoir Loémba)", email = "hopcy.forcy@gmail.com" }
-]
-
-requires-python = ">=3.12"
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-]
+requires-python = ">=3.10"
 
 dependencies = [
-    "fastapi >=0.115.0,<1.0.0",
-    "scalar-fastapi",
-    "uvicorn >=0.29.0,<1.0.0",
-    "typer >=0.12.0",
-    "pyjwt >=2.8.0,<3.0.0",
-    "inquirerpy ==0.3.4",
-    "jinja2 >=3.1.0,<4.0.0",
-    "h11<0.15",
+    "fastapi>=0.128.0",
+    "jinja2>=3.1.6",
+    "uvicorn[standard]>=0.40.0",
 ]
 
-[project.scripts]
-nexy = "nexy.cli.main:app"
-
-[project.urls]
-Homepage = "https://docs-nexy.vercel.app/docs/started"
-Repository = "https://github.com/NexyPy/Nexy"
-PyPI = "https://pypi.org/project/nexy/"
-
-[tool.uv]
-dev-dependencies = [
-    # Ajoutez ici vos dépendances de développement
-    "pytest>=7.0.0",
-    # "black>=22.0.0",
-    # "ruff>=0.1.0",
-    # "mypy>=1.0.0",
-    "twine>=6.1.0",
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.11",
+    "types-jinja2>=2.11.9",
 ]
 
-[tool.hatch.version]
-source = "vcs"
+[tool.mypy]
+strict = true
+ignore_missing_imports = false
+disallow_untyped_defs = true
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/nexy"]
-
-[tool.hatch.build.targets.sdist]
-include = [
-    "/src",
-    "/tests",
-    "/docs",
-    "/examples",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-]
-
+[tool.pytest.ini_options]
+testpaths = ["tests"]
