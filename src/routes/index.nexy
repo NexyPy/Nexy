@@ -1,0 +1,13 @@
+---
+from "add.py" import add as a
+title:prop[str] = Depends()
+show_hero = True
+espoir : prop[str]= "hjdhj"
+
+def user():
+  return ""
+---
+<div>
+  
+  <h1 class="text-green-400 bg-green-900 ">HELLO NEXY!</h1>
+</div> 

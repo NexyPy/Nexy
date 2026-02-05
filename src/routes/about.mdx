@@ -1,0 +1,17 @@
+---
+title  = ["About Page","About"] 
+name:prop[str] = "About Page"
+def user(): 
+    return "John Doe"
+
+class Main:
+    def get(): pass
+---
+bonjour! This is the about page of Nexy. 
+Nexy is a static site generator that helps you build fast and modern websites with ease.
+
+{{ name }}
+
+{%for item in title %}
+{{ item }}
+{% endfor %}

@@ -1,5 +1,5 @@
 import re
-from ..core.models import ScanResult
+from nexy.core.models import ScanResult
 class Scanner:
     _PATTERN = re.compile(
         r"^\s*---\s*(?P<frontmatter>.*?)\s*---\s*(?P<template>.*)",

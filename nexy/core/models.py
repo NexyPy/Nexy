@@ -1,5 +1,26 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, List, Dict, Optional
 
+@dataclass
+class Node: 
+    pass
+
+@dataclass
+class ComponentNode(Node):
+    name: str
+    props: Dict[str, str]
+    children: List[Node] = field(default_factory=list)
+
+@dataclass
+class TextNode(Node):
+    content: str
+
+@dataclass
+class NexyModule:
+    name: str
+    frontmatter: str 
+    template: List[Node]
 
 @dataclass
 class ScanResult:
@@ -13,3 +34,64 @@ class ScanResult:
     @property
     def template(self) -> str:
         return self.template_block
+
+@dataclass
+class Binding:
+    name: str
+    value: Any
+    is_prop: bool = False
+    data_type: str = "any"
+
+
+@dataclass
+class NexyProp:
+    name: str
+    type: str
+    default: Optional[str] = None
+
+
+class ComponentType(Enum):
+    NEXY = "nexy"
+    VUE = "vue"
+    SVELTE = "svelte"
+    REACT = "react"  # .jsx ou .tsx
+    JSON = "json"
+    UNKNOWN = "unknown"
+
+@dataclass
+class NexyImport:
+    path: str
+    symbol: Optional[str] = None
+    alias: Optional[str] = None
+    raw_source: str = ""
+    extension: str = ""
+    comp_type: ComponentType = ComponentType.UNKNOWN
+
+@dataclass
+class LogicResult:
+    nexy_imports: List[NexyImport] = field(default_factory=list)
+    props: List[NexyProp] = field(default_factory=list)
+    python_code: str = ""
+
+
+@dataclass
+class ComponentUsage:
+    name: str                   
+    attributes: dict[str, str]  
+    is_self_closing: bool
+
+@dataclass
+class TemplateResult:
+    converted_html: str   
+    used_components: set[str]
+
+@dataclass
+class ContextModel:
+    key: str
+    value: str
+@dataclass
+class PaserModel:
+    frontmatter: str       
+    template: str    
+    props: list[NexyProp]
+    context: list[ContextModel] = field(default_factory=list)
