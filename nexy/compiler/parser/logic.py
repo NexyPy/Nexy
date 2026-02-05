@@ -63,7 +63,6 @@ class LogicParser:
 
         # 1. Pré-traitement texte
         clean_code = self.sanitizer.sanitize(code,current_file=current_file)
-        print(clean_code)
         
         # 2. Analyse AST
         try:
