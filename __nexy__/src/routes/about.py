@@ -2,7 +2,7 @@ from typing import *
 from fastapi import *
 from nexy import Template as __Template , Import as __Import
 
-def About(name: str = 'About Page' ) -> str:
+def About() -> str:
         title = ['About Page', 'About']
 
     def user():
@@ -13,8 +13,8 @@ def About(name: str = 'About Page' ) -> str:
         def get():
             pass
     
-    context = {"Main": Main, "name": name, "title": title, "user": user}
+    context = {"Main": Main, "title": title, "user": user}
     # Template Rendering
-    __inner = __Template("__nexy__/src/routes/about.md", context)
+    __inner = __Template().render("__nexy__/src/routes/about.md", context)
     # Layout Wrapping
     return __inner

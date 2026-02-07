@@ -47,14 +47,48 @@ class LogicGenerator:
         props = self._resolve_props()
 
         # Build an explicit context dict (no locals()) by collecting
-        # prop names and top-level identifiers defined in the frontmatter
+        # prop names, top-level identifiers, AND imported names
+        # Handles all Python import cases: simple, aliases, wildcards, relative, etc.
         names = []
         try:
             tree = ast.parse(self.source.frontmatter)
             idents = set()
             for node in tree.body:
+                # Handle all import types
+                if isinstance(node, ast.ImportFrom):
+                    # from module import name [as alias]
+                    # from . import module
+                    # from .. import module
+                    # from module import *
+                    for alias in node.names:
+                        if alias.name == '*':
+                            # Wildcard import: from module import *
+                            # Can't determine names, skip
+                            continue
+                        # Use alias if present, otherwise use imported name
+                        imported_name = alias.asname if alias.asname else alias.name
+                        # Handle dotted names (from x.y.z import name -> name)
+                        if '.' in imported_name:
+                            imported_name = imported_name.split('.')[-1]
+                        if imported_name and not imported_name.startswith('_'):
+                            idents.add(imported_name)
+                
+                elif isinstance(node, ast.Import):
+                    # import module [as alias]
+                    # import module1, module2 [as a1, a2]
+                    # import .relative
+                    # import ..relative
+                    for alias in node.names:
+                        # Use alias if present, otherwise use first part of module name
+                        imported_name = alias.asname if alias.asname else alias.name
+                        # For 'import a.b.c' -> use 'a' unless aliased
+                        if '.' in imported_name and not alias.asname:
+                            imported_name = imported_name.split('.')[0]
+                        if imported_name and not imported_name.startswith('_'):
+                            idents.add(imported_name)
+                
                 # Assign targets
-                if isinstance(node, ast.Assign):
+                elif isinstance(node, ast.Assign):
                     for t in node.targets:
                         if isinstance(t, ast.Name):
                             idents.add(t.id)
@@ -62,8 +96,9 @@ class LogicGenerator:
                             for el in t.elts:
                                 if isinstance(el, ast.Name):
                                     idents.add(el.id)
+                
                 # Function and class definitions
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                     idents.add(node.name)
         except Exception:
             idents = set()
@@ -87,7 +122,7 @@ def {self.func_name}({props}) -> str:
     
     context = {{{context_items}}}
     # Template Rendering
-    __inner = __Template("{self.template_path}", context)
+    __inner = __Template().render("{self.template_path}", context)
     # Layout Wrapping
     return __inner
 """

@@ -1,7 +1,8 @@
+from nexy.compiler.parser import Parser
+from nexy.compiler.generator import Generator
 from nexy.core.models import PaserModel
 from nexy.nexyconfig import NexyConfig
-from parser import Parser
-from generator import Generator
+    
 
 def is_nexy_file(file_path: str) -> bool:
     return file_path.endswith(".nexy")
@@ -10,12 +11,12 @@ def is_mdx_file(file_path: str) -> bool:
     return file_path.endswith(".mdx")
 
 class Compiler:
-    def __init__(self, input: str,output: str | None = None) -> None:
-        self.input = input
-        self.output = output
+    def __init__(self) -> None:
+        self.input:str =""
+        self.output :str | None = None
         self.parser = Parser()
         self.generator = Generator()
-        self.source_code :str = self._load_source()
+        self.source_code :str = ""
         self.config = NexyConfig()
 
     def _load_source(self) -> str:
@@ -24,8 +25,10 @@ class Compiler:
                 return file.read()
         except FileNotFoundError:
             print(f"Error: File '{self.input}' not found.")
-    def compile(self) -> None:
-        
+    def compile(self, input: str,output: str | None = None) -> None:
+        self.input = input
+        self.output = output
+        self.source_code = self._load_source()
         if  is_nexy_file(self.input):
             if self.output is None:
                 self.output = self.config.NAMESPACE + "/"+ self.input.replace(".nexy", ".html")
@@ -47,6 +50,6 @@ class Compiler:
 input = "src/routes/about.mdx"
 ouput = "__nexy__/src/routes/index"
 
-code = Compiler(input=input)
-code.compile()
+code = Compiler()
+code.compile(input=input)
 __all__ = ["Compiler"]
