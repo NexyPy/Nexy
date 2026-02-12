@@ -3,7 +3,8 @@ from fastapi import *
 from nexy import Template as __Template , Import as __Import
 
 def About() -> str:
-        title = ['About Page', 'About']
+        from __nexy__.src.components.user import User
+    title = ['About Page', 'About']
 
     def user():
         return 'John Doe'
@@ -13,8 +14,8 @@ def About() -> str:
         def get():
             pass
     
-    context = {"Main": Main, "title": title, "user": user}
+    context = {"Main": Main, "User": User, "title": title, "user": user}
     # Template Rendering
-    __inner = __Template().render("__nexy__/src/routes/about.md", context)
+    __inner = str(__Template().render("__nexy__//src/routes/about.md", context))
     # Layout Wrapping
     return __inner

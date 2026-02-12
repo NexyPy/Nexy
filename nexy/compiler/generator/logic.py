@@ -122,7 +122,7 @@ def {self.func_name}({props}) -> str:
     
     context = {{{context_items}}}
     # Template Rendering
-    __inner = __Template().render("{self.template_path}", context)
+    __inner = str(__Template().render("{self.template_path}", context))
     # Layout Wrapping
     return __inner
 """

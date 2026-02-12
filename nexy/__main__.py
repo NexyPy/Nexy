@@ -1,5 +1,3 @@
-from .cli import Cli
+from .cli import CLI
 if __name__ == "__main__":
-    cmd = Cli()
-    
-    cmd.main()
+    CLI()

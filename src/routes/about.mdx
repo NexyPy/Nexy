@@ -1,4 +1,5 @@
 ---
+from "src/components/user.nexy" import User
 title  = ["About Page","About"] 
 # name:prop[str] = "About Page"
 # slug:prop[str]
@@ -8,10 +9,22 @@ def user():
 class Main:
     def get(): pass
 ---
+# mdx page
 bonjour! This is the about page of Nexy. 
 Nexy is a static site generator that helps you build fast and modern websites with ease.
 {{ name }}
 
 {%for item in title %}
-{{ item }}
+ 1. {{ item }}
+
 {% endfor %}
+
+
+<User>
+```python
+ def user():
+    print("user")
+
+```
+</User>
+dhj

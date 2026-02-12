@@ -1,3 +1,4 @@
+import os
 import re
 import pathlib
 from typing import Match, List
@@ -14,18 +15,32 @@ class LogicSanitizer:
         )
 
     def _resolve_full_path(self, current_file: str, import_str: str) -> str:
-        current_path = pathlib.Path(current_file)
-        
+        # 1. On vérifie si c'est un import local ou un alias
+        # Si ça ne commence pas par ., .. ou un alias, on retourne l'import tel quel
+        is_relative = import_str.startswith("./") or import_str.startswith("../")
+        is_alias = any(import_str.startswith(alias) for alias in self.aliases)
+
+        if not (is_relative or is_alias):
+            return import_str  # C'est un module externe ou standard
+
+        root_path = pathlib.Path.cwd().absolute()
+        current_path = pathlib.Path(current_file).absolute()
+
+        # 2. Gestion des Alias
         for alias, replacement in self.aliases.items():
             if import_str.startswith(alias):
-                return import_str.replace(alias, replacement.strip("/") + "/", 1).lstrip("/")
-        
-        target_path = (current_path.parent / import_str)
-        try:
-            return target_path.resolve().relative_to(pathlib.Path.cwd()).as_posix()
-        except ValueError:
-            return target_path.as_posix().replace("../", "").replace("./", "")
+                resolved_path = root_path / import_str.replace(alias, replacement.strip("/"), 1)
+                return resolved_path.absolute().relative_to(root_path).as_posix()
 
+        # 3. Gestion des chemins relatifs (./ et ../)
+        # .normpath ou .resolve() nettoient les segments ../
+        resolved_path = current_path.parent.joinpath(import_str).resolve()
+
+        try:
+            return resolved_path.relative_to(root_path).as_posix()
+        except ValueError:
+            # Si on sort du projet, on renvoie le chemin nettoyé mais brut
+            return os.path.normpath(resolved_path).replace("\\", "/")
     def _clean_targets(self, targets_str: str) -> List[str]:
         """Nettoie les parenthèses, sauts de ligne et espaces des cibles d'import."""
         # Enlever les parenthèses et normaliser les espaces
@@ -45,12 +60,12 @@ class LogicSanitizer:
             # --- LOGIQUE (Nexy / Python) ---
             if ext in ('.nexy', '.py') or ext == '':
                 is_nexy = ext == '.nexy'
+                prefix = f"{self.namespace.replace("/",".")}" if is_nexy else ""
                 module_name = re.sub(r'\.nexy$|\.py$', '', full_rel_path)
                 module_name = re.sub(r'\.+', '.', module_name.replace("/", ".")).strip(".")
-                
-                prefix = f"{self.namespace}." if is_nexy else ""
+                module_name = prefix + module_name
                 # On reconstruit la chaîne des targets proprement
-                return f"from {prefix}{module_name} import {', '.join(targets)}"
+                return f"from {module_name} import {', '.join(targets)}"
 
             # --- RUNTIME (TSX, JSX, VUE, JSON) ---
             framework = {'.tsx': 'react', '.jsx': 'react', '.vue': 'vue'}.get(ext, 'unknown')

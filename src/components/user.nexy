@@ -1,4 +1,18 @@
 ---
+print(f"return {id}")
+caller : prop[callable]
+id:prop[str|None] = "use"
 ---
+<div
+ style="display: flex; flex-direction: column; align-items: center; background-color: bisque;"
+>
+    <input type="color" id="{{id}}"/>
+    {{caller()}}
+</div>
 
----
+<script>
+    document.getElementById("{{id}}").addEventListener("input", (e) => {
+        document.body.style.backgroundColor = e.target.value;
+        e.target.style.backgroundColor = e.target.value;
+    })  
+</script>

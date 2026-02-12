@@ -47,9 +47,9 @@ class Compiler:
 
         # compiled_module = parser.parse()
 
-input = "src/routes/about.mdx"
-ouput = "__nexy__/src/routes/index"
+# input = "src/routes/about.mdx"
+# ouput = "__nexy__/src/routes/index"
 
-code = Compiler()
-code.compile(input=input)
+# code = Compiler()
+# code.compile(input=input)
 __all__ = ["Compiler"]

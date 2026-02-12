@@ -1,13 +1,24 @@
 ---
-from "add.py" import add as a
-title:prop[str] = Depends()
+from "./add.py" import add as a
+from "src/components/user.nexy" import User
+title:prop[str] = ""
 show_hero = True
 espoir : prop[str]= "hjdhj"
 
 def user():
   return ""
 ---
+<script src="https://cdn.tailwindcss.com"></script>
 <div>
-  
+  <User">
+   <h1> espoir</h1>
+  </User>
   <h1 class="text-green-400 bg-green-900 ">HELLO NEXY!</h1>
 </div> 
+ <User id="dd">
+   <h1 class="text-red-500 text-3xl uppercase py-12 font-bold"> espoir </h1>
+  </User>
+hfjhj
+
+
+
