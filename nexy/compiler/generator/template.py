@@ -8,4 +8,3 @@ class TemplateGenerator:
     def generate(self, output: str, source: str) -> None:
         with open(output, "w", encoding="utf-8") as file:
             file.write(source)
-            return True

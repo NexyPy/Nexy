@@ -92,7 +92,8 @@ def dev(port:Optional[int] = None):
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
     observer.start()
-    uvicorn.run("nexy.server.app:_server", host="0.0.0.0", port=8000)
+    uvicorn.run("nexy.server.app:_server", host="0.0.0.0", port=8000, reload=False)
+    
     
     try:
         while True:

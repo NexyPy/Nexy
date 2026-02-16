@@ -1,21 +1,23 @@
 import re
+from typing import Optional
+
 
 class Pathname:
     def __init__(self, pathname: str) -> None:
         self.pathname = "/" + pathname.strip("/")
 
-    def _dynamic_pathname(self, path: str = None) -> str:
+    def _dynamic_pathname(self, path: Optional[str] = None) -> str:
         """Transforme [slug] en {slug}."""
         target = path or self.pathname
         # Regex: cherche ce qui est entre crochets, sauf si ça commence par '...'
         return re.sub(r'\[(?!(\.\.\.))([^\]]+)\]', r'{\2}', target)
 
-    def _catch_all(self, path: str = None) -> str:
+    def _catch_all(self, path: Optional[str] = None) -> str:
         """Transforme [...slug] en {slug:path}."""
         target = path or self.pathname
         return re.sub(r'\[\.\.\.([^\]]+)\]', r'{\1:path}', target)
 
-    def _group_pathname(self, path: str = None) -> str:
+    def _group_pathname(self, path: Optional[str] = None) -> str:
         """Supprime les segments entre parenthèses comme /(user)/."""
         target = path or self.pathname
         # Supprime /(group) et gère les doubles slashes résultants
@@ -43,13 +45,14 @@ class Pathname:
 
 
 
-class StringTranform :
-    def __init__(self): pass
+class StringTransform:
+    def __init__(self) -> None:
+        pass
 
     @staticmethod
-    def resolve_pathname(self, pathname: str) -> str:
+    def resolve_pathname(pathname: str) -> str:
         return pathname.replace("/", "")
-    
+
     def get_component_name(self, pathname: str) -> str:
         component_name = pathname.split("/")[-1]
         first_letter = component_name[0].capitalize()

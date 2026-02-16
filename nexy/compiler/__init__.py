@@ -23,8 +23,8 @@ class Compiler:
         try:
             with open(self.input, "r", encoding="utf-8") as file:
                 return file.read()
-        except FileNotFoundError:
-            print(f"Error: File '{self.input}' not found.")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File '{self.input}' not found.") from e
     def compile(self, input: str,output: str | None = None) -> None:
         self.input = input
         self.output = output

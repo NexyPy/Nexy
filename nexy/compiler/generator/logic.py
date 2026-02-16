@@ -4,12 +4,12 @@ from nexy.core.models import PaserModel
 
 
 class LogicGenerator:
-    def __init__(self) -> str:
-        self.func_name :str
-        self.source : PaserModel | None = None
-        self.output : str
-        self.template_path :str
-        self.FRONTMATTER : str
+    def __init__(self) -> None:
+        self.func_name: str = ""
+        self.source: PaserModel | None = None
+        self.output: str = ""
+        self.template_path: str = ""
+        self.FRONTMATTER: str = ""
     
     def generate(
             self,
@@ -20,8 +20,8 @@ class LogicGenerator:
         
         self.template_path = template_path
         names = template_path.split("/")
-        lenght = len(names) - 1
-        self.func_name = names[lenght].replace(".md","").replace(".html","")
+        length = len(names) - 1
+        self.func_name = names[length].replace(".md", "").replace(".html", "")
 
         self.func_name = self.func_name[0].capitalize() + self.func_name[1:]
         if template_path.endswith(".html"):
@@ -29,19 +29,17 @@ class LogicGenerator:
         else :
             self.output = template_path.replace(".md",".py")
         
-        self.FRONTMATTER = self._companent_model()
+        self.FRONTMATTER = self._component_model()
         with open(self.output, "w", encoding="utf-8") as file:
             file.write(self.FRONTMATTER)
-            return True
 
     def _resolve_props(self) -> str:
-        props = ""
-        endIdx = len(self.source.props) -1
-        for prop in self.source.props:
-            end = "" if prop == self.source.props[endIdx] else ","
-            props += f"{prop.name}: {prop.type} = {prop.default}{end} "
-        return props
-    def _companent_model(self) -> None:
+        if not self.source.props:
+            return ""
+        parts = [f"{p.name}: {p.type} = {p.default}" for p in self.source.props]
+        return ", ".join(parts)
+
+    def _component_model(self) -> str:
         LOGIC = self.source.frontmatter
         LOGIC = textwrap.indent(LOGIC, "    ")
         props = self._resolve_props()

@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
-from nexy.core.string import StringTranform
+from nexy.core.string import StringTransform
 from nexy.nexyconfig import NexyConfig
 from nexy.server.routers.file_based_routing.route_discovery import RouteDiscovery
 
@@ -22,7 +22,7 @@ class FileBasedRouter:
     def __init__(self) -> None:
         self.route_discovery = RouteDiscovery()
         self.router = APIRouter()
-        self.string_transform = StringTranform()
+        self.string_transform = StringTransform()
         self.modules_metadata: list[dict] = []
         
         self._load_modules()

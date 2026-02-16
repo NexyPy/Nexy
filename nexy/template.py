@@ -11,10 +11,10 @@ class Template:
         """Initialise le renderer avec la configuration Nexy."""
         self.config =  NexyConfig()
         
-        # Optimisation Sécurité : Activation de l'autoescape pour éviter les failles XSS
+        # Sécurité : autoescape activé pour éviter les failles XSS
         self.env = Environment(
             loader=FileSystemLoader("."),
-            # autoescape=select_autoescape(['html', 'xml'])
+            autoescape=select_autoescape(["html", "xml"]),
         )
     
     def _render_jinja2(self, path: str, context: Dict[str, Any]) -> str:
