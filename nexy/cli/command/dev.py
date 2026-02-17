@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 from nexy.compiler import Compiler
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 
 class State:
     def __init__(self, initial):
@@ -58,11 +58,11 @@ class MonHandler(PatternMatchingEventHandler):
             compiled_path = event.src_path
             template_path = event.src_path
             if event.src_path.endswith(".nexy"):
-                compiled_path = NexyConfig.NAMESPACE + event.src_path.replace(".nexy", ".py")
-                template_path = NexyConfig.NAMESPACE + event.src_path.replace(".nexy", ".html")
+                compiled_path = Config.NAMESPACE + event.src_path.replace(".nexy", ".py")
+                template_path = Config.NAMESPACE + event.src_path.replace(".nexy", ".html")
             elif event.src_path.endswith(".mdx"):
-                compiled_path = NexyConfig.NAMESPACE + event.src_path.replace(".mdx", ".py")
-                template_path = NexyConfig.NAMESPACE + event.src_path.replace(".mdx", ".md")
+                compiled_path = Config.NAMESPACE + event.src_path.replace(".mdx", ".py")
+                template_path = Config.NAMESPACE + event.src_path.replace(".mdx", ".md")
             if os.path.exists(compiled_path) and event.src_path.endswith((".nexy", ".mdx")):
                 os.remove(compiled_path)
                 os.remove(template_path)

@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from nexy.core.string import StringTransform
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 from nexy.server.routers.file_based_routing.route_discovery import RouteDiscovery
 
 # Configuration des méthodes supportées
@@ -39,7 +39,7 @@ class FileBasedRouter:
             # Détermination du type et du chemin d'import
             if path_str.endswith((".nexy", ".mdx")):
                 type_module = "component"
-                import_path = f"{NexyConfig.NAMESPACE}{path_str}".replace("/", ".").rsplit(".", 1)[0]
+                import_path = f"{Config.NAMESPACE}{path_str}".replace("/", ".").rsplit(".", 1)[0]
             else:
                 type_module = "api"
                 import_path = path_str.replace("/", ".").removesuffix(".py")
@@ -48,7 +48,7 @@ class FileBasedRouter:
             
             # Nettoyage propre du pathname URL
             # On retire les préfixes de dossiers sources pour obtenir l'URL
-            clean_path = path_str.replace(f"{NexyConfig.NAMESPACE}src/routes", "").replace("src/routes", "")
+            clean_path = path_str.replace(f"{Config.NAMESPACE}src/routes", "").replace("src/routes", "")
             clean_path = clean_path.split(".")[0] # Retire l'extension
             
             pathname = clean_path.removesuffix("/index")

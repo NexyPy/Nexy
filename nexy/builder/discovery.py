@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import List, Union
 
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 
 class Discovery:
     """Scanner de fichiers pour trouver les fichiers .nexy et .mdx."""
     
-    TARGET_EXTENSIONS = NexyConfig.TARGET_EXTENSIONS
+    TARGET_EXTENSIONS = Config.TARGET_EXTENSIONS
     DEFAULT_EXCLUDED_DIRS = {
         '__pycache__', '.git', '.venv', 'node_modules', 
         'dist', 'build', '__nexy__'

@@ -1,7 +1,7 @@
 from nexy.compiler.parser import Parser
 from nexy.compiler.generator import Generator
 from nexy.core.models import PaserModel
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
     
 
 def is_nexy_file(file_path: str) -> bool:
@@ -17,7 +17,7 @@ class Compiler:
         self.parser = Parser()
         self.generator = Generator()
         self.source_code :str = ""
-        self.config = NexyConfig()
+        self.config = Config()
 
     def _load_source(self) -> str:
         try:

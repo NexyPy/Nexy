@@ -2,12 +2,12 @@ import os
 import re
 import pathlib
 from typing import Match, List
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 
 class LogicSanitizer:
     def __init__(self):
-        self.aliases = NexyConfig.ALIASES
-        self.namespace = NexyConfig.NAMESPACE
+        self.aliases = Config.ALIASES
+        self.namespace = Config.NAMESPACE
         # Regex mise à jour : supporte les sauts de ligne et parenthèses via re.DOTALL et groupage
         self.RE_NEXY_FROM = re.compile(
             r'^\s*from\s+["\'](?P<path>[^"\']+)["\']\s+import\s+(?P<targets>.+?)(?=\n\S|$)', 

@@ -1,7 +1,7 @@
 import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from typing import Any, Dict, Optional
-from .nexyconfig import NexyConfig
+from .core.config import Config
 
 
 class Template:
@@ -9,7 +9,7 @@ class Template:
     
     def __init__(self):
         """Initialise le renderer avec la configuration Nexy."""
-        self.config =  NexyConfig()
+        self.config =  Config()
         
         # Sécurité : autoescape activé pour éviter les failles XSS
         self.env = Environment(

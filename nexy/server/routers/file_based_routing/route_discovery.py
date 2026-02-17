@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 
 
 class RouteDiscovery:
     def __init__(self) -> None:
-        self.config = NexyConfig()
+        self.config = Config()
         self.router_path = self.config.ROUTER_PATH
 
     def scan(self) -> list[Path]:

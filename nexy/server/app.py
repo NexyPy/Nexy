@@ -1,20 +1,35 @@
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from nexy.__version__ import __Version__
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 from nexy.server.routers.file_based_routing import FileBasedRouter
 
+try:
+    from nexyconfig import NexyConfig
+except Exception:
+    NexyConfig = None
+
 version = __Version__().get()
-FILE_BASED_ROUTER = FileBasedRouter().route()
-config = NexyConfig()
+
+config = Config()
 
 _server = FastAPI(title="Nexy", version=version)
 
-if config.FILE_BASED_ROUTING:
-    _server.include_router(FILE_BASED_ROUTER)
-else:
-    _server.include_router(config.ROOT_MODULE) if config.ROOT_MODULE else None
+router_source = None
 
-# if __name__ == "__main__":
-#     from uvicorn import run
-#     run(_server, host="0.0.0.0", port=8000, reload=True)
+if NexyConfig is not None:
+    router_source = getattr(NexyConfig, "useRouter", None)
+    if router_source is not None:
+        Config.useRouter = router_source
+
+if router_source is None:
+    router_source = FileBasedRouter()
+    Config.useRouter = router_source
+
+if isinstance(router_source, FileBasedRouter):
+    _server.include_router(router_source.route())
+elif isinstance(router_source, type) and issubclass(router_source, FileBasedRouter):
+    _server.include_router(router_source().route())
+elif isinstance(router_source, APIRouter):
+    _server.include_router(router_source)
+

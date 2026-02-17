@@ -1,12 +1,12 @@
 from nexy.builder.discovery import Discovery
 from nexy.compiler import Compiler
-from nexy.nexyconfig import NexyConfig
+from nexy.core.config import Config
 
 class Builder:
     def __init__(self):
         self.discovery = Discovery()
         self.compiler = Compiler()
-        self.config = NexyConfig()
+        self.config = Config()
 
     def build(self) -> None:
         files = self.discovery.scan(self.config.PROJECT_ROOT)

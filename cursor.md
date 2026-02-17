@@ -1,0 +1,2 @@
+- fastapi permet aussi de personaliser une route comme avec les class de reponse , etc comment nexy vas le gerer
+- je remarque nexyconfig n'a pas lui directe avec config.py ça veut que la configuration risque d'être un peu chaud 

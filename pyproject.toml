@@ -23,7 +23,8 @@ dev = [
 ]
 
 [project.scripts]
-nexy = "nexy.cli.main:app"
+nx = "nexy.cli:CLI"
+nexy = "nexy.cli:CLI"
 
 [build-system]
 requires = ["hatchling"]
