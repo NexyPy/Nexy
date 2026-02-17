@@ -7,4 +7,4 @@ from nexy.router import FileBasedRouter
 
 class NexyConfig():
     ALIASES: dict[str, str] = {"@": "src/components"}
-    useRouter = FileBasedRouter
+    useRouter = AppModule
