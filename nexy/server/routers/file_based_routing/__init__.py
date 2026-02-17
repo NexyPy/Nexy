@@ -1,11 +1,11 @@
 import importlib
-from pathlib import Path
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 
 from nexy.core.string import StringTransform
 from nexy.core.config import Config
 from nexy.server.routers.file_based_routing.route_discovery import RouteDiscovery
+from nexy.decorators import RouteMeta, ResponseMeta
 
 # Configuration des méthodes supportées
 HTTP_METHODS_MAP = {
@@ -71,12 +71,52 @@ class FileBasedRouter:
             path = meta["pathname"]
 
             if meta["type"] == "api":
-                # Enregistrement dynamique des méthodes HTTP
                 for method_name, router_method in HTTP_METHODS_MAP.items():
-                    if handler := getattr(module, method_name, None):
-                        # Récupère la fonction de l'APIRouter (ex: self.router.get)
-                        register_func = getattr(self.router, router_method)
-                        register_func(path)(handler)
+                    handler = getattr(module, method_name, None)
+                    if handler is None:
+                        continue
+                    route_meta: RouteMeta | None = getattr(handler, "__nexy_route_meta__", None)
+                    response_meta: ResponseMeta | None = getattr(handler, "__nexy_response_meta__", None)
+                    guards = getattr(handler, "__nexy_guards__", ())
+                    middlewares = getattr(handler, "__nexy_middlewares__", ())
+                    dependencies = [
+                        Depends(dep)
+                        for dep in (*guards, *middlewares)
+                    ] or None
+                    name = route_meta.name if route_meta and route_meta.name else None
+                    tags = route_meta.tags if route_meta and route_meta.tags is not None else None
+                    route_kwargs: dict[str, object] = {
+                        "path": path,
+                        "endpoint": handler,
+                        "methods": [method_name],
+                        "name": name,
+                        "tags": tags,
+                        "dependencies": dependencies,
+                    }
+                    if response_meta is not None:
+                        if response_meta.status_code is not None:
+                            route_kwargs["status_code"] = response_meta.status_code
+                        if response_meta.response_class is not None:
+                            route_kwargs["response_class"] = response_meta.response_class
+                        if response_meta.response_model is not None:
+                            route_kwargs["response_model"] = response_meta.response_model
+                        if response_meta.responses is not None:
+                            route_kwargs["responses"] = response_meta.responses
+                        if response_meta.response_description is not None:
+                            route_kwargs["response_description"] = response_meta.response_description
+                        if response_meta.response_model_include is not None:
+                            route_kwargs["response_model_include"] = response_meta.response_model_include
+                        if response_meta.response_model_exclude is not None:
+                            route_kwargs["response_model_exclude"] = response_meta.response_model_exclude
+                        if response_meta.response_model_by_alias is not None:
+                            route_kwargs["response_model_by_alias"] = response_meta.response_model_by_alias
+                        if response_meta.response_model_exclude_unset is not None:
+                            route_kwargs["response_model_exclude_unset"] = response_meta.response_model_exclude_unset
+                        if response_meta.response_model_exclude_defaults is not None:
+                            route_kwargs["response_model_exclude_defaults"] = response_meta.response_model_exclude_defaults
+                        if response_meta.response_model_exclude_none is not None:
+                            route_kwargs["response_model_exclude_none"] = response_meta.response_model_exclude_none
+                    self.router.add_api_route(**route_kwargs)
                 
                 # Cas spécial WebSocket
                 if handler := getattr(module, "SOCKET", None):

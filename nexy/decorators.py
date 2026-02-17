@@ -1,6 +1,7 @@
 import inspect
-from typing import Any, Type, List, Dict, Set, Iterable, Callable
+from typing import Any, Type, List, Dict, Set, Iterable, Callable, Optional, Mapping, AbstractSet
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 from threading import RLock
 
 HTTP_METHODS: Set[str] = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"}
@@ -88,6 +89,140 @@ def UseMiddleware(*middlewares: Callable[..., Any]):
         return target
     return wrapper
 
+
+class RouteMeta:
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        summary: Optional[str] = None,
+        description: Optional[str] = None,
+        deprecated: Optional[bool] = None,
+        include_in_schema: Optional[bool] = None,
+        operation_id: Optional[str] = None,
+        openapi_extra: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        self.name = name
+        self.tags = tags
+        self.summary = summary
+        self.description = description
+        self.deprecated = deprecated
+        self.include_in_schema = include_in_schema
+        self.operation_id = operation_id
+        self.openapi_extra = openapi_extra
+
+
+class ResponseMeta:
+    def __init__(
+        self,
+        status_code: Optional[int] = None,
+        response_class: Optional[type[Response]] = None,
+        response_model: Optional[type[Any]] = None,
+        responses: Optional[Dict[int | str, Any]] = None,
+        response_description: Optional[str] = None,
+        response_model_include: Optional[AbstractSet[str] | Mapping[str, Any]] = None,
+        response_model_exclude: Optional[AbstractSet[str] | Mapping[str, Any]] = None,
+        response_model_by_alias: Optional[bool] = None,
+        response_model_exclude_unset: Optional[bool] = None,
+        response_model_exclude_defaults: Optional[bool] = None,
+        response_model_exclude_none: Optional[bool] = None,
+    ) -> None:
+        self.status_code = status_code
+        self.response_class = response_class
+        self.response_model = response_model
+        self.responses = responses
+        self.response_description = response_description
+        self.response_model_include = response_model_include
+        self.response_model_exclude = response_model_exclude
+        self.response_model_by_alias = response_model_by_alias
+        self.response_model_exclude_unset = response_model_exclude_unset
+        self.response_model_exclude_defaults = response_model_exclude_defaults
+        self.response_model_exclude_none = response_model_exclude_none
+
+
+def UseRoute(
+    name: Optional[str] = None,
+    tags: Optional[List[str]] = None,
+    summary: Optional[str] = None,
+    description: Optional[str] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: Optional[bool] = None,
+    operation_id: Optional[str] = None,
+    openapi_extra: Optional[Dict[str, Any]] = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    meta = RouteMeta(
+        name=name,
+        tags=tags,
+        summary=summary,
+        description=description,
+        deprecated=deprecated,
+        include_in_schema=include_in_schema,
+        operation_id=operation_id,
+        openapi_extra=openapi_extra,
+    )
+
+    def wrapper(handler: Callable[..., Any]) -> Callable[..., Any]:
+        setattr(handler, "__nexy_route_meta__", meta)
+        return handler
+
+    return wrapper
+
+
+def useRoute(
+    name: Optional[str] = None,
+    tags: Optional[List[str]] = None,
+    summary: Optional[str] = None,
+    description: Optional[str] = None,
+    deprecated: Optional[bool] = None,
+    include_in_schema: Optional[bool] = None,
+    operation_id: Optional[str] = None,
+    openapi_extra: Optional[Dict[str, Any]] = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    return UseRoute(
+        name=name,
+        tags=tags,
+        summary=summary,
+        description=description,
+        deprecated=deprecated,
+        include_in_schema=include_in_schema,
+        operation_id=operation_id,
+        openapi_extra=openapi_extra,
+    )
+
+
+def UseResponse(
+    status_code: Optional[int] = None,
+    response_class: Optional[type[Response]] = None,
+    response_model: Optional[type[Any]] = None,
+    responses: Optional[Dict[int | str, Any]] = None,
+    response_description: Optional[str] = None,
+    response_model_include: Optional[AbstractSet[str] | Mapping[str, Any]] = None,
+    response_model_exclude: Optional[AbstractSet[str] | Mapping[str, Any]] = None,
+    response_model_by_alias: Optional[bool] = None,
+    response_model_exclude_unset: Optional[bool] = None,
+    response_model_exclude_defaults: Optional[bool] = None,
+    response_model_exclude_none: Optional[bool] = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    meta = ResponseMeta(
+        status_code=status_code,
+        response_class=response_class,
+        response_model=response_model,
+        responses=responses,
+        response_description=response_description,
+        response_model_include=response_model_include,
+        response_model_exclude=response_model_exclude,
+        response_model_by_alias=response_model_by_alias,
+        response_model_exclude_unset=response_model_exclude_unset,
+        response_model_exclude_defaults=response_model_exclude_defaults,
+        response_model_exclude_none=response_model_exclude_none,
+    )
+
+    def wrapper(handler: Callable[..., Any]) -> Callable[..., Any]:
+        setattr(handler, "__nexy_response_meta__", meta)
+        return handler
+
+    return wrapper
+
 def Module(
     controllers: List[Type],
     providers: List[Type] = [], # Devenu Optionnel
@@ -150,13 +285,46 @@ def _register_controller(ctrl_cls: Type, parent_router: APIRouter):
                     *method_middlewares,
                 )
             ]
-            ctrl_router.add_api_route(
-                path="/",
-                endpoint=method_func,
-                methods=[method_upper],
-                name=f"{ctrl_cls.__name__}.{method_name}",
-                dependencies=dependencies or None,
-            )
+            route_meta: RouteMeta | None = getattr(method_func, "__nexy_route_meta__", None)
+            response_meta: ResponseMeta | None = getattr(method_func, "__nexy_response_meta__", None)
+            route_name = f"{ctrl_cls.__name__}.{method_name}"
+            if route_meta is not None and route_meta.name:
+                route_name = route_meta.name
+            route_tags = ctrl_tags
+            if route_meta is not None and route_meta.tags is not None:
+                route_tags = route_meta.tags
+            route_kwargs: Dict[str, Any] = {
+                "path": "/",
+                "endpoint": method_func,
+                "methods": [method_upper],
+                "name": route_name,
+                "dependencies": dependencies or None,
+                "tags": route_tags,
+            }
+            if response_meta is not None:
+                if response_meta.status_code is not None:
+                    route_kwargs["status_code"] = response_meta.status_code
+                if response_meta.response_class is not None:
+                    route_kwargs["response_class"] = response_meta.response_class
+                if response_meta.response_model is not None:
+                    route_kwargs["response_model"] = response_meta.response_model
+                if response_meta.responses is not None:
+                    route_kwargs["responses"] = response_meta.responses
+                if response_meta.response_description is not None:
+                    route_kwargs["response_description"] = response_meta.response_description
+                if response_meta.response_model_include is not None:
+                    route_kwargs["response_model_include"] = response_meta.response_model_include
+                if response_meta.response_model_exclude is not None:
+                    route_kwargs["response_model_exclude"] = response_meta.response_model_exclude
+                if response_meta.response_model_by_alias is not None:
+                    route_kwargs["response_model_by_alias"] = response_meta.response_model_by_alias
+                if response_meta.response_model_exclude_unset is not None:
+                    route_kwargs["response_model_exclude_unset"] = response_meta.response_model_exclude_unset
+                if response_meta.response_model_exclude_defaults is not None:
+                    route_kwargs["response_model_exclude_defaults"] = response_meta.response_model_exclude_defaults
+                if response_meta.response_model_exclude_none is not None:
+                    route_kwargs["response_model_exclude_none"] = response_meta.response_model_exclude_none
+            ctrl_router.add_api_route(**route_kwargs)
         elif method_upper == "SOCKET":
             ctrl_router.add_api_websocket_route(path="/", endpoint=method_func)
     

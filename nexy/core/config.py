@@ -17,3 +17,15 @@ class Config:
     PROJECT_ROOT = "."
     ROUTER_PATH = "src/routes"
     useRouter = None
+
+    def __init__(self):
+        self._get_config()
+        
+    def _get_config(self):
+        try:
+            from nexyconfig import NexyConfig 
+            nexy_config = NexyConfig()
+            self.ALIASES = getattr(nexy_config, "useAliases", None)
+            self.useRouter = getattr(nexy_config, "useRouter", None)
+        except Exception:
+            return None
