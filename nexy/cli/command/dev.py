@@ -1,78 +1,78 @@
 import os
-from typing import Optional
+import time
+from typing import Any, Optional
 
 import uvicorn
+from watchdog.events import FileSystemEvent, PatternMatchingEventHandler
+from watchdog.observers import Observer
+
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
-
-import multiprocessing
-import time
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
-
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 
-class State:
-    def __init__(self, initial):
-        self.value = initial 
-    def get(self):
-        return self.value
-    def set(self, new_value):
-        self.value = new_value
-
 
 class MonHandler(PatternMatchingEventHandler):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.last_event_time = 0
-        self.last_path = ""
-        self.count = State(0)
+        self.last_event_time: float = 0.0
+        self.last_path: str = ""
         self.compiler = Compiler()
 
-    def should_trigger(self, path):
-        """Vérifie si assez de temps s'est écoulé pour le même fichier."""
+    def should_trigger(self, path: str) -> bool:
         current_time = time.time()
-        # Si c'est le même fichier et qu'il s'est écoulé moins de 0.1s, on ignore
         if path == self.last_path and (current_time - self.last_event_time) < 0.1:
             return False
-        
+
         self.last_event_time = current_time
         self.last_path = path
         return True
-
-    def _compile(self, path):
-        if path.endswith(".nexy") or path.endswith(".mdx"):
+    def _compile(self, path: str) -> None:
             print(f"ŋ compile : {path}")
             self.compiler.compile(path)
-        
-    def on_modified(self, event):
-        if self.should_trigger(event.src_path):
-            if  event.src_path.startswith(("./.git/", "./.venv/", "./__nexy__/", "./__pycache__/", "./venv/", "./node_modules/")):
-                pass
-            print(f"File : '{event.src_path}' is updated")
-            self._compile(event.src_path)
 
-    def on_deleted(self, event):
-        if self.should_trigger(event.src_path):
-            compiled_path = event.src_path
-            template_path = event.src_path
-            if event.src_path.endswith(".nexy"):
-                compiled_path = Config.NAMESPACE + event.src_path.replace(".nexy", ".py")
-                template_path = Config.NAMESPACE + event.src_path.replace(".nexy", ".html")
-            elif event.src_path.endswith(".mdx"):
-                compiled_path = Config.NAMESPACE + event.src_path.replace(".mdx", ".py")
-                template_path = Config.NAMESPACE + event.src_path.replace(".mdx", ".md")
-            if os.path.exists(compiled_path) and event.src_path.endswith((".nexy", ".mdx")):
+
+    def on_modified(self, event: FileSystemEvent) -> None:
+        raw_path = event.src_path
+        path = raw_path.decode() if isinstance(raw_path, bytes) else raw_path
+        if self.should_trigger(path):
+            npath = path.replace("\\", "/").lstrip("./")
+
+            if npath.startswith(
+                (
+                    ".git/",
+                    ".venv/",
+                    "__nexy__/",
+                    "__pycache__/",
+                    "venv/",
+                    "node_modules/",
+                )
+            ):
+                return
+            
+            print(f"File : '{npath}' is updated")
+            if npath.endswith(".nexy") or npath.endswith(".mdx"):
+                self._compile(npath)
+
+    def on_deleted(self, event: FileSystemEvent) -> None:
+        raw_path = event.src_path
+        path = raw_path.decode() if isinstance(raw_path, bytes) else raw_path
+        if self.should_trigger(path):
+            compiled_path = path
+            template_path = path
+            if path.endswith(".nexy"):
+                compiled_path = Config.NAMESPACE + path.replace(".nexy", ".py")
+                template_path = Config.NAMESPACE + path.replace(".nexy", ".html")
+            elif path.endswith(".mdx"):
+                compiled_path = Config.NAMESPACE + path.replace(".mdx", ".py")
+                template_path = Config.NAMESPACE + path.replace(".mdx", ".md")
+            if os.path.exists(compiled_path) and path.endswith((".nexy", ".mdx")):
                 os.remove(compiled_path)
                 os.remove(template_path)
-                print(f"File : '{event.src_path}' is deleted")
-            
-            
-                
-               
+                print(f"File : '{path}' is deleted")
 
-def dev(port:Optional[int] = None):
+
+def dev(port: Optional[int] = None) -> None:
     path = "."
     extensions = ["*.py", "*.mdx", "*.nexy"]
     exclusions = [
@@ -100,18 +100,33 @@ def dev(port:Optional[int] = None):
     event_handler = MonHandler(
         patterns=extensions,
         ignore_patterns=exclusions,
-        ignore_directories=True
+        ignore_directories=True,
     )
-    
+
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
     observer.start()
-    uvicorn.run("nexy.server.app:_server", host="0.0.0.0", port=8000, reload=False)
+
+    host = getattr(config, "useHost", "0.0.0.0")
+    default_port = getattr(config, "usePort", 8000)
+    run_port = port if port is not None else default_port
+
     
-    
+
     try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
+        uvicorn.run(
+            "nexy.server.app:_server",
+            host=host,
+            port=run_port,
+            reload=True,
+        
+        )
+        # while True:
+            # time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        
+        print("ŋ dev server stopped")
+    finally:
         observer.stop()
-    observer.join()
+        observer.join()
+        print("Watcher stopped.")
