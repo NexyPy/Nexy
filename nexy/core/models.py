@@ -110,7 +110,7 @@ class PaserModel:
 
 
 class NexyConfigModel:
-    useAliases: dict[str, str] = {"@": "src/components"}
+    useAliases: dict[str, str] | None = None
     useRouter: Any | None = None
     usePort: int = 8000
     useHost: str = "0.0.0.0"
@@ -118,5 +118,8 @@ class NexyConfigModel:
     useDocsUrl: str = "/docs"
     useDocs: bool = True
     useVite: bool = False
+    useFF: list[str] = field(default_factory=list)
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
+    
+
