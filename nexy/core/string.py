@@ -34,10 +34,10 @@ class Pathname:
 
     def process(self) -> str:
         """Exécute toutes les transformations dans l'ordre logique."""
-        res = self._group_pathname()      # 1. Enlever les groupes (ex: (auth))
-        res = self._normalize_pathname(res) # 2. Gérer les index
-        res = self._catch_all(res)        # 3. Transformer [...slug]
-        res = self._dynamic_pathname(res)  # 4. Transformer [slug]
+        res = self._group_pathname()
+        res = self._normalize_pathname(res)
+        res = self._catch_all(res)
+        res = self._dynamic_pathname(res)
         
         # Nettoyage final des slashes doubles
         res = re.sub(r'/+', '/', res)
@@ -53,12 +53,52 @@ class StringTransform:
     def resolve_pathname(pathname: str) -> str:
         return pathname.replace("/", "")
 
-    def get_component_name(self, pathname: str) -> str:
-        component_name = pathname.split("/")[-1]
-        first_letter = component_name[0].capitalize()
-        component_name = first_letter + component_name[1:]
+    @staticmethod
+    def _normalize_dynamic_segment(segment: str) -> str:
+        if segment.startswith("[...") and segment.endswith("]"):
+            name = segment[4:-1]
+            return f"{name}_ndp"
+        if segment.startswith("[") and segment.endswith("]"):
+            name = segment[1:-1]
+            return f"{name}_ndp"
+        if segment.startswith("(") and segment.endswith(")"):
+            name = segment[1:-1]
+            return f"{name}_ngp"
+        return segment
 
-        return component_name
+    @staticmethod
+    def normalize_route_path_for_namespace(path: str) -> str:
+        parts = path.split("/")
+        if not parts:
+            return path
+        *dirs, filename = parts
+        normalized_dirs = [StringTransform._normalize_dynamic_segment(p) for p in dirs]
+        if "." in filename:
+            stem, ext = filename.rsplit(".", 1)
+            if stem.startswith("[...") and stem.endswith("]"):
+                name = stem[4:-1]
+                stem = f"{name}_ndc"
+            elif stem.startswith("[") and stem.endswith("]"):
+                name = stem[1:-1]
+                stem = f"{name}_ndc"
+            filename = f"{stem}.{ext}"
+        normalized_parts = [p for p in normalized_dirs if p] + [filename]
+        return "/".join(normalized_parts)
+
+    def get_component_name(self, pathname: str) -> str:
+        segment = pathname.split("/")[-1]
+        if segment.startswith("[...") and segment.endswith("]"):
+            name = segment[4:-1]
+            base = name[0].capitalize() + name[1:] if name else ""
+            return f"{base}_ndc"
+        if segment.startswith("[") and segment.endswith("]"):
+            name = segment[1:-1]
+            base = name[0].capitalize() + name[1:] if name else ""
+            return f"{base}_ndc"
+        if not segment:
+            return ""
+        first_letter = segment[0].capitalize()
+        return first_letter + segment[1:]
     
     
 

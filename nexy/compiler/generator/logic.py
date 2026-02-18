@@ -1,6 +1,7 @@
 import ast
 import textwrap
 from nexy.core.models import PaserModel
+from nexy.core.string import StringTransform
 
 
 class LogicGenerator:
@@ -10,6 +11,7 @@ class LogicGenerator:
         self.output: str = ""
         self.template_path: str = ""
         self.FRONTMATTER: str = ""
+        self._string_transform = StringTransform()
     
     def generate(
             self,
@@ -21,9 +23,8 @@ class LogicGenerator:
         self.template_path = template_path
         names = template_path.split("/")
         length = len(names) - 1
-        self.func_name = names[length].replace(".md", "").replace(".html", "")
-
-        self.func_name = self.func_name[0].capitalize() + self.func_name[1:]
+        stem = names[length].replace(".md", "").replace(".html", "")
+        self.func_name = self._string_transform.get_component_name(stem)
         if template_path.endswith(".html"):
             self.output = template_path.replace(".html",".py")
         else :
@@ -43,6 +44,7 @@ class LogicGenerator:
         LOGIC = self.source.frontmatter
         LOGIC = textwrap.indent(LOGIC, "    ")
         props = self._resolve_props()
+        is_layout = self.template_path.endswith("layout.html") or self.template_path.endswith("layout.md")
 
         # Build an explicit context dict (no locals()) by collecting
         # prop names, top-level identifiers, AND imported names
@@ -113,15 +115,47 @@ class LogicGenerator:
 
         return f"""from typing import *
 from fastapi import *
+from pathlib import Path as __Path
+import importlib as __importlib
 from nexy import Template as __Template , Import as __Import
 
 def {self.func_name}({props}) -> str:
     {'\r'+LOGIC}
     
     context = {{{context_items}}}
-    # Template Rendering
     __inner = str(__Template().render("{self.template_path}", context))
-    # Layout Wrapping
+
+    __tpl_path = __Path("{self.template_path}")
+    __layouts_dirs = []
+    __parts = list(__tpl_path.parent.parts)
+    try:
+        __idx_routes = __parts.index("routes")
+    except ValueError:
+        __layouts_dirs = []
+    else:
+        __base = __parts[: __idx_routes + 1]
+        __layouts_dirs.append(__Path(*__base))
+        for __extra in __parts[__idx_routes + 1 :]:
+            __base = __base + [__extra]
+            __layouts_dirs.append(__Path(*__base))
+
+    __is_layout = {str(is_layout)}
+    if __is_layout and __layouts_dirs:
+        __target_dirs = __layouts_dirs[:-1]
+    else:
+        __target_dirs = __layouts_dirs
+
+    for __directory in reversed(__target_dirs):
+        __module_path = __directory.as_posix().replace("/", ".") + ".layout"
+        try:
+            __mod = __importlib.import_module(__module_path)
+        except Exception:
+            continue
+        __layout = getattr(__mod, "Layout", None)
+        if callable(__layout):
+            __inner = __layout(children=__inner)
+            break
+
     return __inner
 """
 

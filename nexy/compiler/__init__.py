@@ -31,10 +31,14 @@ class Compiler:
         self.source_code = self._load_source()
         if  is_nexy_file(self.input):
             if self.output is None:
-                self.output = self.config.NAMESPACE + "/"+ self.input.replace(".nexy", ".html")
+                from nexy.core.string import StringTransform
+                mapped = StringTransform.normalize_route_path_for_namespace(self.input)
+                self.output = self.config.NAMESPACE + "/"+ mapped.replace(".nexy", ".html")
         elif is_mdx_file(self.input):
             if self.output is None:
-                self.output = self.config.NAMESPACE +"/"+ self.input.replace(".mdx", ".md")
+                from nexy.core.string import StringTransform
+                mapped = StringTransform.normalize_route_path_for_namespace(self.input)
+                self.output = self.config.NAMESPACE +"/"+ mapped.replace(".mdx", ".md")
         
         else:
             print(f"Error: File '{self.input}' is not a nexy or mdx component")

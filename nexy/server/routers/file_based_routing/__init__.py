@@ -1,8 +1,11 @@
 import importlib
-from fastapi import APIRouter, Depends
+import inspect
+import re
+from typing import Any, Callable, Dict, List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Request, FastAPI
 from fastapi.responses import HTMLResponse
 
-from nexy.core.string import StringTransform
+from nexy.core.string import StringTransform, Pathname
 from nexy.core.config import Config
 from nexy.server.routers.file_based_routing.route_discovery import RouteDiscovery
 from nexy.decorators import RouteMeta, ResponseMeta
@@ -24,12 +27,78 @@ class FileBasedRouter:
         self.router = APIRouter()
         self.string_transform = StringTransform()
         self.modules_metadata: list[dict] = []
+        self.error_components: list[dict] = []
+        self.notfound_components: list[dict] = []
         
         self._load_modules()
         self._register_routes()
 
     def route(self) -> APIRouter:
         return self.router
+
+    def _collect_route_dependencies(self, path_str: str) -> list[Callable[..., Any]]:
+        deps: list[Callable[..., Any]] = []
+        try:
+            from pathlib import Path
+
+            path = Path(path_str)
+            root = Path(Config.ROUTER_PATH).resolve()
+            current = path.parent.resolve()
+
+            chain: list[Path] = []
+            while str(current).startswith(str(root)):
+                chain.append(current)
+                if current == root:
+                    break
+                current = current.parent
+
+            for directory in reversed(chain):
+                dep_file = directory / "dependencies.py"
+                if dep_file.is_file():
+                    rel = directory.as_posix().replace("/", ".")
+                    module_path = f"{rel}.dependencies"
+                    try:
+                        mod = importlib.import_module(module_path)
+                    except Exception:
+                        continue
+                    candidates = getattr(mod, "dependencies", None)
+                    if isinstance(candidates, (list, tuple)):
+                        for c in candidates:
+                            if callable(c):
+                                deps.append(c)
+        except Exception:
+            return deps
+        return deps
+
+    def _extract_path_params(self, path: str) -> set[str]:
+        return {m.group(1) for m in re.finditer(r"{([^}:]+)(:[^}]+)?}", path)}
+
+    def _validate_handler_signature(
+        self,
+        handler: Callable[..., Any],
+        path: str,
+        source_path: str,
+        method_name: str,
+    ) -> None:
+        expected = self._extract_path_params(path)
+        if not expected:
+            return
+        try:
+            sig = inspect.signature(handler)
+        except ValueError:
+            return
+        params = set(sig.parameters.keys())
+        missing = expected - params
+        if missing:
+            missing_str = ", ".join(sorted(missing))
+            raise RuntimeError(
+                f"Incohérence entre le chemin '{path}' et la signature de '{method_name}' "
+                f"dans '{source_path}': paramètres manquants {missing_str}"
+            )
+
+    def register_on(self, app: FastAPI) -> None:
+        app.include_router(self.router)
+        app.add_exception_handler(Exception, self._handle_unexpected_error)
 
     def _load_modules(self) -> None:
         """Scanne les fichiers et prépare les métadonnées des routes."""
@@ -39,50 +108,111 @@ class FileBasedRouter:
             # Détermination du type et du chemin d'import
             if path_str.endswith((".nexy", ".mdx")):
                 type_module = "component"
-                import_path = f"{Config.NAMESPACE}{path_str}".replace("/", ".").rsplit(".", 1)[0]
+                from nexy.core.string import StringTransform as _ST
+                mapped = _ST.normalize_route_path_for_namespace(path_str)
+                import_path = f"{Config.NAMESPACE}{mapped}".replace("/", ".").rsplit(".", 1)[0]
             else:
                 type_module = "api"
                 import_path = path_str.replace("/", ".").removesuffix(".py")
 
             module = importlib.import_module(import_path)
             
-            # Nettoyage propre du pathname URL
-            # On retire les préfixes de dossiers sources pour obtenir l'URL
             clean_path = path_str.replace(f"{Config.NAMESPACE}src/routes", "").replace("src/routes", "")
-            clean_path = clean_path.split(".")[0] # Retire l'extension
-            
-            pathname = clean_path.removesuffix("/index")
-            if not pathname:
-                pathname = "/"
+            clean_path = clean_path.split(".")[0]
+            pathname = Pathname(clean_path).process()
 
-            # print(f"Discovered route: {pathname} -> {import_path} ({type_module})")
-            
-            self.modules_metadata.append({
-                "module": module,
-                "type": type_module,
-                "pathname": pathname,
-                "component_name": self.string_transform.get_component_name(clean_path)
-            })
+            name_only = app_path.name
+            if name_only.lower() == "error.nexy":
+                scope = app_path.parent.as_posix().replace("src/routes", "") or "/"
+                scope_path = Pathname(scope).process()
+                self.error_components.append(
+                    {
+                        "scope": scope_path,
+                        "module": module,
+                        "component_name": self.string_transform.get_component_name("Error"),
+                    }
+                )
+                continue
+
+            if name_only.lower() == "notfound.nexy":
+                scope = app_path.parent.as_posix().replace("src/routes", "") or "/"
+                scope_path = Pathname(scope).process()
+                self.notfound_components.append(
+                    {
+                        "scope": scope_path,
+                        "module": module,
+                        "component_name": self.string_transform.get_component_name("notfound"),
+                    }
+                )
+                continue
+
+            self.modules_metadata.append(
+                {
+                    "module": module,
+                    "type": type_module,
+                    "pathname": pathname,
+                    "component_name": self.string_transform.get_component_name(clean_path),
+                    "source_path": path_str,
+                }
+            )
+
+    def _resolve_scoped_component(
+        self,
+        path: str,
+        entries: List[Dict[str, Any]],
+    ) -> Optional[Callable[..., Any]]:
+        best: Optional[Dict[str, Any]] = None
+        for entry in entries:
+            scope = entry["scope"]
+            if scope == "/":
+                match = True
+            else:
+                match = path.startswith(scope.rstrip("/"))
+            if match:
+                if best is None or len(scope) > len(best["scope"]):
+                    best = entry
+        if best is None:
+            return None
+        component = getattr(best["module"], best["component_name"], None)
+        if component is None:
+            return None
+        return component
+
+    async def _handle_not_found(self, request: Request, path: str) -> HTMLResponse:
+        component = self._resolve_scoped_component(request.url.path, self.notfound_components)
+        if component is None:
+            raise HTTPException(status_code=404, detail="Not Found")
+        html = component()
+        return HTMLResponse(content=html, status_code=404)
+
+    async def _handle_unexpected_error(self, request: Request, exc: Exception) -> HTMLResponse:
+        component = self._resolve_scoped_component(request.url.path, self.error_components)
+        if component is None:
+            raise exc
+        html = component()
+        return HTMLResponse(content=html, status_code=500)
 
     def _register_routes(self) -> None:
         """Enregistre les routes dans l'APIRouter de FastAPI."""
         for meta in self.modules_metadata:
             module = meta["module"]
             path = meta["pathname"]
+            source_path = meta["source_path"]
+
+            route_level_deps = self._collect_route_dependencies(source_path)
 
             if meta["type"] == "api":
                 for method_name, router_method in HTTP_METHODS_MAP.items():
                     handler = getattr(module, method_name, None)
                     if handler is None:
                         continue
+                    self._validate_handler_signature(handler, path, source_path, method_name)
                     route_meta: RouteMeta | None = getattr(handler, "__nexy_route_meta__", None)
                     response_meta: ResponseMeta | None = getattr(handler, "__nexy_response_meta__", None)
                     guards = getattr(handler, "__nexy_guards__", ())
                     middlewares = getattr(handler, "__nexy_middlewares__", ())
-                    dependencies = [
-                        Depends(dep)
-                        for dep in (*guards, *middlewares)
-                    ] or None
+                    deps_callables = [*guards, *middlewares, *route_level_deps]
+                    dependencies = [Depends(dep) for dep in deps_callables] or None
                     name = route_meta.name if route_meta and route_meta.name else None
                     tags = route_meta.tags if route_meta and route_meta.tags is not None else None
                     route_kwargs: dict[str, object] = {
@@ -120,6 +250,7 @@ class FileBasedRouter:
                 
                 # Cas spécial WebSocket
                 if handler := getattr(module, "SOCKET", None):
+                    self._validate_handler_signature(handler, path, source_path, "SOCKET")
                     self.router.websocket(path)(handler)
             
             else:
@@ -128,6 +259,14 @@ class FileBasedRouter:
                     self.router.get(
                         path,
                         response_class=HTMLResponse,
-                        name=meta["component_name"]
+                        name=meta["component_name"],
+                        dependencies=[Depends(dep) for dep in route_level_deps] or None,
                     )(component)
+
+        self.router.add_api_route(
+            "/{path:path}",
+            self._handle_not_found,
+            methods=["GET"],
+            response_class=HTMLResponse,
+        )
 
