@@ -75,26 +75,27 @@ class StringTransform:
         normalized_dirs = [StringTransform._normalize_dynamic_segment(p) for p in dirs]
         if "." in filename:
             stem, ext = filename.rsplit(".", 1)
-            if stem.startswith("[...") and stem.endswith("]"):
-                name = stem[4:-1]
-                stem = f"{name}_ndc"
-            elif stem.startswith("[") and stem.endswith("]"):
-                name = stem[1:-1]
-                stem = f"{name}_ndc"
+            original = stem
+            has_dynamic = "[" in stem and "]" in stem
+            if has_dynamic:
+                stem = re.sub(r'\[\.\.\.([^\]]+)\]', r'\1', stem)
+                stem = re.sub(r'\[([^\]]+)\]', r'\1', stem)
+                stem = stem.replace("-", "_")
+                stem = f"{stem}_ndc"
             filename = f"{stem}.{ext}"
         normalized_parts = [p for p in normalized_dirs if p] + [filename]
         return "/".join(normalized_parts)
 
     def get_component_name(self, pathname: str) -> str:
         segment = pathname.split("/")[-1]
-        if segment.startswith("[...") and segment.endswith("]"):
-            name = segment[4:-1]
-            base = name[0].capitalize() + name[1:] if name else ""
-            return f"{base}_ndc"
-        if segment.startswith("[") and segment.endswith("]"):
-            name = segment[1:-1]
-            base = name[0].capitalize() + name[1:] if name else ""
-            return f"{base}_ndc"
+        if "[" in segment and "]" in segment:
+            cleaned = re.sub(r'\[\.\.\.([^\]]+)\]', r'\1', segment)
+            cleaned = re.sub(r'\[([^\]]+)\]', r'\1', cleaned)
+            cleaned = cleaned.replace("-", "_")
+            if not cleaned:
+                return ""
+            first = cleaned[0].capitalize()
+            return f"{first}{cleaned[1:]}_ndc"
         if not segment:
             return ""
         first_letter = segment[0].capitalize()

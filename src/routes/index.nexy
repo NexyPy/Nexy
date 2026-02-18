@@ -8,7 +8,7 @@ espoir : prop[str]= "hjdhj"
 def user():
   return ""
 ---
-<script src="https://cdn.tailwindcss.com"></script>
+
 <div>
   <User">
    <h1> espoir</h1>

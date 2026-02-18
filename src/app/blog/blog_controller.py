@@ -1,4 +1,4 @@
-from nexy import Controller
+from nexy.decorators import Controller
 from nexy.decorators import UseRoute
 
 @Controller("/blog/{version}", tags=["Blog"])

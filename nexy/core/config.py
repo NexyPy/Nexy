@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 
 from nexy.core.models import NexyConfigModel
 
@@ -8,9 +9,15 @@ current_dir = os.getcwd()
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
+try:
+    from nexyconfig import NexyConfig
+except ImportError as e:
+    traceback.print_exc()
+    print(f"Error importing nexyconfig: {e.with_traceback(None)}")
+
 
 class Config:
-    ALIASES: dict[str, str] = {"@": "src/components"}
+    ALIASES: dict[str, str] = {}
     NAMESPACE: str = "__nexy__/"
     MARKDOWN_EXTENSIONS: list[str] = ["extra", "codehilite"]
     TARGET_EXTENSIONS: list[str] = [".nexy", ".mdx"]
@@ -54,5 +61,7 @@ class Config:
             if markdown_extensions:
                 self.MARKDOWN_EXTENSIONS = markdown_extensions
                 Config.MARKDOWN_EXTENSIONS = markdown_extensions
-        except Exception:
+        except Exception as e:
             self.nexy_config = None
+            # traceback.print_exc()
+            # print(f"Error loading nexyconfig: {e.with_traceback(traceback.format_exc())}")

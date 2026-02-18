@@ -330,3 +330,9 @@ def _register_controller(ctrl_cls: Type, parent_router: APIRouter):
             ctrl_router.add_api_websocket_route(path="/", endpoint=method_func)
     
     parent_router.include_router(ctrl_router)
+
+
+
+
+def UseAction():
+    pass

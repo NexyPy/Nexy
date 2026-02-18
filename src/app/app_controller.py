@@ -1,5 +1,5 @@
 from .app_services import UserService
-from nexy import Controller
+from nexy.decorators import Controller
 
 @Controller()
 class UserController:

@@ -1,6 +1,12 @@
-def preact():
-    return """
-    import { h, render } from 'preact';
+from nexy.core.models import FFModel
+
+source = """    import { h, render } from 'preact';
     import App from '@/App.svelte';
-    render(<App />, document.body);
-    """
+
+""" 
+def preact()->FFModel:
+    return FFModel(
+        name="preact",
+        render=source,
+        extension=["jsx", "tsx"]
+    )

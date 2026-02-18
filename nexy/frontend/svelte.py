@@ -1,7 +1,12 @@
-def svelte():
-    return """
-    import App from '@/App.svelte';
-    const app = new App({
-        target: document.body,
-    });
-    """
+from nexy.core.models import FFModel
+
+
+source = """    import App from '@/App.svelte';
+
+"""
+def svelte()->FFModel:
+    return FFModel(
+        name="svelte",
+        render=source,
+        extension=["svelte"]
+        )

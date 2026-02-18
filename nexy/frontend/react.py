@@ -1,7 +1,12 @@
-def react():
-    return """
-    import React from 'react';
+from nexy.core.models import FFModel
+
+
+source = """    import React from 'react';
     import ReactDOM from 'react-dom';
-    import App from '@/App.svelte';
-    ReactDOM.render(<App />, document.body);
     """
+def react()->FFModel:
+    return FFModel(
+        name="react",
+        render=source,
+        extension=["jsx", "tsx"]
+    )

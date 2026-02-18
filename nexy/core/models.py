@@ -2,6 +2,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List, Dict, Optional
 
+from fastapi import APIRouter
+
+
 
 @dataclass
 class Node:
@@ -108,17 +111,23 @@ class PaserModel:
     props: list[NexyProp]
     context: list[ContextModel] = field(default_factory=list)
 
+@dataclass
+class FFModel:
+    name: str
+    render: str
+    extension: list[str] = field(default_factory=list)
 
 class NexyConfigModel:
     useAliases: dict[str, str] | None = None
-    useRouter: Any | None = None
+    useRouter: APIRouter | None = None
     usePort: int = 8000
     useHost: str = "0.0.0.0"
     useTitle: str = "Nexy"
     useDocsUrl: str = "/docs"
+    useRedocsUrl: str | None = "/redocs"
     useDocs: bool = True
     useVite: bool = False
-    useFF: list[str] = field(default_factory=list)
+    useFF: list[FFModel] = field(default_factory=list)
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
     

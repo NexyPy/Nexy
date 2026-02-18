@@ -118,6 +118,8 @@ from fastapi import *
 from pathlib import Path as __Path
 import importlib as __importlib
 from nexy import Template as __Template , Import as __Import
+from jinja2 import Template as __JinjaTemplate
+NexyElement = Union[callable, __JinjaTemplate]
 
 def {self.func_name}({props}) -> str:
     {'\r'+LOGIC}
