@@ -44,9 +44,9 @@ class Template:
         # 1. Rendu Jinja (interpolation des variables)
         rendered_content = self._render_jinja2(path, context)
         
-        # 2. Traitement post-rendu selon l'extension
         if path.endswith(".md"):
             return self._render_markdown(rendered_content)
         
+        # 2. Traitement post-rendu selon l'extension
         # Par défaut (html ou autres), on retourne le contenu rendu par Jinja
         return rendered_content

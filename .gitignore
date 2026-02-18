@@ -2,5 +2,8 @@ uv.lock
 .venv/
 __pycache__/
 __nexy__/
+node_modules/
+
+
 
 .pytest_cache
