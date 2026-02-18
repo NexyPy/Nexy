@@ -2,9 +2,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List, Dict, Optional
 
+
 @dataclass
-class Node: 
+class Node:
     pass
+
 
 @dataclass
 class ComponentNode(Node):
@@ -12,15 +14,18 @@ class ComponentNode(Node):
     props: Dict[str, str]
     children: List[Node] = field(default_factory=list)
 
+
 @dataclass
 class TextNode(Node):
     content: str
 
+
 @dataclass
 class NexyModule:
     name: str
-    frontmatter: str 
+    frontmatter: str
     template: List[Node]
+
 
 @dataclass
 class ScanResult:
@@ -34,6 +39,7 @@ class ScanResult:
     @property
     def template(self) -> str:
         return self.template_block
+
 
 @dataclass
 class Binding:
@@ -54,9 +60,10 @@ class ComponentType(Enum):
     NEXY = "nexy"
     VUE = "vue"
     SVELTE = "svelte"
-    REACT = "react"  # .jsx ou .tsx
+    REACT = "react"
     JSON = "json"
     UNKNOWN = "unknown"
+
 
 @dataclass
 class NexyImport:
@@ -67,6 +74,7 @@ class NexyImport:
     extension: str = ""
     comp_type: ComponentType = ComponentType.UNKNOWN
 
+
 @dataclass
 class LogicResult:
     nexy_imports: List[NexyImport] = field(default_factory=list)
@@ -76,22 +84,38 @@ class LogicResult:
 
 @dataclass
 class ComponentUsage:
-    name: str                   
-    attributes: dict[str, str]  
+    name: str
+    attributes: dict[str, str]
     is_self_closing: bool
+
 
 @dataclass
 class TemplateResult:
-    converted_html: str   
+    converted_html: str
     used_components: set[str]
+
 
 @dataclass
 class ContextModel:
     key: str
     value: str
+
+
 @dataclass
 class PaserModel:
-    frontmatter: str       
-    template: str    
+    frontmatter: str
+    template: str
     props: list[NexyProp]
     context: list[ContextModel] = field(default_factory=list)
+
+
+class NexyConfigModel:
+    useAliases: dict[str, str] = {"@": "src/components"}
+    useRouter: Any | None = None
+    usePort: int = 8000
+    useHost: str = "0.0.0.0"
+    useTitle: str = "Nexy"
+    useDocsUrl: str = "/docs"
+    useDocs: bool = True
+    useVite: bool = False
+    useMarkdownExtensions: list[str] = []
