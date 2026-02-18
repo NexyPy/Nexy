@@ -272,6 +272,7 @@ def _register_controller(ctrl_cls: Type, parent_router: APIRouter):
         method_upper = method_name.upper()
         if method_upper in HTTP_METHODS:
             if method_upper in seen_http_methods:
+                print(f"{ctrl_cls.__name__} has multiple handlers for HTTP method {method_upper} ")
                 raise ValueError(f"Controller {ctrl_cls.__name__} has multiple handlers for HTTP method {method_upper}")
             seen_http_methods.add(method_upper)
             method_guards: Iterable[Callable[..., Any]] = getattr(method_func, "__nexy_guards__", ())
