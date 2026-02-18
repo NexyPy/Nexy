@@ -12,3 +12,4 @@ class NexyConfig(NexyConfigModel):
     useDocs: bool = True
     useVite: bool = False
     useMarkdownExtensions: list[str] = []
+    excludeDirs: list[str] = []

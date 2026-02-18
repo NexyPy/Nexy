@@ -75,8 +75,22 @@ class MonHandler(PatternMatchingEventHandler):
 def dev(port:Optional[int] = None):
     path = "."
     extensions = ["*.py", "*.mdx", "*.nexy"]
-    exclusions = ["*/.git/*", "*./.venv/*", "*./__nexy__/*", "*/__pycache__/*", "*/venv/*", "*/.venv/*", "*/__nexy__/*", "*/node_modules/*", "*.tmp"]
-    
+    exclusions = [
+        "*/.git/*",
+        "*./.venv/*",
+        "*./__nexy__/*",
+        "*/__pycache__/*",
+        "*/venv/*",
+        "*/.venv/*",
+        "*/__nexy__/*",
+        "*/node_modules/*",
+        "*.tmp",
+    ]
+
+    config = Config()
+    extra_exclusions = getattr(config, "excludeDirs", [])
+    exclusions.extend(extra_exclusions)
+
     version = __Version__().get()
     print(f"> nexy@{version} dev")
 
