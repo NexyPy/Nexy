@@ -1,0 +1,16 @@
+---
+u:prop[str]
+---
+<h1 class="text-7xl  font-bold">{{u}}</h1>
+<p>hjdhj</p>
+---<br>
+hdjhjdh
+kldkld
+<ul class="space-y-7">
+    {%for i in range(5)%}
+        <li class="bg-red-500">
+
+            <a nexy-prefetch href="/u/0{{i}}-d">0{{i}}-d</a>
+        </li>
+        {%endfor%}
+    </ul>

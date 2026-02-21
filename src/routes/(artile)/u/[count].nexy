@@ -1,0 +1,11 @@
+---
+count:prop[int]
+print("count :", count)
+---
+{{count}}
+
+<div class="flex gap-2">
+<a nexy-prefetch href="/u/{{count+1}}" class="border p-2">+1</a>
+
+<a nexy-prefetch href="/u/{{count-1}}" class="border p-2">-1</a>
+</div>

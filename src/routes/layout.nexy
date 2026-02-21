@@ -1,4 +1,5 @@
 ---
+from "src/components/sidebar.nexy" import Sidebar
 children:prop[NexyElement]
 print("\033[35m" + "Layout" + "\033[0m")
 ---
@@ -6,12 +7,34 @@ print("\033[35m" + "Layout" + "\033[0m")
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Layout</title>
-    <!--<script src="https://cdn.tailwindcss.com"></script>-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard kkk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-red-500/20">
-dhjdhj
-    {{children | safe}}
-dd dhh
+<body class="">
+    <div class="flex h-screen p-2">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-slate-800 bg-slate-900">
+            <Sidebar/>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="border-b border-slate-800/20  px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold ">Dashboard</h1>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="p-6">
+                {{children | safe}}
+            </div>
+        </main>
+    </div>
 </body>
 </html>
+<style>
+  
+</style>

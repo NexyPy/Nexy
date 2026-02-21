@@ -14,7 +14,8 @@ class Template:
         # Sécurité : autoescape activé pour éviter les failles XSS
         self.env = Environment(
             loader=FileSystemLoader("."),
-            autoescape=select_autoescape(["html", "xml"]),
+            auto_reload=True,
+        
         )
     
     def _render_jinja2(self, path: str, context: Dict[str, Any]) -> str:

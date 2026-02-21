@@ -1,2 +1,3 @@
-class Link:
-    pass
+def Link():
+    
+    return 

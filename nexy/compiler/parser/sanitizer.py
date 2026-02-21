@@ -65,6 +65,7 @@ class LogicSanitizer:
                 module_name = re.sub(r'\.+', '.', module_name.replace("/", ".")).strip(".")
                 module_name = prefix + module_name
                 # On reconstruit la chaîne des targets proprement
+                print("prefix",prefix)
                 return f"from {module_name} import {', '.join(targets)}"
 
             # --- RUNTIME (TSX, JSX, VUE, JSON) ---
