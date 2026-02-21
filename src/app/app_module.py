@@ -4,9 +4,9 @@ from src.app.blog.blog_module import BlogModule
 
 
 @Module(
-    controllers=[UserController],
-    providers=[] ,
-    imports=[BlogModule],
+    controllers=[UserController], 
+    providers=[], 
+    imports=[BlogModule]
 )
 class AppModule:
     pass

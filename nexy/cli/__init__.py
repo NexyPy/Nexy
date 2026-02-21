@@ -2,7 +2,7 @@
 import typer
 from typing import Optional
 
-from nexy.cli.command import dev, start, build
+from nexy.cli.commands import dev, start, build
 
 CLI = typer.Typer(help="Nexy CLI - The Modular Meta-Framework")
 

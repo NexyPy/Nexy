@@ -4,7 +4,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.staticfiles import StaticFiles
 from nexy.__version__ import __Version__
 from nexy.core.config import Config
-from nexy.server.routers.file_based_routing import FileBasedRouter
+from nexy.routers.file_based_routing import FileBasedRouter
 
 
 version = __Version__().get()

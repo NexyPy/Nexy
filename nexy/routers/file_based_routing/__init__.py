@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 
 from nexy.core.string import StringTransform, Pathname
 from nexy.core.config import Config
-from nexy.server.routers.file_based_routing.route_discovery import RouteDiscovery
+from nexy.routers.file_based_routing.route_discovery import RouteDiscovery
 from nexy.decorators import RouteMeta, ResponseMeta
 
 # Configuration des méthodes supportées

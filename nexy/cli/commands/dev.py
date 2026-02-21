@@ -115,7 +115,7 @@ def dev(port: Optional[int] = None) -> None:
 
     try:
         uvicorn.run(
-            "nexy.server.app:_server",
+            "nexy.routers.app:_server",
             host=host,
             port=run_port,
             reload=True,
