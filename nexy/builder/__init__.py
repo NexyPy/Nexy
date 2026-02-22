@@ -49,11 +49,12 @@ class Builder:
         else:
             parts.append("async function __nexy_setup_preamble(){}")
         if "react" in frameworks:
-            parts.append("async function mountReact(el: HTMLElement, path: string, props: NexyProps): Promise<void> {")
+            parts.append("async function mountReact(el: HTMLElement, path: string, props: NexyProps, symbol: string): Promise<void> {")
             parts.append("  const loader = importers[path]")
             parts.append("  if (!loader) throw new Error(`Component not found: ${path}`)")
             parts.append("  const mod = await loader()")
-            parts.append("  const Comp = (mod as CompMod).default as unknown")
+            parts.append("  const anyMod = mod as Record<string, unknown> & CompMod")
+            parts.append("  const Comp = (anyMod.default ?? (symbol && anyMod[symbol])) as unknown")
             parts.append("  const React = (await import('react')) as typeof import('react')")
             parts.append("  const RDC = (await import('react-dom/client')) as typeof import('react-dom/client')")
             parts.append("  const root = RDC.createRoot(el)")
@@ -92,13 +93,14 @@ class Builder:
         parts.append("  el.dataset.nexyMounted='1'")
         parts.append("  const fw=(el.dataset.nexyFw||'').toLowerCase()")
         parts.append("  const rawPath=el.dataset.nexyPath||''")
+        parts.append("  const symbol = el.getAttribute('data-nexy-symbol') || ''")
         parts.append("  const propsStr=el.dataset.nexyProps||'{}'")
         parts.append("  let props: NexyProps = {}")
         parts.append("  try{ props=JSON.parse(propsStr) as NexyProps }catch{}")
         parts.append("  let path=normalizePath(rawPath)")
         parts.append("  if(!importers[path]){ const alt = path.startsWith('/')?path.slice(1):path; if(importers[alt]) path=alt; else { return } }")
         if "react" in frameworks:
-            parts.append("  if(fw==='react') return mountReact(el, path, props)")
+            parts.append("  if(fw==='react') return mountReact(el, path, props, symbol)")
         if "vue" in frameworks:
             parts.append("  if(fw==='vue') return mountVue(el, path, props)")
         if "svelte" in frameworks:

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
   const serverPortFile = path.resolve('__nexy__/server.port')
@@ -16,7 +17,7 @@ export default defineConfig(({ mode }) => {
   const origin = `http://localhost:${serverPort}`
   return {
     base: mode === 'production' ? '/__nexy__/client/' : '/',
-    plugins: [react()],
+    plugins: [react(), tailwindcss(),],
     build: {
       manifest: true,
       outDir: '__nexy__/client',
@@ -36,7 +37,18 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: true,
       origin,
-      cors: { origin }
+      cors: { origin },
+      watch: {
+        // Ignore heavy dirs and ALL __nexy__ artifacts; keep HMR on src/**
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/.venv/**',
+          '**/venv/**',
+          '**/__pycache__/**',
+          '**/__nexy__/**'
+        ]
+      }
     },
     customLogger: {
       info: (msg: string) => console.log(msg),
@@ -47,8 +59,6 @@ export default defineConfig(({ mode }) => {
       warnOnce: () => {},
       hasWarned: false
     },
-    optimizeDeps: {
-      include: ['react', 'react-dom']
-    }
+    optimizeDeps: {}
   }
 })

@@ -5,7 +5,8 @@ from nexy.core.config import Config
 from nexy.cli.commands.utilities.server import Server
 from nexy.cli.commands.utilities.watcher import create_observer
 from nexy.cli.commands.utilities.console import Console
-from nexy.utils.ports import is_port_open
+from nexy.utils.ports import generate_port
+
 
 def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     path = "."
@@ -21,27 +22,24 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     Console.info("ŋ compile...")
     Builder().build()
 
+    run_host = host if host is not None else getattr(config, "useHost", "0.0.0.0")
+    base_port = port if port is not None else getattr(config, "usePort", 3000)
+    server_port, client_port = generate_port(run_host, base_port)
+
     observer = create_observer(path, extensions, exclusions)
+    vite_proc = None
+
     try:
-        vite_proc = None
         if getattr(config, "useVite", False):
-            try:
-                vite_proc = Server.vite()
-                Console.success("Vite dev server started")
-
-            except Exception:
-                vite_proc = None
-                Console.error("Failed to start Vite dev server")
-
-        run_host = host if host is not None else getattr(config, "useHost", "0.0.0.0")
-        run_port = Server.resolve_port(run_host, port)
-
+            vite_proc = Server.vite(port=client_port)
+            Console.success("Vite dev server started")
+    except Exception:
+        Console.error("Failed to start watcher")
+    try:
+        Server.uvicorn(host=run_host, port=server_port, reload=True)
+    except (KeyboardInterrupt, SystemExit):
+        Console.warn("ŋ dev server stopped")
     finally:
-        Console.info(f"Uvicorn: http://{run_host}:{run_port} (reload)")
-        try:
-            Server.uvicorn(host=run_host, port=run_port, reload=True)
-        except (KeyboardInterrupt, SystemExit):
-            Console.warn("ŋ dev server stopped")
         observer.stop()
         observer.join()
         if vite_proc is not None:

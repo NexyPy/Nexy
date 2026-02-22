@@ -67,7 +67,30 @@ class _Importer:
             return "{}"
 
     def _placeholder(self, framework: str, path: str, mount_id: str, props_json: str) -> str:
-        url = path if path.startswith("/") else f"/{path}"
+        aliases = getattr(Config, "ALIASES", {}) or {}
+        resolved = path
+        for key, target in aliases.items():
+            k = key.rstrip("/")
+            if resolved == k or resolved.startswith(f"{k}/"):
+                t = target.lstrip("/")
+                suffix = resolved[len(k):].lstrip("/")
+                resolved = f"/{t}/{suffix}" if suffix else f"/{t}"
+                break
+        if not resolved.startswith("/"):
+            if resolved.startswith("./") or resolved.startswith("../") or not any(resolved.startswith(prefix) for prefix in aliases.keys()):
+                stripped = resolved
+                while stripped.startswith("./"):
+                    stripped = stripped[2:]
+                while stripped.startswith("../"):
+                    stripped = stripped[3:]
+                candidates = ["src", "src/components"]
+                for base in candidates:
+                    from pathlib import Path as _P
+                    candidate_path = _P(getattr(Config, "PROJECT_ROOT", ".")).joinpath(base, stripped)
+                    if candidate_path.is_file():
+                        resolved = f"/{candidate_path.as_posix().lstrip('/')}"
+                        break
+        url = resolved if resolved.startswith("/") else f"/{resolved}"
         esc_props = _html_escape(props_json, quote=True)
         esc_symbol = _html_escape(self.symbol, quote=True)
         esc_fw = _html_escape(framework, quote=True)
