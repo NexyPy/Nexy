@@ -6,6 +6,16 @@ from watchdog.observers import Observer
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 
+C = {
+    "reset": "\033[0m",
+    "dim": "\033[2m",
+    "blue": "\033[34m",
+    "green": "\033[32m",
+    "yellow": "\033[33m",
+    "red": "\033[31m",
+    "cyan": "\033[36m",
+    "magenta": "\033[35m",
+}
 class WatchHandler(PatternMatchingEventHandler):
     def __init__(self, on_reload_api: Optional[Callable] = None, min_interval: float = 0.5, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -37,14 +47,14 @@ class WatchHandler(PatternMatchingEventHandler):
 
         # 1. Compilation si nécessaire
         if path.endswith((".nexy", ".mdx")):
-            print(f"hmr » update  '{path}'")
+            print(f"{C['blue']}hmr{C['reset']} » {C['green']}update{C['reset']} {C['dim']}{path}{C['reset']} {C['green']}↺{C['reset']}")
             self.compiler.compile(path)
             needs_reload = True
         
         # 2. Si c'est un fichier Python, on doit reload aussi
         elif path.endswith(".py"):
             needs_reload = True
-            print(f"hmr » update  '{path}'")
+            print(f"{C['blue']}hmr{C['reset']} » {C['green']}update{C['reset']} {C['dim']}{path}{C['reset']} {C['green']}↺{C['reset']}")
 
         # 3. Déclenchement du redémarrage Uvicorn
         if needs_reload and self.on_reload_api:

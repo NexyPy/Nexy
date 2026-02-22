@@ -93,9 +93,8 @@ class NexyDefaultFormatter(logging.Formatter):
         
         # Construction du préfixe : ŋ [Info] [app.py:12]
         prefix = f"{color}{level}{C['reset']} »"
-        location = f" {C['dim']}[{file_name}:{line_no}]{C['reset']}"
         
-        result = f"{prefix}{location} {msg}"
+        result = f"{prefix}"
         if record.exc_info:
             # Seulement le dernier frame (fichier avec l'erreur)
             tb_frames = traceback.extract_tb(record.exc_info[2])
@@ -115,13 +114,16 @@ class NexyDefaultFormatter(logging.Formatter):
                     caret_indent = " " * (indent + 4)  # 4 espaces pour aligner sous le code
                     caret = "~" * max(1, len(code_part)) + "^~"
                     result += (
-                        f"\n  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
+                        f"  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
                         f"\n    {color}{original_line}{C['reset']}"
                         f"\n{caret_indent}{color}{caret}{C['reset']}"
                     )
                 else:
-                    result += f"\n  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
+                    result += f"File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
         return result
+
+
+
 NEXY_LOG_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
