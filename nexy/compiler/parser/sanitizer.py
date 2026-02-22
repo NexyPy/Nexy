@@ -67,8 +67,8 @@ class LogicSanitizer:
                 # On reconstruit la chaîne des targets proprement
                 return f"from {module_name} import {', '.join(targets)}"
 
-            # --- RUNTIME (TSX, JSX, VUE, JSON) ---
-            framework = {'.tsx': 'react', '.jsx': 'react', '.vue': 'vue'}.get(ext, 'unknown')
+            # --- RUNTIME (TSX, JSX, VUE, SVELTE, JSON) ---
+            framework = Config.FRONTEND_EXTENSIONS.get(ext, 'unknown')
             
             import_lines = []
             for t in targets:

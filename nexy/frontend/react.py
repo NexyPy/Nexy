@@ -1,12 +1,8 @@
 from nexy.core.models import FFModel
 
-
-source = """    import React from 'react';
-    import ReactDOM from 'react-dom';
-    """
-def react()->FFModel:
+def react() -> FFModel:
     return FFModel(
         name="react",
-        render=source,
+        render="",
         extension=["jsx", "tsx"]
     )

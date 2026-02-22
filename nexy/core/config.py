@@ -31,6 +31,12 @@ class Config:
         "*/node_modules/*",
         "*.tmp",
     ]
+    FRONTEND_EXTENSIONS: dict[str, str] = {
+        ".tsx": "react",
+        ".jsx": "react",
+        ".vue": "vue",
+        ".svelte": "svelte",
+    }
 
     def __init__(self) -> None:
         self._get_config()
@@ -74,6 +80,23 @@ class Config:
             if watch_exclude:
                 self.WATCH_EXCLUDE_PATTERNS = watch_exclude
                 Config.WATCH_EXCLUDE_PATTERNS = watch_exclude
+            
+            ff_list = getattr(nexy_config, "useFF", None)
+            if ff_list:
+                mapping: dict[str, str] = dict(Config.FRONTEND_EXTENSIONS)
+                for ff in ff_list:
+                    try:
+                        name = getattr(ff, "name", None)
+                        exts = getattr(ff, "extension", []) or []
+                        if not name:
+                            continue
+                        for ext in exts:
+                            e = ext if ext.startswith(".") else f".{ext}"
+                            mapping[e.lower()] = name.lower()
+                    except Exception:
+                        continue
+                self.FRONTEND_EXTENSIONS = mapping
+                Config.FRONTEND_EXTENSIONS = mapping
         except Exception as e:
             self.nexy_config = None
             # traceback.print_exc()

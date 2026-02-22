@@ -1,6 +1,6 @@
 import pytest
 from nexy.core.models import ScanResult
-from nexy.parser.scanner import Scanner
+from nexy.compiler.parser.scanner import Scanner
 
 source_valid = """
 ---
