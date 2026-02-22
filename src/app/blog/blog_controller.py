@@ -8,9 +8,9 @@ class BlogController:
             {"id": 1, "title": "First Post", "content": "This is the first post."},
             {"id": 2, "title": "Second Post", "content": "This is the second post."},
         ]
-    def get(self, version: str):
+    def get(self, version: int):
         print(f"Blog version: {version}")
-        return self.posts
+        return 1/0
     def post(self, version: str, post: dict):
         print(f"Blog version: {version}")
         new_post = {"id": len(self.posts) + 1, **post}

@@ -1,4 +1,6 @@
 import logging
+import os
+import traceback
 
 C = {
     "reset": "\033[0m",
@@ -11,7 +13,6 @@ C = {
     "magenta": "\033[35m",
 }
 
-# Liste des messages natifs d'Uvicorn à masquer totalement
 IGNORED_MESSAGES = [
     "Started server process",
     "Waiting for application startup",
@@ -22,49 +23,82 @@ IGNORED_MESSAGES = [
     "Will watch for changes"
 ]
 
+# Dictionnaire étendu pour éviter les KeyError (Ajout de 422 et 307)
+status_emojis = {
+    200: "😊",
+    201: "✅",
+    304: "📦",
+    307: "🔄",
+    400: "😏",
+    404: "😔",
+    422: "🤨", # Très important pour FastAPI
+    500: "😡",
+}
+
 class NexyFilter(logging.Filter):
     def filter(self, record):
-        # On bloque le log si l'un des messages interdits est présent
         msg = record.getMessage()
         return not any(ignored in msg for ignored in IGNORED_MESSAGES)
 
 class NexyAccessFormatter(logging.Formatter):
     def format(self, record):
-        # Sécurité : si record.args n'est pas ce qu'on attend, on fallback sur le message standard
+        # Sécurité : on vérifie les arguments
         if not record.args or len(record.args) < 5:
             return f"  {C['blue']}ŋ{C['reset']} {C['dim']}[Info]{C['reset']} {record.getMessage()}"
 
-        # On extrait les arguments de manière dynamique
-        # Uvicorn envoie généralement : (host, port, method, path, http_version, status_code)
-        # Mais parfois http_version manque.
         args = record.args
-
-        host = str(args[0]).split(":")[0]
-        port = str(args[0]).split(":")[-1]
+        # Extraction Host et Port
+        addr = str(args[0])
+        host = addr.split(":")[0] if ":" in addr else addr
+        port = addr.split(":")[-1] if ":" in addr else "3000"
+        
         method = args[1]
         path = args[2]
-
-        # Le status code est presque toujours le dernier élément
         status_code = args[-1] 
-        
-        method_label = str(method).capitalize()
-        # Logique de couleur
-        color = C["green"]
-        
-        if isinstance(status_code, int) and status_code >= 400: color = C["yellow"]
-        
-        # Détection Socket améliorée
-        is_socket = "ws" in path or "socket" in path or status_code == 101
-        label = f"{C['magenta']}ws »{C['reset']}" if is_socket else f"{color}{method} »{C['reset']}"
 
-        return f"{label} © {host}:{port}  ® {C['dim']}{path}{C['reset']} , {color}{status_code}{C['reset']} OK"
+        # Logique de couleur selon le code
+        color = C["green"]
+        if isinstance(status_code, int):
+            if 300 <= status_code < 400: color = C["cyan"]
+            elif 400 <= status_code < 500: color = C["yellow"]
+            elif status_code >= 500: color = C["red"]
+
+        # Détection Socket
+        is_socket = "ws" in path or "socket" in path or status_code == 101
+        label = f"{C['magenta']}ws{C['reset']} »" if is_socket else f"{color}{method}{C['reset']} »"
+
+        # --- LE CORRECTIF EST ICI ---
+        # On utilise .get(code, default) pour éviter le KeyError
+        emoji = status_emojis.get(status_code, "⚠️")
+        
+
+        return f"{label} {C['dim']}{host}{C['reset']}:{C['blue']}{port}{C['reset']}{color}{path}{C['reset']} , {color}{status_code}{C['reset']} © {emoji}"
+
 class NexyDefaultFormatter(logging.Formatter):
     def format(self, record):
-        # Pour les erreurs réelles
-        level = record.levelname.capitalize()
-        label = f"{C['red']}[{level}]{C['reset']}"
-        return f"  {C['blue']}ŋ{C['reset']} {label} {record.getMessage()}"
+        msg = record.getMessage()
+        # Filtrer les messages système inutiles
+        if any(ignored in msg for ignored in IGNORED_MESSAGES):
+            return ""
 
+        level = record.levelname.capitalize()
+        
+        # On extrait le nom du fichier et la ligne
+        # record.pathname est le chemin complet, on ne garde que le nom du fichier
+        file_name = os.path.basename(record.pathname)
+        line_no = record.lineno
+        
+        # Choix de la couleur : rouge pour les erreurs, gris pour le reste
+        color = C["red"] if record.levelno >= 40 else C["dim"]
+        
+        # Construction du préfixe : ŋ [Info] [app.py:12]
+        prefix = f"{color}{level}{C['reset']} »"
+        location = f" {C['dim']}[{file_name}:{line_no}]{C['reset']}"
+        
+        result = f"{prefix}{location} {msg}"
+        if record.exc_info:
+            result += "\n" + self.formatException(record.exc_info)
+        return result
 NEXY_LOG_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
