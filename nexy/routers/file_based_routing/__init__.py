@@ -285,21 +285,10 @@ class FileBasedRouter:
 
     def _apply_layout(self, inner_html: str, source_path: str) -> str:
         try:
-            tpl_path = Path(source_path)
-            parts = list(tpl_path.parent.parts)
-            try:
-                idx_routes = parts.index("routes")
-            except ValueError:
-                dirs: list[Path] = []
-            else:
-                base = parts[: idx_routes + 1]
-                dirs = [Path(*base)]
-                for extra in parts[idx_routes + 1 :]:
-                    base = base + [extra]
-                    dirs.append(Path(*base))
-            for directory in reversed(dirs):
+            candidates = self._find_layout_candidates(source_path)
+            for layout_file in candidates:
                 from nexy.core.string import StringTransform as _ST
-                normalized = _ST.normalize_route_path_for_namespace(f"{directory.as_posix()}/layout.nexy")
+                normalized = _ST.normalize_route_path_for_namespace(layout_file)
                 module_path = f"{Config.NAMESPACE}{normalized}".replace("/", ".").rsplit(".", 1)[0]
                 try:
                     mod = importlib.import_module(module_path)
@@ -309,6 +298,19 @@ class FileBasedRouter:
                 if callable(layout):
                     return layout(children=inner_html)
         except Exception:
-            return inner_html
+            pass
         return inner_html
+
+    def _find_layout_candidates(self, source_path: str) -> List[str]:
+        p = Path(source_path)
+        base = p.parent
+        root = Path(Config.ROUTER_PATH)
+        paths: List[str] = []
+        lf_base = (base / "layout.nexy").as_posix()
+        lf_root = (root / "layout.nexy").as_posix()
+        if Path(lf_base).is_file():
+            paths.append(lf_base)
+        if lf_root != lf_base and Path(lf_root).is_file():
+            paths.append(lf_root)
+        return paths
 
