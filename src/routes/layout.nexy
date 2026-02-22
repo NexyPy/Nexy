@@ -18,7 +18,6 @@ children:prop[NexyElement]
         <aside class="w-64 border-r border-slate-800 bg-slate-900">
             <Sidebar/>
         </aside>
-        
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto">
             <!-- Header -->

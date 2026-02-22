@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@jridgewell/resolve-uri": "^3.1.2",
+    "@jridgewell/trace-mapping": "^0.3.31",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

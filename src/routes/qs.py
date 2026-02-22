@@ -10,7 +10,4 @@ from nexy.decorators import useRoute, UseResponse
     status_code=201,
 )
 def POST():
-    return JSONResponse(
-        {"message": "POST done"},
-        headers={"X-Nexy-Route": "custom"},
-    )
+    return ["ddd","eee"]
