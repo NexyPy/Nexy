@@ -5,6 +5,7 @@ from nexy.core.config import Config
 from nexy.cli.commands.utilities.server import Server
 from nexy.cli.commands.utilities.watcher import create_observer
 from nexy.cli.commands.utilities.console import Console
+from nexy.utils.ports import is_port_open
 
 def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     path = "."
@@ -25,8 +26,9 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
         vite_proc = None
         if getattr(config, "useVite", False):
             try:
-                vite_proc = Server.vite_async()
+                vite_proc = Server.vite()
                 Console.success("Vite dev server started")
+
             except Exception:
                 vite_proc = None
                 Console.error("Failed to start Vite dev server")

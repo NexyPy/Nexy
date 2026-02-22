@@ -1,7 +1,10 @@
 import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from typing import Any, Dict, Optional
+from pathlib import Path
+import json
 from .core.config import Config
+from .utils.ports import get_vite_port, is_port_open
 
 
 class Template:
@@ -42,12 +45,37 @@ class Template:
         if context is None:
             context = {}
         
-        # 1. Rendu Jinja (interpolation des variables)
         rendered_content = self._render_jinja2(path, context)
-        
+
         if path.endswith(".md"):
             return self._render_markdown(rendered_content)
         
-        # 2. Traitement post-rendu selon l'extension
-        # Par défaut (html ou autres), on retourne le contenu rendu par Jinja
+        scripts: list[str] = []
+        is_dev = bool(getattr(self.config, "useVite", False))
+        if is_dev:
+            vite_port = get_vite_port(5173)
+            if not is_port_open("127.0.0.1", vite_port):
+                return rendered_content
+            base = f"http://localhost:{vite_port}"
+            scripts.append(f'<script type="module" src="{base.rstrip("/")}/@vite/client"></script>')
+            scripts.append(f'<script type="module" src="{base.rstrip("/")}/__nexy__/main.ts"></script>')
+        else:
+            manifest_path = Path("__nexy__/client/.vite/manifest.json")
+            if manifest_path.is_file():
+                try:
+                    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    entry = data.get("__nexy__/main.ts") or data.get("/__nexy__/main.ts")
+                    if isinstance(entry, dict) and "file" in entry:
+                        src = "/__nexy__/client/" + entry["file"].lstrip("/")
+                        scripts.append(f'<script type="module" src="{src}"></script>')
+                except Exception:
+                    pass
+        if scripts:
+            bundle = "".join(scripts)
+            lower = rendered_content.lower()
+            idx = lower.rfind("</body>")
+            if idx != -1:
+                rendered_content = rendered_content[:idx] + bundle + rendered_content[idx:]
+            else:
+                rendered_content = rendered_content + bundle
         return rendered_content

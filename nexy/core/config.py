@@ -14,6 +14,7 @@ class Config:
     NAMESPACE: str = "__nexy__/"
     MARKDOWN_EXTENSIONS: list[str] = ["extra", "codehilite"]
     TARGET_EXTENSIONS: list[str] = [".nexy", ".mdx"]
+    FF_REGISTRY: dict[str, object] = {}
     ROUTE_FILE_EXTENSIONS: list[str] = [".nexy", ".mdx", ".py"]
     ROUTE_FILE_EXCEPTIONS: list[str] = ["__init__.py", "layout.nexy"]
     ROUTE_FILE_DEFAULT: list[str] = ["index.py", "index.nexy", "index.mdx"]
@@ -84,10 +85,12 @@ class Config:
             ff_list = getattr(nexy_config, "useFF", None)
             if ff_list:
                 mapping: dict[str, str] = dict(Config.FRONTEND_EXTENSIONS)
+                registry: dict[str, object] = {}
                 for ff in ff_list:
                     try:
                         name = getattr(ff, "name", None)
                         exts = getattr(ff, "extension", []) or []
+                        registry[name.lower()] = ff
                         if not name:
                             continue
                         for ext in exts:
@@ -97,6 +100,8 @@ class Config:
                         continue
                 self.FRONTEND_EXTENSIONS = mapping
                 Config.FRONTEND_EXTENSIONS = mapping
+                self.FF_REGISTRY = registry
+                Config.FF_REGISTRY = registry
         except Exception as e:
             self.nexy_config = None
             # traceback.print_exc()

@@ -1,6 +1,7 @@
 import pathlib
 from typing import List
 from nexy.core.models import NexyImport
+from nexy.core.config import Config
 
 
 class ImportValidationError(Exception):
@@ -42,16 +43,24 @@ class ImportValidator:
         - resolved absolute path
         - optional filename suggestions
         """
-        current_dir = pathlib.Path(current_file).parent
+        # Work with absolute paths to avoid duplicate segments
+        current_dir = pathlib.Path(current_file).resolve().parent
+        project_root = pathlib.Path(getattr(Config, "PROJECT_ROOT", ".")).resolve()
 
         for imp in imports:
+            raw = imp.path.replace("\\", "/")
             import_path = pathlib.Path(imp.path)
 
-            # Resolve relative paths against current file directory
-            try:
-                full_path = (current_dir / import_path).resolve() if not import_path.is_absolute() else import_path.resolve()
-            except Exception:
-                full_path = (current_dir / import_path).absolute()
+            # Determine base resolution:
+            # - Absolute paths: keep as-is
+            # - Explicit relative ("./" or "../"): resolve from current file's directory
+            # - Project-relative (e.g., "src/..."): resolve from project root to avoid duplications
+            if import_path.is_absolute():
+                full_path = import_path.resolve()
+            elif raw.startswith("./") or raw.startswith("../"):
+                full_path = (current_dir / import_path).resolve()
+            else:
+                full_path = (project_root / import_path).resolve()
 
             if full_path.exists():
                 continue
@@ -65,8 +74,11 @@ class ImportValidator:
                 parts.append(f"alias='{imp.alias}'")
             parts.append(f"resolved='{full_path}'")
 
-            # Raise a concise, user-friendly error as requested
-            raise ImportValidationError(f'Import Error "{imp.path}" do not existe')
+            # Raise a concise, user-friendly error with context
+            hint = f" suggestions={suggestions}" if suggestions else ""
+            raise ImportValidationError(
+                f'Import Error "{imp.path}" does not exist; {", ".join(parts)}{hint}'
+            )
 
 
 __all__ = ["ImportValidator", "ImportValidationError"]

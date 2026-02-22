@@ -43,7 +43,10 @@ _server = FastAPI(title="Nexy", version=version, docs_url=_docs_url, redoc_url=_
 
 if os.path.isdir("public"):
     _server.mount("/public", StaticFiles(directory="public"), name="public")
-
+if os.path.isdir("__nexy__/client"):
+    _server.mount("/__nexy__/client", StaticFiles(directory="__nexy__/client"), name="nexy_client")
+if os.path.isdir("__nexy__/client"):
+    _server.mount("/client", StaticFiles(directory="__nexy__/client"), name="client")
 router_source = config.nexy_config.useRouter if config.nexy_config else None
 
 if isinstance(router_source, APIRouter):

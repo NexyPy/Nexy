@@ -3,6 +3,8 @@ from .video import Video
 from .form import Form
 from ._import import Import
 from .template import Template
+from .vite import Vite
+
 
 
 __all__ = [
@@ -11,4 +13,5 @@ __all__ = [
     "Form",
     "Import",
     "Template",
+    "Vite",
 ]

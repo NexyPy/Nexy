@@ -127,8 +127,8 @@ class NexyConfigModel:
     useRedocsUrl: str | None = "/redocs"
     useDocs: bool = True
     useVite: bool = False
+    useViteDevUrl: str | None = None
     useFF: list[FFModel] = field(default_factory=list)
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
     
-
