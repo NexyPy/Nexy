@@ -1,11 +1,16 @@
 import subprocess
 import shutil
 from pathlib import Path
+import sys
 from typing import Optional
 import uvicorn as _uvicorn
 from nexy.core.config import Config
 from nexy.cli.commands.utilities.find_port import find_port
 from nexy.utils.ports import get_client_port
+
+
+
+
 
 class Server:
     @staticmethod
@@ -31,6 +36,38 @@ class Server:
 
     @staticmethod
     def uvicorn(host: Optional[str] = None, port: Optional[int] = None, reload: bool = False, as_process: bool = False) -> Optional[subprocess.Popen]:
+        run_host = host or "127.0.0.1"
+        run_port = port or 3000
+        
+        # On s'assure que le dossier temporaire existe pour d'autres usages
+        Path("__nexy__").mkdir(exist_ok=True)
+
+        if as_process:
+            # On génère un mini-script pour lancer uvicorn avec la config importée
+            # Cela permet de garder les classes (Filter/Formatter) actives
+            launcher_code = (
+                "import uvicorn\n"
+                "from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG\n"
+                f"uvicorn.run('nexy.routers.app:_server', host='{run_host}', port={run_port}, "
+                "log_config=NEXY_LOG_CONFIG, log_level='info')"
+            )
+            
+            return subprocess.Popen([sys.executable, "-c", launcher_code])
+        
+        else:
+            # Import local pour éviter les cycles d'import si nécessaire
+            from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG
+            
+            _uvicorn.run(
+                "nexy.routers.app:_server", 
+                host=run_host, 
+                port=run_port, 
+                log_config=NEXY_LOG_CONFIG,
+                log_level="info" # On force info car notre filtre s'occupe du reste
+            )
+            return None
+
+    def vicorn(host: Optional[str] = None, port: Optional[int] = None, reload: bool = False, as_process: bool = False) -> Optional[subprocess.Popen]:
         """
         Lance Uvicorn. Si as_process=True, retourne un objet Popen non-bloquant.
         """

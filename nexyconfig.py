@@ -6,7 +6,7 @@ from nexy.frontend import react
 class NexyConfig(NexyConfigModel):
     useFF = [react()]
     useAliases: dict[str, str] = {"@": "src/components"}
-    # useRouter =AppModule
+    useRouter =AppModule
     usePort: int = 3000
     useHost: str = "0.0.0.0"
     useTitle: str = "Nexy gh"

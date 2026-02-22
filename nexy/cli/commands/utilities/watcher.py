@@ -37,13 +37,14 @@ class WatchHandler(PatternMatchingEventHandler):
 
         # 1. Compilation si nécessaire
         if path.endswith((".nexy", ".mdx")):
-            print(f"ŋ compile : {path}")
+            print(f"hmr » update  '{path}'")
             self.compiler.compile(path)
             needs_reload = True
         
         # 2. Si c'est un fichier Python, on doit reload aussi
         elif path.endswith(".py"):
             needs_reload = True
+            print(f"hmr » update  '{path}'")
 
         # 3. Déclenchement du redémarrage Uvicorn
         if needs_reload and self.on_reload_api:
