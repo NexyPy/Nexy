@@ -97,7 +97,30 @@ class NexyDefaultFormatter(logging.Formatter):
         
         result = f"{prefix}{location} {msg}"
         if record.exc_info:
-            result += "\n" + self.formatException(record.exc_info)
+            # Seulement le dernier frame (fichier avec l'erreur)
+            tb_frames = traceback.extract_tb(record.exc_info[2])
+            if tb_frames:
+                frame = tb_frames[-1]  # Dernier frame = fichier avec l'erreur
+                file_name = os.path.basename(frame.filename)
+                line_no = frame.lineno
+                line_text = frame.line.rstrip("\n") if frame.line else ""
+                
+                # Construire l'affichage façon traceback Python, mais coloré en rouge
+                if frame.line:
+                    # Indentation originale
+                    original_line = line_text
+                    indent = len(original_line) - len(original_line.lstrip())
+                    code_part = original_line[indent:]
+                    
+                    caret_indent = " " * (indent + 4)  # 4 espaces pour aligner sous le code
+                    caret = "~" * max(1, len(code_part)) + "^~"
+                    result += (
+                        f"\n  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
+                        f"\n    {color}{original_line}{C['reset']}"
+                        f"\n{caret_indent}{color}{caret}{C['reset']}"
+                    )
+                else:
+                    result += f"\n  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
         return result
 NEXY_LOG_CONFIG = {
     "version": 1,
