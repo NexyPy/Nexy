@@ -9,8 +9,8 @@ class NexyConfig(NexyConfigModel):
     # useRouter =AppModule
     usePort: int = 3000
     useHost: str = "0.0.0.0"
-    useTitle: str = "Nexy"
+    useTitle: str = "Nexy gh"
     useDocs: bool = True
-    useVite: bool = False
+    useVite: bool = True
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []

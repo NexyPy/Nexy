@@ -1,6 +1,5 @@
 ---
 from "./data.py" import menu
-print(menu)
 ---
 <nav class="w-64 bg-slate-950 min-h-screen shadow-lg">
     <div class="p-6">

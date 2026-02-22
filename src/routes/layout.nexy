@@ -1,7 +1,6 @@
 ---
 from "src/components/sidebar.nexy" import Sidebar
 children:prop[NexyElement]
-print("\033[35m" + "Layout" + "\033[0m")
 ---
 <!DOCTYPE html>
 <html lang="fr">

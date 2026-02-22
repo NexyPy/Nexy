@@ -2,8 +2,6 @@ from nexy.decorators import Module
 from src.app.blog.blog_controller import BlogController
 
 
-@Module(
-    controllers=[BlogController],
-)
+@Module(prefix="/blog")
 class BlogModule:
-    pass
+    controllers = [BlogController]

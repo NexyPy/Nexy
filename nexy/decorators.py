@@ -223,35 +223,27 @@ def UseResponse(
 
     return wrapper
 
-def Module(
-    controllers: List[Type],
-    providers: List[Type] = [], # Devenu Optionnel
-    imports: List[APIRouter] = None,
-    prefix: str = ""
-):
+def Module(prefix: str = ""):
 
     def wrapper(cls):
-        # Validation allégée : on exige seulement des controllers
-        if not controllers:
+        controllers_list = getattr(cls, "controllers", [])
+        providers_list = getattr(cls, "providers", [])
+        imports_list = getattr(cls, "imports", [])
+        if not controllers_list:
             raise ValueError(f"Module {cls.__name__} doit avoir au moins un controller")
         
         module_router = APIRouter(prefix=prefix)
         
-        # 1. Pré-chargement explicite (Optionnel mais utile pour forcer l'instanciation)
-        # Même si on ne les met pas ici, Container.resolve les trouvera quand même via le Controller
-        for provider_cls in providers:
-            if not hasattr(provider_cls, '__injectable__'):
+        for provider_cls in providers_list:
+            if not hasattr(provider_cls, "__injectable__"):
                 raise ValueError(f"{provider_cls.__name__} doit être @Injectable()")
             Container.resolve(provider_cls)
         
-        # 2. Imports sous-modules
-        if imports:
-            for sub_router in imports:
+        if imports_list:
+            for sub_router in imports_list:
                 module_router.include_router(sub_router)
         
-        # 3. Enregistrement des contrôleurs
-        # C'est ici que la chaîne d'injection démarre
-        for ctrl_cls in controllers:
+        for ctrl_cls in controllers_list:
             _register_controller(ctrl_cls, module_router)
         
         return module_router

@@ -2,6 +2,8 @@ import importlib
 import inspect
 import re
 from typing import Any, Callable, Dict, List, Optional
+from pathlib import Path
+import functools
 from fastapi import APIRouter, Depends, HTTPException, Request, FastAPI
 from fastapi.responses import HTMLResponse
 
@@ -256,12 +258,13 @@ class FileBasedRouter:
             else:
                 # Enregistrement des composants UI
                 if component := getattr(module, meta["component_name"], None):
+                    wrapped = self._wrap_component_with_layout(component, meta["source_path"])
                     self.router.get(
                         path,
                         response_class=HTMLResponse,
                         name=meta["component_name"],
                         dependencies=[Depends(dep) for dep in route_level_deps] or None,
-                    )(component)
+                    )(wrapped)
 
         self.router.add_api_route(
             "/{path:path}",
@@ -269,4 +272,43 @@ class FileBasedRouter:
             methods=["GET"],
             response_class=HTMLResponse,
         )
+
+    def _wrap_component_with_layout(self, component: Callable[..., Any], source_path: str) -> Callable[..., Any]:
+        sig = inspect.signature(component)
+        @functools.wraps(component)
+        def endpoint(*args, **kwargs):
+            inner = component(*args, **kwargs)
+            html = self._apply_layout(inner, source_path)
+            return html
+        endpoint.__signature__ = sig
+        return endpoint
+
+    def _apply_layout(self, inner_html: str, source_path: str) -> str:
+        try:
+            tpl_path = Path(source_path)
+            parts = list(tpl_path.parent.parts)
+            try:
+                idx_routes = parts.index("routes")
+            except ValueError:
+                dirs: list[Path] = []
+            else:
+                base = parts[: idx_routes + 1]
+                dirs = [Path(*base)]
+                for extra in parts[idx_routes + 1 :]:
+                    base = base + [extra]
+                    dirs.append(Path(*base))
+            for directory in reversed(dirs):
+                from nexy.core.string import StringTransform as _ST
+                normalized = _ST.normalize_route_path_for_namespace(f"{directory.as_posix()}/layout.nexy")
+                module_path = f"{Config.NAMESPACE}{normalized}".replace("/", ".").rsplit(".", 1)[0]
+                try:
+                    mod = importlib.import_module(module_path)
+                except Exception:
+                    continue
+                layout = getattr(mod, "Layout", None)
+                if callable(layout):
+                    return layout(children=inner_html)
+        except Exception:
+            return inner_html
+        return inner_html
 

@@ -4,7 +4,7 @@ from nexy.builder import Builder
 
 def build():
     version = __Version__().get()
-    print(f"> nexy@{version} dev")
+    print(f"> nexy@{version} build")
 
     print("ŋ compile...")
     Builder().build()
