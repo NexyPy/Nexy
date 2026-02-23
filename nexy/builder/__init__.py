@@ -28,6 +28,8 @@ class Builder:
         dest_dir.mkdir(parents=True, exist_ok=True)
         dest = dest_dir / "main.ts"
         parts: list[str] = []
+        # Insert the import for /src/globale.css at the top (after potential type definitions)
+        parts.append('import "/src/globale.css";')
         parts.append("type CompMod = { default: unknown }")
         parts.append("type Importer = () => Promise<CompMod>")
         parts.append("type Importers = Record<string, Importer>")
