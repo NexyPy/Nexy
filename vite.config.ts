@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
     const prefix = `${c.reset}${c.yellow}${c.dim}VITE${c.reset} »`
     return {
       ...logger,
-      info: (msg, options) => {
+      info: (msg) => {
         const silentMessages = ['Local', 'Network', 'ready in', 'press', 'watching',]
         if (silentMessages.some(m => msg.includes(m))) {return}
         else if (msg.includes('hmr')) {
@@ -69,8 +69,8 @@ export default defineConfig(({ mode }) => {
         }
         console.info(`${prefix} ${msg.replace("/","")}`)
       },
-      warn: (msg, options) => console.warn(`${prefix} ${c.yellow}⚠ ${msg}${c.reset}`),
-      error: (msg, options) => console.error(`${prefix} ${c.red}✘ ${msg}${c.reset}`),
+      warn: (msg) => console.warn(`${prefix} ${c.yellow}⚠ ${msg}${c.reset}`),
+      error: (msg) => console.error(`${prefix} ${c.red}✘ ${msg}${c.reset}`),
       
     }
   }
