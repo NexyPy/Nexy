@@ -2,6 +2,7 @@
 from nexy import Vite
 from "src/components/sidebar.nexy" import Sidebar
 children:prop[NexyElement]
+
 ---
 <!DOCTYPE html>
 <html lang="fr">

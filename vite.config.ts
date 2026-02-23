@@ -2,6 +2,7 @@ import { defineConfig, createLogger,type Logger, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
+import tailwindcss from '@tailwindcss/vite'
 
 const c = {
   reset: '\x1b[0m',
@@ -9,6 +10,7 @@ const c = {
   dim: '\x1b[2m',
   yellow: '\x1b[33m',
   red: '\x1b[31m',
+  blue: '\x1b[35m',
 }
 
 // --- Plugin personnalisé pour Nexy ---
@@ -29,7 +31,7 @@ const nexy = (): Plugin => {
           // On envoie un signal de rechargement complet au navigateur
           server.ws.send({
             type: 'full-reload',
-            path: '*'
+            path: '*',
           })
         }
 
@@ -56,7 +58,7 @@ export default defineConfig(({ mode }) => {
 
   const nexyLogger = (): Logger => {
     const logger = createLogger()
-    const prefix = `[hmr]`
+    const prefix = `${c.reset}${c.yellow}${c.dim}VITE${c.reset} »`
     return {
       ...logger,
       info: (msg, options) => {
@@ -77,6 +79,7 @@ export default defineConfig(({ mode }) => {
     base: mode === 'production' ? '/__nexy__/client/' : '/',
     plugins: [
       react(),
+      tailwindcss(),
       nexy() // On active notre plugin ici
     ],
     

@@ -1,21 +1,3 @@
-class Console:
-    @staticmethod
-    def banner(title: str) -> None:
-        line = "─" * max(20, len(title) + 4)
+from rich.console import Console
 
-
-    @staticmethod
-    def info(message: str) -> None:
-        print(f"{message}")
-
-    @staticmethod
-    def success(message: str) -> None:
-        print(f"✔ {message}")
-
-    @staticmethod
-    def warn(message: str) -> None:
-        print(f"⚠ {message}")
-
-    @staticmethod
-    def error(message: str) -> None:
-        print(f"✖ {message}")
+console = Console()

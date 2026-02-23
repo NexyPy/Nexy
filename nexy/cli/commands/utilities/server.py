@@ -67,38 +67,13 @@ class Server:
             )
             return None
 
-    def vicorn(host: Optional[str] = None, port: Optional[int] = None, reload: bool = False, as_process: bool = False) -> Optional[subprocess.Popen]:
-        """
-        Lance Uvicorn. Si as_process=True, retourne un objet Popen non-bloquant.
-        """
-        run_host = host if host is not None else getattr(Config(), "useHost", "0.0.0.0")
-        run_port = port or Server.resolve_port(run_host, None)
-        
-        Path("__nexy__").mkdir(exist_ok=True)
-        with open("__nexy__/server.port", "w") as f:
-            f.write(str(run_port))
-
-        if as_process:
-            # On utilise sys.executable pour garantir d'utiliser le même interpréteur Python
-            import sys
-            cmd = [
-                sys.executable, "-m", "uvicorn", 
-                "nexy.routers.app:_server", 
-                "--host", run_host, 
-                "--port", str(run_port)
-            ]
-            return subprocess.Popen(cmd)
-        else:
-            _uvicorn.run("nexy.routers.app:_server", host=run_host, port=run_port, reload=reload)
-            return None
-
     @staticmethod
     def vite(port: Optional[int] = None) -> subprocess.Popen:
         vite_port = port or get_client_port(5173)
         pm = next((c for c in ("pnpm", "bun", "yarn", "npm.cmd", "npm") if shutil.which(c)), "npm")
         
-        args = [pm, "run", "dev", "--", "--port", str(vite_port)]
+        args = [pm,  "--silent", "run", "dev", "--", "--port", str(vite_port)]
         if pm in ("pnpm", "yarn"):
-            args = [pm, "dev", "--port", str(vite_port)]
+            args = [pm, "--silent", "dev", "--port", str(vite_port)]
             
         return subprocess.Popen(args)

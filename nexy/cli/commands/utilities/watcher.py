@@ -3,6 +3,7 @@ import time
 from typing import Any, Callable, Optional
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler
 from watchdog.observers import Observer
+from nexy.cli.commands.utilities.console import console
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 
@@ -41,14 +42,17 @@ class WatchHandler(PatternMatchingEventHandler):
         path = self._normalize(event.src_path)
         
         if not self._should_trigger(path): return
-        if path.startswith((".git/", ".venv/", "__nexy__/", "__pycache__/", "node_modules/")): return
+        if path.startswith((".git/","venv", ".venv/", "__nexy__/", "__pycache__/", "node_modules/")): return
 
         needs_reload = False
 
         # 1. Compilation si nécessaire
         if path.endswith((".nexy", ".mdx")):
-            print(f"{C['blue']}hmr{C['reset']} » {C['green']}update{C['reset']} {C['dim']}{path}{C['reset']} {C['green']}↺{C['reset']}")
+            start_time = time.perf_counter()
             self.compiler.compile(path)
+            elapsed = time.perf_counter() - start_time
+            timer = f"{elapsed:.2f}s"
+            console.print(f"[green]nsc[/green] » [green]compiled[/green] [dim]{path}[/dim] in [dim]{timer}[/dim] [green]✓[/green]")
             needs_reload = True
         
         # 2. Si c'est un fichier Python, on doit reload aussi
