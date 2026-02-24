@@ -1,5 +1,7 @@
 import { defineConfig, createLogger,type Logger, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import vue from '@vitejs/plugin-vue'
+// import svelte from '@vitejs/plugin-svelte' // Commented out because module not found
 import fs from 'node:fs'
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
@@ -80,6 +82,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+      vue(),
+      // svelte(),
       nexy() // On active notre plugin ici
     ],
     

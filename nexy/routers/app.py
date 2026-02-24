@@ -32,6 +32,9 @@ else:
 
 _server = FastAPI(title="Nexy", version=version, docs_url=_docs_url, redoc_url=_redocs_url)
 
+@_server.get("/favicon.ico")
+async def favicon():
+    return {"message": "favicon.ico"}
 
 # @_server.get("/docs", include_in_schema=False)
 # async def custom_swagger_ui_html():

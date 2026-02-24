@@ -52,6 +52,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
         if vite_proc:
             console.print(f"  [dim]»»[/dim] [green]Vite[/green] on port [green]{client_port}[/green]")
         console.print(f"  [dim]»»[/dim] Local: [green]http://localhost:{server_port}[/green]")
+        console.print(f"  [dim]»»[/dim] press [dim]Ctrl+C[/dim] to stop")
         # console.print(f"  - Network: [green]http://{run_host}:{server_port}[/green]")
 
         with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):

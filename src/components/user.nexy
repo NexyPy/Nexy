@@ -1,8 +1,12 @@
 ---
 from "./count.tsx" import Count
-print(f"return {id}")
-caller : prop[callable]
+from "./vuecount.vue" import VueCount
+
 id:prop[str|None] = "use"
+print(f"return {id}")
+
+caller : prop[callable]
+
 ---
 <div
  style="display: flex; flex-direction: column; align-items: center; background-color: bisque;"
@@ -10,6 +14,8 @@ id:prop[str|None] = "use"
     <Count/>
     <input type="color" id="{{id}}"/>
     {{caller()}}
+    <VueCount/>
+    {{3+4}}
 </div>
 
 <script>
