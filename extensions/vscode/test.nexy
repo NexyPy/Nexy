@@ -1,0 +1,11 @@
+---
+from "./components" import Button
+title: prop[str] = "Mon App"
+print("Chargement du composant")
+---
+
+<h1>{{ title }}</h1>
+<Button/>
+<script>
+console.log("Hello from script");
+</script>

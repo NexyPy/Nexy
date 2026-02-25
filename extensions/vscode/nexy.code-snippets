@@ -1,0 +1,137 @@
+{
+  "Nexy Header Block": {
+    "prefix": "---",
+    "body": [
+      "---",
+      "$0",
+      "---"
+    ],
+    "description": "Bloc header Nexy"
+  },
+
+  "Nexy Prop": {
+    "prefix": "prop",
+    "body": [
+      "${1:name} : prop[${2:str}] = ${3:\"default\"}"
+    ],
+    "description": "Déclaration d'une prop Nexy"
+  },
+
+  "Nexy Prop Optional": {
+    "prefix": "propo",
+    "body": [
+      "${1:name} : prop[${2:str} | None] = None"
+    ],
+    "description": "Prop optionnelle Nexy"
+  },
+
+  "Nexy Prop Callable": {
+    "prefix": "propc",
+    "body": [
+      "${1:name} : prop[callable]"
+    ],
+    "description": "Prop callable Nexy"
+  },
+
+  "Nexy Import": {
+    "prefix": "from",
+    "body": [
+      "from \"${1:./components/Component.tsx}\" import ${2:Component}"
+    ],
+    "description": "Import d'un composant Nexy"
+  },
+
+  "Jinja Expression": {
+    "prefix": "{{",
+    "body": [
+      "{{ ${1:expression} }}"
+    ],
+    "description": "Expression Jinja2"
+  },
+
+  "Jinja If": {
+    "prefix": "if",
+    "body": [
+      "{% if ${1:condition} %}",
+      "\t$0",
+      "{% endif %}"
+    ],
+    "description": "Bloc if Jinja2"
+  },
+
+  "Jinja If Else": {
+    "prefix": "ife",
+    "body": [
+      "{% if ${1:condition} %}",
+      "\t${2}",
+      "{% else %}",
+      "\t$0",
+      "{% endif %}"
+    ],
+    "description": "Bloc if/else Jinja2"
+  },
+
+  "Jinja For": {
+    "prefix": "for",
+    "body": [
+      "{% for ${1:item} in ${2:items} %}",
+      "\t$0",
+      "{% endfor %}"
+    ],
+    "description": "Boucle for Jinja2"
+  },
+
+  "Jinja Comment": {
+    "prefix": "{#",
+    "body": [
+      "{# ${1:commentaire} #}"
+    ],
+    "description": "Commentaire Jinja2"
+  },
+
+  "Nexy Full Component": {
+    "prefix": "nexy",
+    "body": [
+      "---",
+      "from \"${1:./components/Component.nexy}\" import ${2:Component}",
+      "",
+      "${3:title} : prop[${4:str}] = \"${5:default}\"",
+      "---",
+      "<div>",
+      "\t<${2} />",
+      "\t$0",
+      "</div>"
+    ],
+    "description": "Template Nexy complet"
+  },
+
+  "HTML Div": {
+    "prefix": "div",
+    "body": [
+      "<div${1: class=\"${2}\"}}>",
+      "\t$0",
+      "</div>"
+    ],
+    "description": "Balise div HTML"
+  },
+
+  "Script Block": {
+    "prefix": "script",
+    "body": [
+      "<script>",
+      "\t$0",
+      "</script>"
+    ],
+    "description": "Bloc script"
+  },
+
+  "Style Block": {
+    "prefix": "style",
+    "body": [
+      "<style>",
+      "\t$0",
+      "</style>"
+    ],
+    "description": "Bloc style"
+  }
+}

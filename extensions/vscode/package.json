@@ -1,0 +1,77 @@
+{
+  "name": "nexy",
+  "displayName": "nexy",
+  "description": "Syntax highlighting and basic language configuration for Nexy (.nexy) files",
+  "version": "0.0.1",
+  "engines": { "vscode": "^1.109.0" },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onLanguage:nexy"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "nexy",
+        "aliases": ["Nexy", "nexy"],
+        "extensions": [".nexy"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nexy",
+        "scopeName": "source.nexy",
+        "path": "./syntaxes/nexy.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "nexy",
+        "path": "./snippets/nexy.code-snippets"
+      }
+    ],
+    "configurationDefaults": {
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": [
+              "punctuation.definition.header.begin.nexy",
+              "punctuation.definition.header.end.nexy"
+            ],
+            "settings": {
+              "foreground": "#444444",
+              "fontStyle": "italic"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "pnpm run check-types && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "pnpm run check-types && node esbuild.js --production",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "vscode-html-languageservice": "^5.3.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.109.0",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "esbuild": "^0.27.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

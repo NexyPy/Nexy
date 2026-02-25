@@ -1,0 +1,246 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nexy",
+  "scopeName": "source.nexy",
+  "fileTypes": [
+    "nexy"
+  ],
+  "patterns": [
+    {
+      "include": "#header"
+    },
+    {
+      "include": "#template"
+    }
+  ],
+  "repository": {
+    
+    "header": {
+      "name": "meta.header.nexy",
+      "begin": "^(---)\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.header.begin.nexy"
+        }
+      },
+      "end": "^(---)\\s*$",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.header.end.nexy"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#nexy-import"
+        },
+        {
+          "include": "#nexy-prop"
+        },
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "nexy-import": {
+      "name": "meta.import.nexy",
+      "match": "^(from)\\s+([\"'][^\"']*[\"'])\\s+(import)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\s*,\\s*[A-Za-z_][A-Za-z0-9_]*)*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.import.python"
+        },
+        "2": {
+          "name": "string.quoted.double.python"
+        },
+        "3": {
+          "name": "keyword.control.import.python"
+        },
+        "4": {
+          "name": "entity.name.type.class.python"
+        }
+      }
+    },
+    "nexy-prop": {
+      "name": "meta.prop.nexy",
+      "match": "^([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*(prop)\\[([^\\]]*)\\](?:\\s*(=)\\s*(.+))?",
+      "captures": {
+        "1": {
+          "name": "variable.other.readwrite.python"
+        },
+        "2": {
+          "name": "punctuation.separator.colon.python"
+        },
+        "3": {
+          "name": "storage.type.nexy keyword.other.nexy"
+        },
+        "4": {
+          "name": "support.type.python"
+        },
+        "5": {
+          "name": "keyword.operator.assignment.python"
+        },
+        "6": {
+          "name": "constant.other.python"
+        }
+      }
+    },
+    "template": {
+      "name": "meta.template.nexy",
+      "begin": "(?<=^---)\\s*$|(?:^(?!---))",
+      "end": "(?=^---\\s*$)",
+      "patterns": [
+        {
+          "include": "#jinja-comment"
+        },
+        {
+          "include": "#jinja-block"
+        },
+        {
+          "include": "#jinja-expression"
+        },
+        {
+          "include": "#custom-component-self-closing"
+        },
+        {
+          "include": "#custom-component"
+        },
+        {
+          "include": "text.html.basic"
+        }
+      ]
+    },
+    "jinja-expression": {
+      "name": "meta.embedded.jinja.expression.nexy",
+      "begin": "\\{\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.begin.jinja2"
+        }
+      },
+      "end": "\\}\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-expression.end.jinja2"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "jinja-block": {
+      "name": "meta.embedded.jinja.block.nexy",
+      "begin": "\\{%[-]?",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-block.begin.jinja2"
+        }
+      },
+      "end": "[-]?%\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.template-block.end.jinja2"
+        }
+      },
+      "patterns": [
+        {
+          "match": "\\b(if|elif|else|endif|for|endfor|block|endblock|extends|include|macro|endmacro|call|endcall|filter|endfilter|set|del|raw|endraw|with|endwith|without|context|import|from|as|not|and|or|in|is)\\b",
+          "name": "keyword.control.jinja2"
+        },
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "jinja-comment": {
+      "name": "comment.block.jinja2.nexy",
+      "begin": "\\{#",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.jinja2"
+        }
+      },
+      "end": "#\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.jinja2"
+        }
+      }
+    },
+    "custom-component-self-closing": {
+      "name": "meta.tag.component.self-closing.nexy",
+      "match": "(<)([A-Z][A-Za-z0-9]*)([^>]*?)(\\/?>)",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.nexy"
+        },
+        "2": {
+          "name": "entity.name.tag.component.nexy support.class.component.nexy"
+        },
+        "3": {
+          "name": "meta.tag.attributes.nexy"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.nexy"
+        }
+      }
+    },
+    "custom-component": {
+      "name": "meta.tag.component.nexy",
+      "begin": "(<)([A-Z][A-Za-z0-9]*)((?:\\s+[^>]*)?)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.nexy"
+        },
+        "2": {
+          "name": "entity.name.tag.component.nexy support.class.component.nexy"
+        },
+        "3": {
+          "name": "meta.tag.attributes.nexy"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.nexy"
+        }
+      },
+      "end": "(</)([A-Z][A-Za-z0-9]*)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.nexy"
+        },
+        "2": {
+          "name": "entity.name.tag.component.nexy support.class.component.nexy"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.nexy"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#jinja-comment"
+        },
+        {
+          "include": "#jinja-block"
+        },
+        {
+          "include": "#jinja-expression"
+        },
+        {
+          "include": "text.html.basic"
+        }
+      ]
+    }
+  },
+  "editor.tokenColorCustomizations": {
+      "textMateRules": [
+        {
+          "scope": "punctuation.definition.header.begin.nexy, punctuation.definition.header.end.nexy",
+          "settings": {
+            "foreground": "#4444",
+            "fontStyle": "italic",
+            "fontWeight": "light"
+
+          }
+        }
+      ]
+    }
+}
