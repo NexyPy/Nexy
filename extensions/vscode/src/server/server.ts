@@ -14,16 +14,26 @@ import {
   Diagnostic,
   DiagnosticSeverity,
   Range,
+  CodeAction,
+  CodeActionKind,
+  CodeActionParams,
 } from "vscode-languageserver/node";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
-  getLanguageService,
-  CompletionList,
-} from "vscode-html-languageservice";
+  detectFramework,
+  parseHeader,
+  getSection,
+  type NexyImport,
+  type NexyProp,
+  findUsedComponentsInTemplate,
+  getTemplate,
+} from "../shared/nexyParser";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
-const htmlLanguageService = getLanguageService();
 
 // ─── HTML tags courants ───────────────────────────────────────────────────────
 const HTML_TAGS = [
@@ -73,62 +83,44 @@ const JINJA_FILTERS = [
   "truncate","unique","upper","urlencode","urlize","wordcount","wordwrap",
 ];
 
-// ─── Parse le header ──────────────────────────────────────────────────────────
-interface NexyImport {
-  path: string;
-  name: string;
-  framework: string;
-}
-
-interface NexyProp {
-  name: string;
-  type: string;
-  defaultValue?: string;
-}
-
-function detectFramework(importPath: string): string {
-  if (importPath.endsWith(".vue"))    return "vue";
-  if (importPath.endsWith(".nexy"))   return "nexy";
-  if (importPath.endsWith(".jsx") || importPath.endsWith(".tsx")) return "react";
-  if (importPath.endsWith(".svelte")) return "svelte";
-  return "unknown";
-}
-
-function parseHeader(text: string): { imports: NexyImport[]; props: NexyProp[] } {
-  const imports: NexyImport[] = [];
-  const props: NexyProp[] = [];
-
-  const headerMatch = text.match(/^---\s*\n([\s\S]*?)\n---/m);
-  if (!headerMatch) return { imports, props };
-
-  const header = headerMatch[1];
-
-  // Imports
-  const importRegex =
-    /^from\s+["']([^"']+)["']\s+import\s+([A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*)/gm;
-  let m: RegExpExecArray | null;
-  while ((m = importRegex.exec(header)) !== null) {
-    const fw = detectFramework(m[1]);
-    m[2].split(",").map((n) => n.trim()).forEach((name) => {
-      imports.push({ path: m?.[1] || "", name, framework: fw });
-    });
+function resolveImportPath(docUri: string, imp: NexyImport): string | null {
+  if (!imp.path || !docUri.startsWith("file:")) {
+    return null;
   }
 
-  // Props
-  const propRegex =
-    /^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*prop\[([^\]]*)\](?:\s*=\s*(.+))?/gm;
-  while ((m = propRegex.exec(header)) !== null) {
-    props.push({ name: m[1], type: m[2].trim(), defaultValue: m[3]?.trim() });
+  let currentFsPath: string;
+  try {
+    currentFsPath = fileURLToPath(docUri);
+  } catch {
+    return null;
   }
 
-  return { imports, props };
+  const baseDir = path.dirname(currentFsPath);
+  return path.resolve(baseDir, imp.path);
 }
 
-function getSection(text: string, offset: number): "header" | "template" {
-  const headerMatch = text.match(/^---\s*\n([\s\S]*?)\n---/m);
-  if (!headerMatch || headerMatch.index === undefined) return "template";
-  const end = headerMatch.index + headerMatch[0].length;
-  return offset <= end ? "header" : "template";
+function getComponentPropsFromImport(
+  doc: TextDocument,
+  imp: NexyImport,
+): NexyProp[] {
+  if (imp.framework !== "nexy") {
+    return [];
+  }
+
+  const resolvedPath = resolveImportPath(doc.uri, imp);
+  if (!resolvedPath) {
+    return [];
+  }
+
+  let source: string;
+  try {
+    source = fs.readFileSync(resolvedPath, "utf8");
+  } catch {
+    return [];
+  }
+
+  const { props } = parseHeader(source);
+  return props;
 }
 
 // ─── Initialize ───────────────────────────────────────────────────────────────
@@ -270,10 +262,10 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
     return items;
   }
 
-  // Attributs HTML → après un espace dans une balise
-  const tagMatch = lineText.match(/<([a-z][a-zA-Z0-9]*)\s/);
-  if (tagMatch) {
-    const tag = tagMatch[1];
+  // Attributs HTML ou props de composant → après un espace dans une balise
+  const htmlTagMatch = lineText.match(/<([a-z][a-zA-Z0-9]*)\s/);
+  if (htmlTagMatch) {
+    const tag = htmlTagMatch[1];
     const attrs = [
       ...(HTML_ATTRIBUTES["*"] ?? []),
       ...(HTML_ATTRIBUTES[tag] ?? []),
@@ -287,91 +279,285 @@ connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] =
     }));
   }
 
+  const componentTagMatch = lineText.match(/<([A-Z][A-Za-z0-9]*)\s/);
+  if (componentTagMatch) {
+    const tag = componentTagMatch[1];
+    const imp = imports.find((i) => i.name === tag);
+
+    if (imp) {
+      const componentProps = getComponentPropsFromImport(doc, imp);
+      if (componentProps.length > 0) {
+        return componentProps.map((p) => ({
+          label: p.name,
+          kind: CompletionItemKind.Property,
+          detail: `Prop ${p.name}: prop[${p.type}]`,
+          insertText: `${p.name}="$1"`,
+          insertTextFormat: InsertTextFormat.Snippet,
+          documentation: p.defaultValue
+            ? `Valeur par défaut : ${p.defaultValue}`
+            : undefined,
+        }));
+      }
+    }
+
+    // Fallback: attributs HTML génériques sur un composant (class, id, data-*, aria-*)
+    const genericAttrs = HTML_ATTRIBUTES["*"] ?? [];
+    return genericAttrs.map((a) => ({
+      label: a,
+      kind: CompletionItemKind.Property,
+      detail: `Attribut HTML générique pour <${tag}>`,
+      insertText: a.endsWith("*") ? `${a.slice(0, -1)}$1="$2"` : `${a}="$1"`,
+      insertTextFormat: InsertTextFormat.Snippet,
+    }));
+  }
+
   return [];
 });
 
 // ─── Hover ────────────────────────────────────────────────────────────────────
-connection.onHover((params: TextDocumentPositionParams): Hover | null => {
-  const doc = documents.get(params.textDocument.uri);
-  if (!doc) return null;
+connection.onHover(
+  async (params: TextDocumentPositionParams): Promise<Hover | null> => {
+    const doc = documents.get(params.textDocument.uri);
+    if (!doc) {
+      return null;
+    }
 
-  const text = doc.getText();
-  const offset = doc.offsetAt(params.position);
-  const { imports, props } = parseHeader(text);
+    const text = doc.getText();
+    const offset = doc.offsetAt(params.position);
+    const { imports, props } = parseHeader(text);
 
-  // Mot sous le curseur
-  const wordMatch = text.slice(Math.max(0, offset - 50), offset + 50)
-    .match(/[A-Za-z_][A-Za-z0-9_]*/g);
-  if (!wordMatch) return null;
+    // Mot sous le curseur
+    const wordMatch = text
+      .slice(Math.max(0, offset - 50), offset + 50)
+      .match(/[A-Za-z_][A-Za-z0-9_]*/g);
+    if (!wordMatch) {
+      return null;
+    }
 
-  // Cherche le mot exact à la position
-  let start = offset;
-  while (start > 0 && /\w/.test(text[start - 1])) start--;
-  let end = offset;
-  while (end < text.length && /\w/.test(text[end])) end++;
-  const word = text.slice(start, end);
+    // Cherche le mot exact à la position
+    let start = offset;
+    while (start > 0 && /\w/.test(text[start - 1])) start--;
+    let end = offset;
+    while (end < text.length && /\w/.test(text[end])) end++;
+    const word = text.slice(start, end);
 
-  // Composant importé
-  const imp = imports.find((i) => i.name === word);
-  if (imp) {
-    const colors: Record<string, string> = {
-      vue: "🟢", nexy: "🟩", react: "🔵", svelte: "🟠",
-    };
-    return {
-      contents: {
-        kind: MarkupKind.Markdown,
-        value: `**${imp.name}** ${colors[imp.framework] ?? ""} \`${imp.framework}\`\n\nImporté depuis \`${imp.path}\``,
-      },
-    };
-  }
+    // Composant importé
+    const imp = imports.find((i) => i.name === word);
+    if (imp) {
+      const colors: Record<string, string> = {
+        vue: "🟢",
+        nexy: "🟩",
+        react: "🔵",
+        svelte: "🟠",
+      };
 
-  // Prop
-  const prop = props.find((p) => p.name === word);
-  if (prop) {
-    return {
-      contents: {
-        kind: MarkupKind.Markdown,
-        value: `**${prop.name}** : \`prop[${prop.type}]\`${prop.defaultValue ? `\n\nDéfaut : \`${prop.defaultValue}\`` : ""}`,
-      },
-    };
-  }
+      let value = `**${imp.name}** ${
+        colors[imp.framework] ?? ""
+      } \`${imp.framework}\`\n\nImporté depuis \`${imp.path}\``;
 
-  return null;
-});
+      if (imp.framework === "nexy") {
+        const componentProps = getComponentPropsFromImport(doc, imp);
+        if (componentProps.length > 0) {
+          const propsLines = componentProps.map((p) => {
+            const def =
+              p.defaultValue !== undefined
+                ? ` (défaut: \`${p.defaultValue}\`)`
+                : "";
+            return `- \`${p.name}\`: \`prop[${p.type}]\`${def}`;
+          });
+          value += `\n\n**Props**:\n${propsLines.join("\n")}`;
+        }
+      }
+
+      return {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value,
+        },
+      };
+    }
+
+    // Prop locale
+    const prop = props.find((p) => p.name === word);
+    if (prop) {
+      return {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: `**${prop.name}** : \`prop[${prop.type}]\`${
+            prop.defaultValue ? `\n\nDéfaut : \`${prop.defaultValue}\`` : ""
+          }`,
+        },
+      };
+    }
+
+    return null;
+  },
+);
 
 // ─── Diagnostics ─────────────────────────────────────────────────────────────
 documents.onDidChangeContent((change) => {
   const doc = change.document;
   const text = doc.getText();
   const diagnostics: Diagnostic[] = [];
-  const { imports } = parseHeader(text);
+  const { imports, props } = parseHeader(text);
 
-  // Cherche les composants utilisés dans le template mais non importés
-  const templateMatch = text.match(/^---[\s\S]*?---\n([\s\S]*)$/m);
-  if (templateMatch) {
-    const template = templateMatch[1];
-    const usedComponents = [...template.matchAll(/<([A-Z][A-Za-z0-9]*)/g)]
-      .map((m) => m[1]);
+  const usedComponents = findUsedComponentsInTemplate(text);
+  const template = getTemplate(text);
 
-    usedComponents.forEach((name) => {
-      if (!imports.find((i) => i.name === name)) {
-        // Trouve la position dans le document complet
-        const idx = text.indexOf(`<${name}`);
-        if (idx !== -1) {
-          const start = doc.positionAt(idx + 1);
-          const end = doc.positionAt(idx + 1 + name.length);
-          diagnostics.push({
-            severity: DiagnosticSeverity.Warning,
-            range: Range.create(start, end),
-            message: `Composant "${name}" utilisé mais non importé dans le header`,
-            source: "nexy",
-          });
-        }
+  // Composants utilisés mais non importés
+  usedComponents.forEach((name) => {
+    if (!imports.find((i) => i.name === name)) {
+      const idx = text.indexOf(`<${name}`);
+      if (idx !== -1) {
+        const start = doc.positionAt(idx + 1);
+        const end = doc.positionAt(idx + 1 + name.length);
+        diagnostics.push({
+          severity: DiagnosticSeverity.Warning,
+          range: Range.create(start, end),
+          message: `Composant "${name}" utilisé mais non importé dans le header`,
+          source: "nexy",
+          code: "nexy.missingImport",
+        });
       }
-    });
-  }
+    }
+  });
+
+  // Imports inutilisés
+  imports.forEach((imp) => {
+    if (!usedComponents.includes(imp.name)) {
+      const idx = text.indexOf(imp.name);
+      if (idx !== -1) {
+        const start = doc.positionAt(idx);
+        const end = doc.positionAt(idx + imp.name.length);
+        diagnostics.push({
+          severity: DiagnosticSeverity.Hint,
+          range: Range.create(start, end),
+          message: `Import "${imp.name}" non utilisé dans le template`,
+          source: "nexy",
+          code: "nexy.unusedImport",
+        });
+      }
+    }
+  });
+
+  // Props déclarées mais jamais utilisées
+  props.forEach((prop) => {
+    const usageRegex = new RegExp(`\\b${prop.name}\\b`);
+    if (!usageRegex.test(template)) {
+      const idx = text.indexOf(prop.name);
+      if (idx !== -1) {
+        const start = doc.positionAt(idx);
+        const end = doc.positionAt(idx + prop.name.length);
+        diagnostics.push({
+          severity: DiagnosticSeverity.Hint,
+          range: Range.create(start, end),
+          message: `Prop "${prop.name}" déclarée mais jamais utilisée dans le template`,
+          source: "nexy",
+          code: "nexy.unusedProp",
+        });
+      }
+    }
+  });
 
   connection.sendDiagnostics({ uri: doc.uri, diagnostics });
+});
+
+connection.onCodeAction((params: CodeActionParams): CodeAction[] => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) {
+    return [];
+  }
+
+  const text = doc.getText();
+  const actions: CodeAction[] = [];
+
+  for (const diagnostic of params.context.diagnostics) {
+    if (diagnostic.source !== "nexy" || !diagnostic.code) {
+      continue;
+    }
+
+    if (diagnostic.code === "nexy.missingImport") {
+      const startOffset = doc.offsetAt(diagnostic.range.start);
+      const endOffset = doc.offsetAt(diagnostic.range.end);
+      const componentName = text.slice(startOffset, endOffset);
+
+      const headerMatch = text.match(/^---\s*$/m);
+      if (!headerMatch || headerMatch.index === undefined) {
+        continue;
+      }
+
+      const headerLineEndOffset = text.indexOf("\n", headerMatch.index);
+      const insertOffset =
+        headerLineEndOffset === -1 ? text.length : headerLineEndOffset + 1;
+      const insertPosition = doc.positionAt(insertOffset);
+
+      const importLine = `from "./components/${componentName}.nexy" import ${componentName}\n`;
+
+      actions.push({
+        title: `Ajouter l'import pour "${componentName}"`,
+        kind: CodeActionKind.QuickFix,
+        diagnostics: [diagnostic],
+        edit: {
+          changes: {
+            [params.textDocument.uri]: [
+              {
+                range: {
+                  start: insertPosition,
+                  end: insertPosition,
+                },
+                newText: importLine,
+              },
+            ],
+          },
+        },
+      });
+    } else if (
+      diagnostic.code === "nexy.unusedImport" ||
+      diagnostic.code === "nexy.unusedProp"
+    ) {
+      const startOffset = doc.offsetAt(diagnostic.range.start);
+      const endOffset = doc.offsetAt(diagnostic.range.end);
+
+      const lineStartIdx = text.lastIndexOf("\n", startOffset - 1);
+      const deleteStartOffset = lineStartIdx === -1 ? 0 : lineStartIdx + 1;
+
+      let lineEndIdx = text.indexOf("\n", endOffset);
+      if (lineEndIdx === -1) {
+        lineEndIdx = text.length;
+      } else {
+        lineEndIdx += 1;
+      }
+
+      const deleteStart = doc.positionAt(deleteStartOffset);
+      const deleteEnd = doc.positionAt(lineEndIdx);
+
+      const titlePrefix =
+        diagnostic.code === "nexy.unusedImport"
+          ? "Supprimer l'import inutilisé"
+          : "Supprimer la prop inutilisée";
+
+      actions.push({
+        title: titlePrefix,
+        kind: CodeActionKind.QuickFix,
+        diagnostics: [diagnostic],
+        edit: {
+          changes: {
+            [params.textDocument.uri]: [
+              {
+                range: {
+                  start: deleteStart,
+                  end: deleteEnd,
+                },
+                newText: "",
+              },
+            ],
+          },
+        },
+      });
+    }
+  }
+
+  return actions;
 });
 
 documents.listen(connection);

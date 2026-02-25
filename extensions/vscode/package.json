@@ -26,9 +26,41 @@
     "snippets": [
       {
         "language": "nexy",
-        "path": "./snippets/nexy.code-snippets"
+        "path": "./nexy.code-snippets"
       }
     ],
+    "commands": [
+      {
+        "command": "nexy.createComponent",
+        "title": "Nexy: Créer un composant",
+        "category": "Nexy"
+      },
+      {
+        "command": "nexy.insertHeader",
+        "title": "Nexy: Insérer un header",
+        "category": "Nexy"
+      },
+      {
+        "command": "nexy.wrapWithComponent",
+        "title": "Nexy: Envelopper avec un composant",
+        "category": "Nexy"
+      }
+    ],
+    "configuration": {
+      "title": "Nexy",
+      "properties": {
+        "nexy.decorations.enableFrameworkColors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Colorer les composants Nexy en fonction de leur framework (Vue, Nexy, React, Svelte)."
+        },
+        "nexy.statusBar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Afficher un résumé Nexy (section, props, imports) dans la barre de statut."
+        }
+      }
+    },
     "configurationDefaults": {
       "editor.tokenColorCustomizations": {
         "textMateRules": [

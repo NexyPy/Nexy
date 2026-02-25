@@ -1,71 +1,55 @@
-# nexy README
+## Nexy VS Code
 
-This is the README for your extension "nexy". After writing up a brief description, we recommend including the following sections.
+Extension VS Code pour le langage de templates **Nexy** (`.nexy`), pensée pour une DX/UX moderne : LSP dédié, snippets, décorations visuelles et commandes de scaffolding.
 
-## Features
+### Fonctionnalités
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Coloration & grammaire Nexy**
+  - Grammaire TextMate dédiée pour le header (`---` imports/props) et la partie template (HTML + Jinja2).
+  - Mise en avant des composants personnalisés (`<Component />`) et des props déclarées dans le header.
 
-For example if there is an image subfolder under your extension project workspace:
+- **Serveur de langage (LSP) Nexy**
+  - **Complétions contextuelles** dans le header (props, `from ... import ...`) et le template (tags HTML, attributs, filtres Jinja, composants importés).
+  - **Infobulles (hover)** sur les composants importés et les props (`prop[...]`) avec type et valeur par défaut.
+  - **Diagnostics Nexy** :
+    - Composants utilisés dans le template mais non importés dans le header.
+    - Imports Nexy/JSX/TSX inutilisés.
+    - Props déclarées mais jamais utilisées dans le template.
+  - **Quick fixes** :
+    - Ajout automatique d'un `from "./components/Component.nexy" import Component` pour un composant manquant.
+    - Suppression rapide des imports et props inutilisés.
 
-\!\[feature X\]\(images/feature-x.png\)
+- **Décorations & barre de statut**
+  - Décorations colorées des composants selon leur framework d'origine (Vue, Nexy, React, Svelte).
+  - Barre de statut Nexy indiquant la section courante (Header/Template), le nombre de props et d'importations.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- **Snippets Nexy & Jinja2**
+  - Snippets pour le header Nexy, les props (`prop`, `propo`, `propc`), les imports (`nfrom`), les blocs Jinja (`nif`, `nfor`, `ife`) et les structures HTML utiles (`ndiv`, `nscript`, `nstyle`).
+  - Snippet de **template complet** (`nexy`) et de **page Nexy** (`npage`) avec header + titre.
 
-## Requirements
+- **Commandes DX**
+  - `Nexy: Créer un composant` (`nexy.createComponent`) : QuickPick de type (Page/Layout/Component UI), nom du composant, création d'un fichier `.nexy` prêt à l'emploi.
+  - `Nexy: Insérer un header` (`nexy.insertHeader`) : insère un header Nexy standard en haut du fichier courant.
+  - `Nexy: Envelopper avec un composant` (`nexy.wrapWithComponent`) : enveloppe la sélection actuelle dans `<MyComponent>…</MyComponent>`.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Paramètres d’extension
 
-## Extension Settings
+Cette extension contribue les paramètres suivants :
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- `nexy.decorations.enableFrameworkColors` (`boolean`, défaut : `true`)  
+  Active/désactive les décorations colorées des composants par framework.
 
-For example:
+- `nexy.statusBar.enabled` (`boolean`, défaut : `true`)  
+  Active/désactive l’élément de barre de statut Nexy (section, props, imports).
 
-This extension contributes the following settings:
+### Prise en main
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+1. Ouvrez un projet contenant des fichiers `.nexy`.
+2. Créez un nouveau composant via la palette de commandes : **“Nexy: Créer un composant”**.
+3. Utilisez les snippets (`nexy`, `npage`, `prop`, `nif`, `nfor`, …) pour accélérer l’édition.
+4. Surveillez les diagnostics et utilisez les quick fixes (ampoule) pour corriger rapidement imports et props.
 
-## Known Issues
+### Notes
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- L’extension nécessite une version de VS Code ≥ `1.109.0`.
+- Le serveur de langage tourne via Node et est packagé avec l’extension (esbuild).

@@ -34,9 +34,9 @@
   },
 
   "Nexy Import": {
-    "prefix": "from",
+    "prefix": "nfrom",
     "body": [
-      "from \"${1:./components/Component.tsx}\" import ${2:Component}"
+      "from \"${1:./components/Component.nexy}\" import ${2:Component}"
     ],
     "description": "Import d'un composant Nexy"
   },
@@ -50,7 +50,7 @@
   },
 
   "Jinja If": {
-    "prefix": "if",
+    "prefix": "nif",
     "body": [
       "{% if ${1:condition} %}",
       "\t$0",
@@ -72,7 +72,7 @@
   },
 
   "Jinja For": {
-    "prefix": "for",
+    "prefix": "nfor",
     "body": [
       "{% for ${1:item} in ${2:items} %}",
       "\t$0",
@@ -106,9 +106,9 @@
   },
 
   "HTML Div": {
-    "prefix": "div",
+    "prefix": "ndiv",
     "body": [
-      "<div${1: class=\"${2}\"}}>",
+      "<div${1: class=\"${2}\"}>",
       "\t$0",
       "</div>"
     ],
@@ -116,7 +116,7 @@
   },
 
   "Script Block": {
-    "prefix": "script",
+    "prefix": "nscript",
     "body": [
       "<script>",
       "\t$0",
@@ -126,12 +126,28 @@
   },
 
   "Style Block": {
-    "prefix": "style",
+    "prefix": "nstyle",
     "body": [
       "<style>",
       "\t$0",
       "</style>"
     ],
     "description": "Bloc style"
+  },
+
+  "Nexy Page": {
+    "prefix": "npage",
+    "body": [
+      "---",
+      "title : prop[str] = \"${1:Titre de page}\"",
+      "---",
+      "<main>",
+      "  <h1>{{ title }}</h1>",
+      "  <div>",
+      "    $0",
+      "  </div>",
+      "</main>"
+    ],
+    "description": "Page Nexy avec header et titre"
   }
 }
