@@ -31,9 +31,6 @@
       },
       "patterns": [
         {
-          "include": "#nexy-import"
-        },
-        {
           "include": "source.python"
         },
         {
@@ -41,26 +38,8 @@
         }
       ]
     },
-    "nexy-import": {
-      "name": "meta.import.nexy",
-      "match": "^(from)\\s+([\"'][^\"']*[\"'])\\s+(import)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\s*,\\s*[A-Za-z_][A-Za-z0-9_]*)*)",
-      "captures": {
-        "1": {
-          "name": "keyword.control.import.python"
-        },
-        "2": {
-          "name": "string.quoted.python"
-        },
-        "3": {
-          "name": "keyword.control.import.python"
-        },
-        "4": {
-          "name": "entity.name.type.class.python"
-        }
-      }
-    },
     "nexy-prop": {
-      "name": "storage.type.nexy keyword.other.nexy",
+      "name": "support.type.python storage.type.nexy",
       "match": "\\bprop\\b"
     },
     "template": {
