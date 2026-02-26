@@ -2,7 +2,7 @@
 import typer
 from typing import Optional
 
-from nexy.cli.commands import dev, start, build
+from nexy.cli.commands import dev, init, start, build
 
 CLI = typer.Typer(help="Nexy CLI - The Modular Meta-Framework")
 
@@ -16,6 +16,7 @@ def main(ctx: typer.Context):
 CLI.command()(dev)
 CLI.command()(start)
 CLI.command()(build)
+CLI.command()(init)
 
 
 __all__ = ["CLI"]

@@ -1,2 +1,10 @@
+from nexy.cli.commands.utilities.init_project import InitProject
+
+
 def init() -> None:
-    print("> nexy init")
+    # Initialize the nexy project
+    project = InitProject()
+    project.ask_router()
+    project.ask_project_type()
+    project.ask_client_component()
+    project.ask_tailwindcss()
