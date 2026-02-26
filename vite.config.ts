@@ -54,7 +54,9 @@ export default defineConfig(({ mode }) => {
       const txt = fs.readFileSync(serverPortFile, 'utf8').trim()
       serverPort = Number(txt) || 3000
     }
-  } catch {}
+  } catch (error) {
+    console.error(`[nexy] Error reading server port file: ${error}`)
+  }
 
   const origin = `http://localhost:${serverPort}`
 
