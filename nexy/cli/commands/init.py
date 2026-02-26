@@ -6,5 +6,3 @@ def init() -> None:
     project = InitProject()
     project.ask_router()
     project.ask_project_type()
-    project.ask_client_component()
-    project.ask_tailwindcss()
