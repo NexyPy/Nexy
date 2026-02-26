@@ -150,11 +150,12 @@
       ]
     },
     "style-tag": {
-      "begin": "(<)(style)(>)",
+      "begin": "(<)(style)(?:\\s+lang\\s*=\\s*[\"'](scss|sass|less|postcss)[\"'])?\\s*(>)",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.tag.begin.html" },
         "2": { "name": "entity.name.tag.style.html" },
-        "3": { "name": "punctuation.definition.tag.end.html" }
+        "3": { "name": "entity.other.attribute-name.html" },
+        "4": { "name": "punctuation.definition.tag.end.html" }
       },
       "end": "(</)(style)(>)",
       "endCaptures": {
@@ -162,17 +163,41 @@
         "2": { "name": "entity.name.tag.style.html" },
         "3": { "name": "punctuation.definition.tag.end.html" }
       },
-      "contentName": "source.css",
       "patterns": [
+        {
+          "begin": "(?<=<style\\s+lang=[\"']scss[\"']>)",
+          "end": "(?=</style>)",
+          "contentName": "source.css.scss",
+          "include": "source.css.scss"
+        },
+        {
+          "begin": "(?<=<style\\s+lang=[\"']sass[\"']>)",
+          "end": "(?=</style>)",
+          "contentName": "source.sass",
+          "include": "source.sass"
+        },
+        {
+          "begin": "(?<=<style\\s+lang=[\"']less[\"']>)",
+          "end": "(?=</style>)",
+          "contentName": "source.css.less",
+          "include": "source.css.less"
+        },
+        {
+          "begin": "(?<=<style>)",
+          "end": "(?=</style>)",
+          "contentName": "source.css",
+          "include": "source.css"
+        },
         { "include": "source.css" }
       ]
     },
     "script-tag": {
-      "begin": "(<)(script)(>)",
+      "begin": "(<)(script)(?:\\s+lang\\s*=\\s*[\"'](ts|tsx|jsx|rust)[\"'])?\\s*(>)",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.tag.begin.html" },
         "2": { "name": "entity.name.tag.script.html" },
-        "3": { "name": "punctuation.definition.tag.end.html" }
+        "3": { "name": "entity.other.attribute-name.html" },
+        "4": { "name": "punctuation.definition.tag.end.html" }
       },
       "end": "(</)(script)(>)",
       "endCaptures": {
@@ -180,8 +205,31 @@
         "2": { "name": "entity.name.tag.script.html" },
         "3": { "name": "punctuation.definition.tag.end.html" }
       },
-      "contentName": "source.js",
       "patterns": [
+        {
+          "begin": "(?<=<script\\s+lang=[\"']ts[\"']>)",
+          "end": "(?=</script>)",
+          "contentName": "source.ts",
+          "include": "source.ts"
+        },
+        {
+          "begin": "(?<=<script\\s+lang=[\"']tsx[\"']>)",
+          "end": "(?=</script>)",
+          "contentName": "source.tsx",
+          "include": "source.tsx"
+        },
+        {
+          "begin": "(?<=<script\\s+lang=[\"']rust[\"']>)",
+          "end": "(?=</script>)",
+          "contentName": "source.rust",
+          "include": "source.rust"
+        },
+        {
+          "begin": "(?<=<script>)",
+          "end": "(?=</script>)",
+          "contentName": "source.js",
+          "include": "source.js"
+        },
         { "include": "source.js" }
       ]
     },

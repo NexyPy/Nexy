@@ -35,6 +35,15 @@ export class NexyStatusBar {
     const offset = editor.document.offsetAt(editor.selection.active);
     const section = getSection(text, offset);
 
+    // Framework detection
+    const frameworks = new Set(imports.map(i => i.framework).filter(f => f !== "unknown"));
+    let fwLabel = "";
+    if (frameworks.has("vue") && frameworks.has("react")) fwLabel = "Mixed";
+    else if (frameworks.has("vue")) fwLabel = "Vue";
+    else if (frameworks.has("react")) fwLabel = "React";
+    else if (frameworks.has("svelte")) fwLabel = "Svelte";
+    else if (frameworks.has("nexy")) fwLabel = "Nexy";
+
     const sectionLabel = section === "header" ? "Header" : (editor.document.languageId === "mdx" ? "Markdown" : "Template");
     const diagnostics = vscode.languages.getDiagnostics(editor.document.uri);
     const errors = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length;
@@ -42,8 +51,8 @@ export class NexyStatusBar {
 
     const { mascot, statusText } = this.getMascotAndStatus(errors, warnings);
 
-    this.statusBarItem.text = `${mascot} ${sectionLabel} · ${props.length} props · ${imports.length} imports`;
-    this.statusBarItem.tooltip = `${statusText}\nClick to create a new Nexy component.`;
+    this.statusBarItem.text = `${mascot} ${fwLabel ? fwLabel + " " : ""}${sectionLabel} · ${props.length}p · ${imports.length}i`;
+    this.statusBarItem.tooltip = `${statusText}\n${fwLabel ? "Framework: " + fwLabel + "\n" : ""}Click to create a new Nexy component.`;
     this.statusBarItem.show();
   }
 

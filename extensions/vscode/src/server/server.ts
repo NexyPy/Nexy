@@ -7,19 +7,23 @@ import {
   InitializeResult,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { getLanguageService } from "vscode-html-languageservice";
 import { CompletionHandler } from "./handlers/completion";
 import { HoverHandler } from "./handlers/hover";
 import { DiagnosticHandler } from "./handlers/diagnostics";
 import { CodeActionHandler } from "./handlers/code.actions";
+import { DefinitionHandler } from "./handlers/definition";
 
 class NexyLspServer {
   private connection = createConnection(ProposedFeatures.all);
   private documents = new TextDocuments(TextDocument);
+  private htmlLanguageService = getLanguageService();
   
-  private completionHandler = new CompletionHandler();
+  private completionHandler = new CompletionHandler(this.htmlLanguageService);
   private hoverHandler = new HoverHandler();
   private diagnosticHandler = new DiagnosticHandler();
   private codeActionHandler = new CodeActionHandler();
+  private definitionHandler = new DefinitionHandler();
 
   constructor() {
     this.setupHandlers();
@@ -37,6 +41,7 @@ class NexyLspServer {
         },
         hoverProvider: true,
         codeActionProvider: true,
+        definitionProvider: true,
       },
     }));
 
@@ -48,6 +53,11 @@ class NexyLspServer {
     this.connection.onHover((params) => {
       const doc = this.documents.get(params.textDocument.uri);
       return doc ? this.hoverHandler.handle(params, doc) : null;
+    });
+
+    this.connection.onDefinition((params) => {
+      const doc = this.documents.get(params.textDocument.uri);
+      return doc ? this.definitionHandler.handle(params, doc) : null;
     });
 
     this.connection.onCodeAction((params) => {

@@ -4,6 +4,7 @@ import {
   CodeActionParams,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { parseNexyConfig } from "../../shared/nexy.config.parser";
 import * as path from "path";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
@@ -32,20 +33,43 @@ export class CodeActionHandler {
 
     const insertPosition = doc.positionAt(text.indexOf("\n", headerMatch.index) + 1);
     
-    // DevX Logic: Search in src/components
+    // DevX Logic: Search in src/components or via Aliases
     let importPath = `./components/${componentName}.nexy`;
     try {
       const currentFilePath = fileURLToPath(doc.uri);
-      const workspaceRoot = currentFilePath.split(path.sep + "src" + path.sep)[0];
-      if (workspaceRoot) {
-        const componentsDir = path.join(workspaceRoot, "src", "components");
-        const exts = [".nexy", ".vue", ".tsx", ".jsx", ".svelte"];
-        for (const ext of exts) {
-          if (fs.existsSync(path.join(componentsDir, componentName + ext))) {
-            const rel = path.relative(path.dirname(currentFilePath), path.join(componentsDir, componentName + ext));
-            importPath = (rel.startsWith(".") ? rel : `./${rel}`).split(path.sep).join("/");
-            break;
+      const currentDir = path.dirname(currentFilePath);
+      
+      // Find workspace root
+      let workspaceRoot = currentDir;
+      while (workspaceRoot !== path.parse(workspaceRoot).root) {
+        if (fs.existsSync(path.join(workspaceRoot, "nexyconfig.py"))) break;
+        workspaceRoot = path.dirname(workspaceRoot);
+      }
+
+      const config = parseNexyConfig(workspaceRoot);
+      const componentsDir = path.join(workspaceRoot, "src", "components");
+      const exts = [".nexy", ".vue", ".tsx", ".jsx", ".svelte"];
+      
+      for (const ext of exts) {
+        const fullPath = path.join(componentsDir, componentName + ext);
+        if (fs.existsSync(fullPath)) {
+          // Check if we can use an alias
+          let usedAlias = false;
+          for (const [alias, replacement] of Object.entries(config.useAliases)) {
+            const aliasFullPath = path.resolve(workspaceRoot, replacement);
+            if (fullPath.startsWith(aliasFullPath)) {
+              const relativeToAlias = path.relative(aliasFullPath, fullPath).split(path.sep).join("/");
+              importPath = `${alias}/${relativeToAlias}`;
+              usedAlias = true;
+              break;
+            }
           }
+
+          if (!usedAlias) {
+            const rel = path.relative(currentDir, fullPath);
+            importPath = (rel.startsWith(".") ? rel : `./${rel}`).split(path.sep).join("/");
+          }
+          break;
         }
       }
     } catch {}

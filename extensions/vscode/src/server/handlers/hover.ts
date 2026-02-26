@@ -9,7 +9,7 @@ import {
   type NexyImport,
   type NexyProp,
 } from "../../shared/nexy.parser";
-import { parseNexyConfig, resolveWithAlias } from "../../shared/config.parser";
+import { parseNexyConfig, resolveWithAlias } from "../../shared/nexy.config.parser";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";

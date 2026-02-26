@@ -1,4 +1,4 @@
-export type NexyFramework = "vue" | "nexy" | "react" | "svelte" | "unknown";
+export type NexyFramework = "vue" | "nexy" | "react" | "svelte" | "rust" | "unknown";
 
 export interface NexyImport {
   path: string;
@@ -19,6 +19,7 @@ export function detectFramework(importPath: string): NexyFramework {
   if (importPath.endsWith(".nexy")) {return "nexy";}
   if (importPath.endsWith(".jsx") || importPath.endsWith(".tsx")) {return "react";}
   if (importPath.endsWith(".svelte")) {return "svelte";}
+  if (importPath.endsWith(".rs")) {return "rust";}
   return "unknown";
 }
 
@@ -44,9 +45,10 @@ export function parseHeader(text: string): { imports: NexyImport[]; props: NexyP
     const targetsRaw = m.groups?.targets || "";
     const fw = detectFramework(path);
     
-    // Clean targets (remove parentheses, newlines)
+    // Clean targets (remove parentheses, newlines, semicolons)
     const targets = targetsRaw
       .replace(/[()]/g, "")
+      .replace(/;/g, "") // Fix for semicolons in imports
       .replace(/\n/g, " ")
       .split(",")
       .map((t) => t.trim())
@@ -59,6 +61,19 @@ export function parseHeader(text: string): { imports: NexyImport[]; props: NexyP
       const name = parts[1] || symbol;
       imports.push({ path, name, framework: fw });
     });
+  }
+
+  // Support for __Import and __nexy_loader__.import_component (Framework Philosophy)
+  // Pattern: symbol = __Import(path="...", symbol="...", framework="...")
+  const loaderRegex = /^\s*(?<alias>\w+)\s*=\s*(?:__Import|__nexy_loader__\.import_component)\s*\(\s*path\s*=\s*["'](?<path>[^"']+)["']\s*,\s*symbol\s*=\s*["'](?<symbol>[^"']+)["']\s*(?:,\s*framework\s*=\s*["'](?<fw>[^"']+)["'])?\s*\)/gm;
+  while ((m = loaderRegex.exec(header)) !== null) {
+    const path = m.groups?.path || "";
+    const alias = m.groups?.alias || "";
+    const symbol = m.groups?.symbol || "";
+    const fw_str = m.groups?.fw;
+    const fw = fw_str ? (fw_str as NexyFramework) : detectFramework(path);
+    
+    imports.push({ path, name: alias || symbol, framework: fw });
   }
 
   const propRegex =

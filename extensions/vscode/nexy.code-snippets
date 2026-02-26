@@ -41,6 +41,14 @@
     "description": "Import d'un composant Nexy"
   },
 
+  "Nexy Loader Import": {
+    "prefix": "nload",
+    "body": [
+      "${1:Alias} = __Import(path=\"${2:./components/Component.tsx}\", symbol=\"${3:Component}\")"
+    ],
+    "description": "Import via le loader Nexy (__Import)"
+  },
+
   "Jinja Expression": {
     "prefix": "{{",
     "body": [

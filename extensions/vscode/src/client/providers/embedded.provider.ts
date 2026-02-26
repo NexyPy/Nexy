@@ -45,27 +45,31 @@ export function getDocumentRegions(document: vscode.TextDocument): RegionInfo[] 
   const tmplText = getTemplate(fullText);
   const templateStart = fullText.indexOf(tmplText);
   if (templateStart !== -1) {
-    const styleRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
-    const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
+    const styleRegex = /<style\b(?:\s+lang\s*=\s*["'](?<lang>scss|sass|less|postcss)["'])?[^>]*>(?<content>[\s\S]*?)<\/style>/gi;
+    const scriptRegex = /<script\b(?:\s+lang\s*=\s*["'](?<lang>ts|tsx|jsx|rust)["'])?[^>]*>(?<content>[\s\S]*?)<\/script>/gi;
 
     let m: RegExpExecArray | null;
     while ((m = styleRegex.exec(tmplText)) !== null) {
+      const lang = m.groups?.lang || "css";
+      const content = m.groups?.content || "";
       regions.push({
-        languageId: "css",
+        languageId: lang === "scss" ? "scss" : lang === "sass" ? "sass" : lang === "less" ? "less" : "css",
         scheme: CSS_SCHEME,
-        content: m[1],
-        start: templateStart + m.index + m[0].indexOf(m[1]),
-        end: templateStart + m.index + m[0].indexOf(m[1]) + m[1].length,
+        content: content,
+        start: templateStart + m.index + m[0].indexOf(content),
+        end: templateStart + m.index + m[0].indexOf(content) + content.length,
       });
     }
 
     while ((m = scriptRegex.exec(tmplText)) !== null) {
+      const lang = m.groups?.lang || "javascript";
+      const content = m.groups?.content || "";
       regions.push({
-        languageId: "javascript",
+        languageId: lang === "ts" ? "typescript" : lang === "tsx" ? "typescriptreact" : lang === "jsx" ? "javascriptreact" : lang === "rust" ? "rust" : "javascript",
         scheme: JS_SCHEME,
-        content: m[1],
-        start: templateStart + m.index + m[0].indexOf(m[1]),
-        end: templateStart + m.index + m[0].indexOf(m[1]) + m[1].length,
+        content: content,
+        start: templateStart + m.index + m[0].indexOf(content),
+        end: templateStart + m.index + m[0].indexOf(content) + content.length,
       });
     }
 

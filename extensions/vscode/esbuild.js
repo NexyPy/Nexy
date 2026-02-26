@@ -11,6 +11,7 @@ async function main() {
     platform: "node",
     sourcemap: !production,
     minify: production,
+    mainFields: ["module", "main"], // Préférer les versions ESM des libs pour le bundling
   };
 
   // ── Client (extension principale) ──────────────────────────────────────────

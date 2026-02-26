@@ -14,7 +14,7 @@ import {
   type NexyImport,
   type NexyProp,
 } from "../../shared/nexy.parser";
-import { parseNexyConfig, resolveWithAlias } from "../../shared/config.parser";
+import { parseNexyConfig, resolveWithAlias } from "../../shared/nexy.config.parser";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";
@@ -22,6 +22,8 @@ import * as path from "path";
 const JINJA_FILTERS = ["abs","attr","batch","capitalize","center","count","default","dictsort","escape","filesizeformat","first","float","forceescape","format","groupby","indent","int","items","join","last","length","list","lower","map","max","min","pprint","random","reject","rejectattr","replace","reverse","round","safe","select","selectattr","slice","sort","string","striptags","sum","title","tojson","trim","truncate","unique","upper","urlencode","urlize","wordcount","wordwrap"];
 
 export class DiagnosticHandler {
+  private builtins = ["print", "len", "range", "str", "int", "float", "bool", "list", "dict", "set", "tuple", "enumerate", "zip", "sum", "min", "max", "abs", "any", "all", "callable", "loop", "self"];
+
   public handle(doc: TextDocument): Diagnostic[] {
     const text = doc.getText();
     const diagnostics: Diagnostic[] = [];
@@ -35,8 +37,91 @@ export class DiagnosticHandler {
     this.checkUnusedProps(doc, text, props, template, diagnostics);
     this.checkJinjaFilters(doc, text, template, diagnostics);
     this.checkPropTypeStrict(doc, text, imports, template, diagnostics);
+    this.checkUndefinedSymbols(doc, text, imports, props, diagnostics);
 
     return diagnostics;
+  }
+
+  private checkUndefinedSymbols(doc: TextDocument, text: string, imports: NexyImport[], props: NexyProp[], diags: Diagnostic[]) {
+    const pythonKeywords = ["from", "import", "as", "if", "else", "elif", "for", "in", "while", "def", "class", "return", "True", "False", "None", "not", "and", "or", "is", "prop"];
+    const usageRegex = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b(?:\s*\()?/g;
+    
+    const definedSymbols = new Set([
+      ...imports.map(i => i.name),
+      ...props.map(p => p.name),
+      ...this.builtins,
+      ...pythonKeywords
+    ]);
+
+    // 1. Scan Header for definitions and usages
+    const headerMatch = text.match(/^\s*---\s*\n([\s\S]*?)\n\s*---\s*/m);
+    if (headerMatch) {
+      const header = headerMatch[1];
+      const headerOffset = headerMatch.index! + headerMatch[0].indexOf(header);
+
+      // Find assignments and function/class definitions in header
+      const definitionRegex = /^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=|^\s*(?:def|class)\s+([a-zA-Z_][a-zA-Z0-9_]*)/gm;
+      let defMatch: RegExpExecArray | null;
+      while ((defMatch = definitionRegex.exec(header)) !== null) {
+        definedSymbols.add(defMatch[1] || defMatch[2]);
+      }
+
+      // Check usages in header
+      let match: RegExpExecArray | null;
+      while ((match = usageRegex.exec(header)) !== null) {
+        const symbol = match[1];
+        const fullMatch = match[0];
+        const isCall = fullMatch.endsWith("(");
+        
+        // Skip if it's a prop declaration line (name : prop[type])
+        const lineStart = header.lastIndexOf("\n", match.index) + 1;
+        const lineEnd = header.indexOf("\n", match.index);
+        const line = header.slice(lineStart, lineEnd === -1 ? header.length : lineEnd);
+        if (line.includes(":") && line.includes("prop[")) {
+          const propNameMatch = line.match(/^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/);
+          if (propNameMatch && propNameMatch[1] === symbol) continue;
+          if (symbol === "prop") continue;
+        }
+
+        if (!definedSymbols.has(symbol)) {
+          const start = headerOffset + match.index;
+          diags.push({
+            severity: DiagnosticSeverity.Error,
+            range: Range.create(doc.positionAt(start), doc.positionAt(start + symbol.length)),
+            message: `Undefined ${isCall ? "function" : "symbol"} "${symbol}" in header.`,
+            source: "nexy",
+          });
+        }
+      }
+    }
+
+    // 2. Scan Template for usages in Jinja expressions {{ ... }}
+    const template = getTemplate(text);
+    const templateStartOffset = text.indexOf(template);
+    const jinjaRegex = /\{\{([\s\S]*?)\}\}/g;
+    let jinjaMatch: RegExpExecArray | null;
+
+    while ((jinjaMatch = jinjaRegex.exec(template)) !== null) {
+      const expression = jinjaMatch[1];
+      const expressionOffset = jinjaMatch.index + 2; // +2 for {{
+
+      let symbolMatch: RegExpExecArray | null;
+      while ((symbolMatch = usageRegex.exec(expression)) !== null) {
+        const symbol = symbolMatch[1];
+        const fullMatch = symbolMatch[0];
+        const isCall = fullMatch.endsWith("(");
+
+        if (!definedSymbols.has(symbol)) {
+          const start = templateStartOffset + expressionOffset + symbolMatch.index;
+          diags.push({
+            severity: DiagnosticSeverity.Error,
+            range: Range.create(doc.positionAt(start), doc.positionAt(start + symbol.length)),
+            message: `Undefined ${isCall ? "function" : "symbol"} "${symbol}" used in template. Must be declared or imported in the header.`,
+            source: "nexy",
+          });
+        }
+      }
+    }
   }
 
   private checkImportsExistence(doc: TextDocument, text: string, imports: NexyImport[], diags: Diagnostic[]) {
@@ -44,14 +129,15 @@ export class DiagnosticHandler {
     const currentDir = path.dirname(docPath);
     
     // Trouver la racine du projet pour les alias
-    let workspaceRoot = currentDir;
-    while (workspaceRoot !== path.parse(workspaceRoot).root) {
-      if (fs.existsSync(path.join(workspaceRoot, "nexyconfig.py"))) break;
-      workspaceRoot = path.dirname(workspaceRoot);
-    }
+    const workspaceRoot = this.getWorkspaceRoot(doc);
     const config = parseNexyConfig(workspaceRoot);
 
     imports.forEach(imp => {
+      // Skip system/library imports (don't start with . or @ or /)
+      if (!imp.path.startsWith(".") && !imp.path.startsWith("@") && !imp.path.startsWith("/") && !imp.path.includes("/")) {
+        return; 
+      }
+
       let resolvedPath = path.resolve(currentDir, imp.path);
       
       // Essayer de résoudre avec les alias
@@ -60,7 +146,17 @@ export class DiagnosticHandler {
         resolvedPath = aliasResolved;
       }
 
-      if (!fs.existsSync(resolvedPath)) {
+      // Add common extensions if missing
+      const exts = ["", ".nexy", ".mdx", ".vue", ".tsx", ".jsx", ".svelte", ".py"];
+      let exists = false;
+      for (const ext of exts) {
+        if (fs.existsSync(resolvedPath + ext)) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (!exists) {
         // Chercher l'offset de l'import
         const importRegex = new RegExp(`from\\s+["']${imp.path}["']`, 'g');
         const match = importRegex.exec(text);
@@ -183,11 +279,7 @@ export class DiagnosticHandler {
       const currentDir = path.dirname(docPath);
       
       // Trouver la racine du projet pour les alias
-      let workspaceRoot = currentDir;
-      while (workspaceRoot !== path.parse(workspaceRoot).root) {
-        if (fs.existsSync(path.join(workspaceRoot, "nexyconfig.py"))) break;
-        workspaceRoot = path.dirname(workspaceRoot);
-      }
+      const workspaceRoot = this.getWorkspaceRoot(doc);
       const config = parseNexyConfig(workspaceRoot);
 
       let resolvedPath = path.resolve(currentDir, imp.path);
@@ -196,12 +288,47 @@ export class DiagnosticHandler {
         resolvedPath = aliasResolved;
       }
       
-      if (fs.existsSync(resolvedPath)) {
-        const source = fs.readFileSync(resolvedPath, "utf8");
+      if (!fs.existsSync(resolvedPath)) return [];
+      const source = fs.readFileSync(resolvedPath, "utf8");
+      
+      if (imp.framework === "nexy") {
         return parseHeader(source).props;
       }
       
-      return [];
+      // Support polyglotte pour l'extraction des props (Synchronisé avec completion.ts)
+      const props: NexyProp[] = [];
+
+      if (imp.framework === "vue") {
+        const patterns = [
+          /props:\s*{([\s\S]*?)}/g,
+          /props:\s*\[([\s\S]*?)\]/g,
+          /defineProps\s*\(\s*{([\s\S]*?)}\s*\)/g,
+          /defineProps\s*<\s*{([\s\S]*?)}\s*>\s*\(/g
+        ];
+        patterns.forEach(p => {
+          const m = p.exec(source);
+          if (m) {
+            const matches = m[1].matchAll(/(\w+)\s*[:?]/g);
+            for (const match of matches) props.push({ name: match[1], type: "any" });
+          }
+        });
+      } else if (imp.framework === "react") {
+        const reactPropsRegex = /(?:interface|type)\s+(?:[A-Z]\w*Props|Props)\s*=?\s*{([\s\S]*?)}/g;
+        const m = reactPropsRegex.exec(source);
+        if (m) {
+          const matches = m[1].matchAll(/(\w+)\s*(?:\?|:)/g);
+          for (const match of matches) props.push({ name: match[1], type: "any" });
+        }
+      } else if (imp.framework === "rust") {
+        const rustPropsRegex = /struct\s+(?:\w+Props|Props)\s*{([\s\S]*?)}/g;
+        const m = rustPropsRegex.exec(source);
+        if (m) {
+          const matches = m[1].matchAll(/pub\s+(\w+)\s*:/g);
+          for (const match of matches) props.push({ name: match[1], type: "any" });
+        }
+      }
+      
+      return props;
     } catch { return []; }
   }
 
