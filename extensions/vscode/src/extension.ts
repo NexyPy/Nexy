@@ -1,330 +1,122 @@
-import * as path from "path";
 import * as vscode from "vscode";
-import {
-  LanguageClient,
-  LanguageClientOptions,
-  ServerOptions,
-  TransportKind,
-} from "vscode-languageclient/node";
-import {
-  FRAMEWORK_COLORS,
-  detectFramework,
-  parseImports,
-  findComponentRanges,
-  parseHeader,
-  getSection,
-} from "./utils";
+import { NexyLspClient } from "./client/lspClient";
+import { NexyStatusBar } from "./client/statusBar";
+import { NexyDecorations } from "./client/decorations";
+import { registerNexyCommands } from "./client/commands";
+import { 
+  EmbedContentProvider, 
+  PY_SCHEME, 
+  HTML_SCHEME, 
+  CSS_SCHEME, 
+  JS_SCHEME 
+} from "./client/providers/embeddedProvider";
+import { registerServiceDelegation } from "./client/providers/serviceDelegation";
+import { registerSemanticTokens } from "./semanticTokens";
 
-let client: LanguageClient;
-let statusBarItem: vscode.StatusBarItem | undefined;
+let lspClient: NexyLspClient;
+let statusBar: NexyStatusBar;
+let decorations: NexyDecorations;
+let isNexyProject = false;
 
-// ─── Decoration types par framework ──────────────────────────────────────────
-const decorationTypes: Record<string, vscode.TextEditorDecorationType> =
-  Object.fromEntries(
-    Object.entries(FRAMEWORK_COLORS).map(([fw, color]) => [
-      fw,
-      vscode.window.createTextEditorDecorationType({ color }),
-    ]),
-  );
+async function checkNexyProject(): Promise<boolean> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders) return false;
 
-function updateDecorations(editor: vscode.TextEditor) {
-  if (editor.document.languageId !== "nexy") {
-    return;
+  for (const folder of workspaceFolders) {
+    // Détection stricte d'un projet Nexy
+    const configUri = vscode.Uri.joinPath(folder.uri, "nexyconfig.py");
+    const internalUri = vscode.Uri.joinPath(folder.uri, "___nexy__");
+
+    try {
+      // Un projet Nexy doit avoir nexyconfig.py ET ___nexy__/
+      await vscode.workspace.fs.stat(configUri);
+      await vscode.workspace.fs.stat(internalUri);
+      return true;
+    } catch {
+      continue;
+    }
   }
-
-  const config = vscode.workspace.getConfiguration("nexy");
-  const enabled = config.get<boolean>("decorations.enableFrameworkColors", true);
-
-  if (!enabled) {
-    Object.values(decorationTypes).forEach((dt) =>
-      editor.setDecorations(dt, []),
-    );
-    return;
-  }
-
-  const imports = parseImports(editor.document.getText());
-
-  Object.values(decorationTypes).forEach((dt) =>
-    editor.setDecorations(dt, []),
-  );
-
-  const byFramework = new Map<string, vscode.Range[]>();
-  imports.forEach((framework, componentName) => {
-    const ranges = findComponentRanges(editor.document, componentName);
-    if (ranges.length === 0) return;
-    if (!byFramework.has(framework)) byFramework.set(framework, []);
-    byFramework.get(framework)!.push(...ranges);
-  });
-
-  byFramework.forEach((ranges, framework) => {
-    const dt = decorationTypes[framework];
-    if (dt) editor.setDecorations(dt, ranges);
-  });
+  return false;
 }
 
-function updateStatusBar(editor: vscode.TextEditor | undefined) {
-  if (!statusBarItem) {
-    return;
-  }
+const providers = {
+  [PY_SCHEME]: new EmbedContentProvider(),
+  [HTML_SCHEME]: new EmbedContentProvider(),
+  [CSS_SCHEME]: new EmbedContentProvider(),
+  [JS_SCHEME]: new EmbedContentProvider(),
+  "nexy-mdx-markdown": new EmbedContentProvider(),
+};
 
-  const config = vscode.workspace.getConfiguration("nexy");
-  const enabled = config.get<boolean>("statusBar.enabled", true);
+export async function activate(context: vscode.ExtensionContext) {
+  // 0. Check if this is a Nexy project
+  isNexyProject = await checkNexyProject();
 
-  if (!enabled || !editor || editor.document.languageId !== "nexy") {
-    statusBarItem.hide();
-    return;
-  }
+  // 1. Initialize LSP Client (S'adapte dynamiquement à .nexy / .mdx)
+  lspClient = new NexyLspClient(context, isNexyProject);
+  await lspClient.start();
 
-  const text = editor.document.getText();
-  const { imports, props } = parseHeader(text);
+  // 2. Initialize UI Components
+  statusBar = new NexyStatusBar(isNexyProject);
+  decorations = new NexyDecorations(isNexyProject);
+  context.subscriptions.push(statusBar, decorations);
 
-  const offset = editor.document.offsetAt(editor.selection.active);
-  const section = getSection(text, offset);
-
-  const importsCount = imports.length;
-  const propsCount = props.length;
-
-  const sectionLabel = section === "header" ? "Header" : "Template";
-
-  statusBarItem.text = `Nexy $(symbol-structure) ${sectionLabel} · ${propsCount} props · ${importsCount} imports`;
-  statusBarItem.tooltip = "Nexy — résumé du fichier courant";
-  statusBarItem.show();
-}
-
-type ComponentKind = "page" | "layout" | "component";
-
-async function createComponentCommand() {
-  const items: (vscode.QuickPickItem & { value: ComponentKind })[] = [
-    {
-      label: "Page",
-      description: "Page Nexy avec titre",
-      value: "page",
-    },
-    {
-      label: "Layout",
-      description: "Layout Nexy avec slot children",
-      value: "layout",
-    },
-    {
-      label: "Component UI",
-      description: "Petit composant UI réutilisable",
-      value: "component",
-    },
-  ];
-
-  const kind = await vscode.window.showQuickPick(
-    items,
-    {
-      title: "Type de composant Nexy",
-      placeHolder: "Choisissez le type de composant à créer",
-    },
+  // 3. Register Commands
+  registerNexyCommands(context, isNexyProject);
+  context.subscriptions.push(
+    vscode.commands.registerCommand("nexy.restartLSP", () => lspClient.restart())
   );
 
-  if (!kind) {
-    return;
-  }
-
-  const name = await vscode.window.showInputBox({
-    title: "Nom du composant Nexy",
-    placeHolder: "Ex: Sidebar",
-    validateInput: (value) =>
-      value.trim().length === 0 ? "Le nom du composant ne peut pas être vide." : undefined,
+  // 4. Register Virtual Document Providers
+  Object.entries(providers).forEach(([scheme, provider]) => {
+    context.subscriptions.push(
+      vscode.workspace.registerTextDocumentContentProvider(scheme, provider)
+    );
   });
 
-  if (!name) {
-    return;
-  }
+  // 5. Register Service Delegation (IntelliSense, Hover, Definition)
+  registerServiceDelegation(context, providers, isNexyProject);
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  const defaultUri = workspaceFolder
-    ? vscode.Uri.joinPath(workspaceFolder.uri, "src", "components", `${name}.nexy`)
-    : undefined;
-
-  const targetUri = await vscode.window.showSaveDialog({
-    defaultUri,
-    filters: { Nexy: ["nexy"] },
-    saveLabel: "Créer le composant Nexy",
-  });
-
-  if (!targetUri) {
-    return;
-  }
-
-  const templateLines: string[] = [];
-  templateLines.push("---");
-
-  if (kind.value === "layout") {
-    templateLines.push("children : prop[callable]");
-  } else if (kind.value === "page") {
-    templateLines.push('title : prop[str] = "Titre de page"');
-  } else {
-    templateLines.push('label : prop[str] = "Label"');
-  }
-
-  templateLines.push("---", "");
-
-  if (kind.value === "layout") {
-    templateLines.push(
-      "<div>",
-      "  <header>",
-      '    {{ title if title is defined else "Layout" }}',
-      "  </header>",
-      "  <main>",
-      "    {{ children() }}",
-      "  </main>",
-      "</div>",
-      "",
-    );
-  } else if (kind.value === "page") {
-    templateLines.push(
-      "<main>",
-      "  <h1>{{ title }}</h1>",
-      "  <div>",
-      "    <!-- Contenu de la page -->",
-      "  </div>",
-      "</main>",
-      "",
-    );
-  } else {
-    templateLines.push(
-      "<button>",
-      "  {{ label }}",
-      "</button>",
-      "",
-    );
-  }
-
-  const content = templateLines.join("\n");
-  const encoder = new TextEncoder();
-  await vscode.workspace.fs.writeFile(targetUri, encoder.encode(content));
-
-  const doc = await vscode.workspace.openTextDocument(targetUri);
-  await vscode.window.showTextDocument(doc, { preview: false });
-}
-
-async function insertHeaderCommand() {
+  // 6. Global Listeners
   const editor = vscode.window.activeTextEditor;
-  if (!editor || editor.document.languageId !== "nexy") {
-    return;
-  }
-
-  const documentText = editor.document.getText();
-  if (/^---\s*$/m.test(documentText)) {
-    void vscode.window.showInformationMessage("Ce fichier semble déjà contenir un header Nexy.");
-    return;
-  }
-
-  const snippet = new vscode.SnippetString(
-    [
-      "---",
-      'from "${1:./components/Component.nexy}" import ${2:Component}',
-      "",
-      '${3:title} : prop[${4:str}] = "${5:default}"',
-      "---",
-      "",
-      "$0",
-    ].join("\n"),
-  );
-
-  await editor.insertSnippet(snippet, new vscode.Position(0, 0));
-}
-
-async function wrapWithComponentCommand() {
-  const editor = vscode.window.activeTextEditor;
-  if (!editor || editor.document.languageId !== "nexy") {
-    return;
-  }
-
-  const selection = editor.selection;
-  if (selection.isEmpty) {
-    void vscode.window.showInformationMessage("Sélectionnez d'abord le contenu à envelopper.");
-    return;
-  }
-
-  const selectedText = editor.document.getText(selection);
-
-  const componentName = await vscode.window.showInputBox({
-    title: "Nom du composant Nexy",
-    placeHolder: "Ex: Card",
-    validateInput: (value) =>
-      value.trim().length === 0 ? "Le nom du composant ne peut pas être vide." : undefined,
-  });
-
-  if (!componentName) {
-    return;
-  }
-
-  await editor.edit((editBuilder) => {
-    const wrapped = `<${componentName}>\n${selectedText}\n</${componentName}>`;
-    editBuilder.replace(selection, wrapped);
-  });
-}
-
-export function activate(context: vscode.ExtensionContext) {
-  // ── LSP Server ──────────────────────────────────────────────────────────────
-  const serverModule = context.asAbsolutePath(
-    path.join("dist", "server.js")
-  );
-
-  const serverOptions: ServerOptions = {
-    run: { module: serverModule, transport: TransportKind.ipc },
-    debug: {
-      module: serverModule,
-      transport: TransportKind.ipc,
-      options: { execArgv: ["--nolazy", "--inspect=6009"] },
-    },
-  };
-
-  const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ scheme: "file", language: "nexy" }],
-    synchronize: {
-      fileEvents: vscode.workspace.createFileSystemWatcher("**/*.nexy"),
-    },
-  };
-
-  client = new LanguageClient("nexyLsp", "Nexy LSP", serverOptions, clientOptions);
-  client.start();
-
-  statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100,
-  );
-  statusBarItem.command = "nexy.createComponent";
-  context.subscriptions.push(statusBarItem);
-
-  // ── Décorations framework ───────────────────────────────────────────────────
-  if (vscode.window.activeTextEditor) {
-    updateDecorations(vscode.window.activeTextEditor);
-    updateStatusBar(vscode.window.activeTextEditor);
+  if (editor) {
+    decorations.update(editor);
+    statusBar.update(editor);
   }
 
   context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor) {
-        updateDecorations(editor);
-        updateStatusBar(editor);
-      } else {
-        updateStatusBar(undefined);
-      }
+    vscode.window.onDidChangeActiveTextEditor((e) => {
+      decorations.update(e);
+      statusBar.update(e);
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor && event.document === editor.document) {
-        updateDecorations(editor);
-        updateStatusBar(editor);
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && event.document === activeEditor.document) {
+        decorations.update(activeEditor);
+        statusBar.update(activeEditor);
       }
     }),
     vscode.window.onDidChangeTextEditorSelection((event) => {
-      updateStatusBar(event.textEditor);
+      statusBar.update(event.textEditor);
     }),
-    vscode.commands.registerCommand("nexy.createComponent", createComponentCommand),
-    vscode.commands.registerCommand("nexy.insertHeader", insertHeaderCommand),
-    vscode.commands.registerCommand("nexy.wrapWithComponent", wrapWithComponentCommand),
+    vscode.languages.onDidChangeDiagnostics(() => {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor) {
+        statusBar.update(activeEditor);
+      }
+    })
   );
+
+  // 7. Nexy Welcome Message
+  const nexyFiles = await vscode.workspace.findFiles("**/*.nexy", null, 1);
+  if (nexyFiles.length > 0) {
+    vscode.window.showInformationMessage("Nexy est prêt à décoller ! 🚀 Bon code !");
+  }
+
+  registerSemanticTokens(context);
 }
 
 export function deactivate(): Thenable<void> | undefined {
-  Object.values(decorationTypes).forEach((dt) => dt.dispose());
-  statusBarItem?.dispose();
-  return client?.stop();
+  statusBar?.dispose();
+  decorations?.dispose();
+  return lspClient?.stop();
 }

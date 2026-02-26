@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nexy MDX",
+  "scopeName": "source.mdx",
+  "fileTypes": [
+    "mdx"
+  ],
+  "patterns": [
+    {
+      "include": "source.nexy#header"
+    },
+    {
+      "include": "source.nexy#jinja-comment"
+    },
+    {
+      "include": "source.nexy#jinja-block"
+    },
+    {
+      "include": "source.nexy#jinja-expression"
+    },
+    {
+      "include": "source.nexy#component-tag-open"
+    },
+    {
+      "include": "text.html.markdown"
+    }
+  ]
+}

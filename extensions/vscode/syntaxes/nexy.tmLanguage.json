@@ -34,13 +34,89 @@
           "include": "source.python"
         },
         {
+          "name": "keyword.control.import.python.fallback.nexy",
+          "match": "\\b(import|from|as|with|def|class|return|True|False|None)\\b"
+        },
+        { "include": "#python-import-from" },
+        { "include": "#python-import-list" },
+        { "include": "#python-assignment" },
+        {
           "include": "#nexy-prop"
         }
       ]
     },
     "nexy-prop": {
-      "name": "support.type.python storage.type.nexy",
+      "name": "storage.type.nexy",
       "match": "\\bprop\\b"
+    },
+    "python-import-list": {
+      "name": "meta.import.python.fallback.nexy",
+      "begin": "^\\s*(import)\\s+",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.import.python.fallback.nexy" }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "match": "(?:\"[^\"]+\"|'[^']+'|[A-Za-z_][\\w.]*)",
+          "name": "entity.name.namespace.python.nexy"
+        },
+        { "match": ",", "name": "punctuation.separator.comma.python.nexy" },
+        {
+          "match": "\\s+as\\s+",
+          "name": "keyword.other.as.python.fallback.nexy"
+        },
+        { "match": "[A-Za-z_][\\w]*", "name": "variable.other.alias.python.nexy" }
+      ]
+    },
+    "python-import-from": {
+      "name": "meta.from-import.python.fallback.nexy",
+      "begin": "^\\s*(from)\\s+",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.import.python.fallback.nexy" }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "match": "(?:[A-Za-z_][\\w.]*|\"[^\"]+\"|'[^']+')",
+          "name": "entity.name.namespace.python.nexy"
+        },
+        {
+          "match": "\\s+(import)\\s+",
+          "captures": { "1": { "name": "keyword.control.import.python.fallback.nexy" } }
+        },
+        { "match": "[A-Za-z_][\\w]*", "name": "entity.name.imported.python.nexy" },
+        { "match": ",", "name": "punctuation.separator.comma.python.nexy" },
+        {
+          "match": "\\s+as\\s+",
+          "name": "keyword.other.as.python.fallback.nexy"
+        },
+        { "match": "[A-Za-z_][\\w]*", "name": "variable.other.alias.python.nexy" }
+      ]
+    },
+    "python-assignment": {
+      "name": "meta.assignment.python.fallback.nexy",
+      "match": "^\\s*([A-Za-z_][\\w]*)\\s*(?::[^=]+)?\\s*(=)",
+      "captures": {
+        "1": { "name": "variable.other.readwrite.python.nexy" },
+        "2": { "name": "keyword.operator.assignment.python.nexy" }
+      }
+    },
+    "nexy-prop-decl": {
+      "name": "meta.declaration.prop.nexy",
+      "begin": "^\\s*([A-Za-z_][\\w]*)\\s*:\\s*(prop)(\\[)",
+      "beginCaptures": {
+        "1": { "name": "variable.other.readwrite.nexy" },
+        "2": { "name": "storage.type.nexy" },
+        "3": { "name": "punctuation.section.brackets.begin.nexy" }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": { "name": "punctuation.section.brackets.end.nexy" }
+      },
+      "patterns": [
+        { "match": "[^\\]]+", "name": "support.type.nexy" }
+      ]
     },
     "template": {
       "name": "meta.template.nexy",
@@ -57,7 +133,13 @@
           "include": "#jinja-expression"
         },
         {
-          "include": "#custom-component-self-closing"
+          "include": "#style-tag"
+        },
+        {
+          "include": "#script-tag"
+        },
+        {
+          "include": "#component-tag-open"
         },
         {
           "include": "#custom-component"
@@ -65,6 +147,42 @@
         {
           "include": "text.html.basic"
         }
+      ]
+    },
+    "style-tag": {
+      "begin": "(<)(style)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.style.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.style.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
+      "contentName": "source.css",
+      "patterns": [
+        { "include": "source.css" }
+      ]
+    },
+    "script-tag": {
+      "begin": "(<)(script)(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.script.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.script.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
+      "contentName": "source.js",
+      "patterns": [
+        { "include": "source.js" }
       ]
     },
     "jinja-expression": {
@@ -84,6 +202,10 @@
       "patterns": [
         {
           "include": "source.python"
+        },
+        {
+          "name": "variable.other.readwrite.fallback.nexy",
+          "match": "\\b[_A-Za-z][_A-Za-z0-9]*\\b"
         }
       ]
     },
@@ -126,67 +248,71 @@
         }
       }
     },
-    "custom-component-self-closing": {
-      "name": "meta.tag.component.self-closing.nexy",
-      "match": "(<)([A-Z][A-Za-z0-9]*)([^>]*?)(\\/?>)",
-      "captures": {
-        "1": {
-          "name": "punctuation.definition.tag.begin.nexy"
-        },
-        "2": {
-          "name": "entity.name.tag.component.nexy support.class.component.nexy"
-        },
-        "3": {
-          "name": "meta.tag.attributes.nexy"
-        },
-        "4": {
-          "name": "punctuation.definition.tag.end.nexy"
-        }
-      }
-    },
-    "custom-component": {
-      "name": "meta.tag.component.nexy",
-      "begin": "(<)([A-Z][A-Za-z0-9]*)((?:\\s+[^>]*)?)(>)",
+    "component-tag-open": {
+      "name": "meta.tag.component.start.nexy",
+      "begin": "(<)([A-Z][A-Za-z0-9]*)",
       "beginCaptures": {
-        "1": {
-          "name": "punctuation.definition.tag.begin.nexy"
-        },
-        "2": {
-          "name": "entity.name.tag.component.nexy support.class.component.nexy"
-        },
-        "3": {
-          "name": "meta.tag.attributes.nexy"
-        },
-        "4": {
-          "name": "punctuation.definition.tag.end.nexy"
-        }
+        "1": { "name": "punctuation.definition.tag.begin.nexy" },
+        "2": { "name": "entity.name.tag.component.nexy support.class.component.nexy" }
       },
-      "end": "(</)([A-Z][A-Za-z0-9]*)(>)",
+      "end": "(\\/?>)",
       "endCaptures": {
-        "1": {
-          "name": "punctuation.definition.tag.begin.nexy"
-        },
-        "2": {
-          "name": "entity.name.tag.component.nexy support.class.component.nexy"
-        },
-        "3": {
-          "name": "punctuation.definition.tag.end.nexy"
-        }
+        "1": { "name": "punctuation.definition.tag.end.nexy" }
       },
       "patterns": [
+        { "include": "#component-attributes" },
+        { "include": "#jinja-expression" }
+      ]
+    },
+    "component-attributes": {
+      "name": "meta.tag.attributes.nexy",
+      "patterns": [
         {
-          "include": "#jinja-comment"
+          "name": "entity.other.attribute-name.nexy",
+          "match": "(?<=\\s)([@:\\w][\\w:.-]*)(?=\\s*=|\\s|\\/?>)"
         },
         {
-          "include": "#jinja-block"
+          "name": "keyword.operator.assignment.nexy",
+          "match": "="
         },
         {
-          "include": "#jinja-expression"
+          "name": "string.quoted.double.nexy",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "include": "#jinja-expression" }
+          ]
         },
         {
-          "include": "text.html.basic"
+          "name": "string.quoted.single.nexy",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "include": "#jinja-expression" }
+          ]
+        },
+        {
+          "name": "constant.language.boolean.nexy",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.numeric.nexy",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        },
+        {
+          "name": "variable.other.attribute.unquoted.nexy",
+          "match": "(?<=\\=)(?![\"'])([^\\s>]+)"
         }
       ]
+    },
+    "custom-component": {
+      "name": "meta.tag.component.end.nexy",
+      "match": "(</)([A-Z][A-Za-z0-9]*)(>)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.begin.nexy" },
+        "2": { "name": "entity.name.tag.component.nexy support.class.component.nexy" },
+        "3": { "name": "punctuation.definition.tag.end.nexy" }
+      }
     }
   }
 }

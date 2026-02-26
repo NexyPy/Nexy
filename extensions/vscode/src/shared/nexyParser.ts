@@ -15,10 +15,10 @@ export interface NexyProp {
 export type NexySection = "header" | "template";
 
 export function detectFramework(importPath: string): NexyFramework {
-  if (importPath.endsWith(".vue")) return "vue";
-  if (importPath.endsWith(".nexy")) return "nexy";
-  if (importPath.endsWith(".jsx") || importPath.endsWith(".tsx")) return "react";
-  if (importPath.endsWith(".svelte")) return "svelte";
+  if (importPath.endsWith(".vue")) {return "vue";}
+  if (importPath.endsWith(".nexy")) {return "nexy";}
+  if (importPath.endsWith(".jsx") || importPath.endsWith(".tsx")) {return "react";}
+  if (importPath.endsWith(".svelte")) {return "svelte";}
   return "unknown";
 }
 
@@ -75,11 +75,13 @@ export function getSection(text: string, offset: number): NexySection {
 }
 
 export function getTemplate(text: string): string {
+  // Supporte les headers Nexy (---)
   const templateMatch = text.match(/^---[\s\S]*?---\n([\s\S]*)$/m);
-  if (!templateMatch) {
-    return text;
+  if (templateMatch) {
+    return templateMatch[1];
   }
-  return templateMatch[1];
+  // Si pas de header, tout est considéré comme template (KISS)
+  return text;
 }
 
 export function findUsedComponentsInTemplate(text: string): string[] {
@@ -89,4 +91,18 @@ export function findUsedComponentsInTemplate(text: string): string[] {
   );
   return Array.from(new Set(usedComponents));
 }
+
+export function parseImports(text: string): Map<string, string> {
+  const map = new Map<string, string>();
+  const { imports } = parseHeader(text);
+
+  for (const imp of imports) {
+    if (imp.framework !== "unknown") {
+      map.set(imp.name, imp.framework);
+    }
+  }
+
+  return map;
+}
+
 

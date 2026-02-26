@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "iconDefinitions": {
+    "_nexy": {
+      "iconPath": "./nexy.svg"
+    }
+  },
+  "fileExtensions": {
+    "nexy": "_nexy"
+  }
+}

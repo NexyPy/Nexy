@@ -5,7 +5,10 @@
   "version": "0.0.1",
   "engines": { "vscode": "^1.109.0" },
   "categories": ["Programming Languages"],
-  "activationEvents": ["onLanguage:nexy"],
+  "activationEvents": [
+    "onLanguage:nexy",
+    "onLanguage:mdx"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
@@ -14,6 +17,19 @@
         "aliases": ["Nexy", "nexy"],
         "extensions": [".nexy"],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "mdx",
+        "aliases": ["MDX", "mdx"],
+        "extensions": [".mdx"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "nexy-icons",
+        "label": "Nexy Icons",
+        "path": "./fileicons/nexy-icon-theme.json"
       }
     ],
     "grammars": [
@@ -21,6 +37,11 @@
         "language": "nexy",
         "scopeName": "source.nexy",
         "path": "./syntaxes/nexy.tmLanguage.json"
+      },
+      {
+        "language": "mdx",
+        "scopeName": "source.mdx",
+        "path": "./syntaxes/mdx.tmLanguage.json"
       }
     ],
     "snippets": [
@@ -43,6 +64,16 @@
       {
         "command": "nexy.wrapWithComponent",
         "title": "Nexy: Envelopper avec un composant",
+        "category": "Nexy"
+      },
+      {
+        "command": "nexy.openDocs",
+        "title": "Nexy: Ouvrir la documentation",
+        "category": "Nexy"
+      },
+      {
+        "command": "nexy.restartLSP",
+        "title": "Nexy: Redémarrer le serveur de langage",
         "category": "Nexy"
       }
     ],
@@ -72,6 +103,49 @@
             "settings": {
               "foreground": "#444444",
               "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": [
+              "storage.type.nexy"
+            ],
+            "settings": {
+              "foreground": "#ffa500"
+            }
+          },
+          {
+            "scope": [
+              "variable.other.readwrite.python.nexy",
+              "variable.other.readwrite.nexy"
+            ],
+            "settings": {
+              "foreground": "#E5C07B"
+            }
+          },
+          {
+            "scope": [
+              "support.type.nexy"
+            ],
+            "settings": {
+              "foreground": "#56B6C2"
+            }
+          },
+          {
+            "scope": [
+              "keyword.operator.assignment.python.nexy"
+            ],
+            "settings": {
+              "foreground": "#D19A66"
+            }
+          },
+          {
+            "scope": [
+              "entity.name.namespace.python.nexy",
+              "entity.name.imported.python.nexy",
+              "variable.other.readwrite.python.nexy"
+            ],
+            "settings": {
+              "foreground": "#4FC1FF"
             }
           }
         ]
