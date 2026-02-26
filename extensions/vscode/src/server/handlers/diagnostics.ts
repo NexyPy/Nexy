@@ -13,8 +13,8 @@ import {
   findUsedComponentsInTemplate,
   type NexyImport,
   type NexyProp,
-} from "../../shared/nexyParser";
-import { parseNexyConfig, resolveWithAlias } from "../../shared/configParser";
+} from "../../shared/nexy.parser";
+import { parseNexyConfig, resolveWithAlias } from "../../shared/config.parser";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";
@@ -69,7 +69,7 @@ export class DiagnosticHandler {
           diags.push({
             severity: DiagnosticSeverity.Error,
             range: Range.create(doc.positionAt(pathStart), doc.positionAt(pathStart + imp.path.length)),
-            message: `Module non trouvé : ${imp.path}${aliasResolved ? ` (résolu en : ${aliasResolved})` : ""}`,
+            message: `Module not found: ${imp.path}${aliasResolved ? ` (resolved to: ${aliasResolved})` : ""}`,
             source: "nexy"
           });
         }
@@ -130,7 +130,7 @@ export class DiagnosticHandler {
             diags.push({
               severity: DiagnosticSeverity.Error,
               range: Range.create(doc.positionAt(attrStart), doc.positionAt(attrStart + attrName.length)),
-              message: `La prop "${attrName}" n'est pas définie dans le composant "${componentName}".`,
+              message: `Prop "${attrName}" is not defined in component "${componentName}".`,
               source: "nexy",
             });
             continue;
@@ -213,7 +213,7 @@ export class DiagnosticHandler {
           diags.push({
             severity: DiagnosticSeverity.Warning,
             range: Range.create(doc.positionAt(idx + 1), doc.positionAt(idx + 1 + name.length)),
-            message: `<${name}> n'est pas importé.`,
+            message: `<${name}> is not imported.`,
             source: "nexy",
             code: "nexy.missingImport",
           });
@@ -235,7 +235,7 @@ export class DiagnosticHandler {
           diags.push({
             severity: DiagnosticSeverity.Hint,
             range: Range.create(doc.positionAt(start), doc.positionAt(end)),
-            message: `Import "${imp.name}" inutilisé dans le template.`,
+            message: `Import "${imp.name}" unused in template.`,
             source: "nexy",
             code: "nexy.unusedImport",
             tags: [DiagnosticTag.Unnecessary]
@@ -253,7 +253,7 @@ export class DiagnosticHandler {
           diags.push({
             severity: DiagnosticSeverity.Hint,
             range: Range.create(doc.positionAt(idx), doc.positionAt(idx + prop.name.length)),
-            message: `Prop "${prop.name}" inutilisée.`,
+            message: `Prop "${prop.name}" unused.`,
             source: "nexy",
             code: "nexy.unusedProp",
             tags: [DiagnosticTag.Unnecessary]
@@ -273,7 +273,7 @@ export class DiagnosticHandler {
         diags.push({
           severity: DiagnosticSeverity.Warning,
           range: Range.create(doc.positionAt(start), doc.positionAt(start + match[1].length)),
-          message: `Filtre Jinja2 "${match[1]}" inconnu.`,
+          message: `Unknown Jinja2 filter "${match[1]}".`,
           source: "nexy",
         });
       }

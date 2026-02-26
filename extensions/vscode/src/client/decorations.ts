@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { parseImports } from "../shared/nexyParser";
+import { parseImports } from "../shared/nexy.parser";
 import { FRAMEWORK_COLORS } from "../shared/constants";
 
 export class NexyDecorations {

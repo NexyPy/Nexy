@@ -10,7 +10,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompletionHandler } from "./handlers/completion";
 import { HoverHandler } from "./handlers/hover";
 import { DiagnosticHandler } from "./handlers/diagnostics";
-import { CodeActionHandler } from "./handlers/codeActions";
+import { CodeActionHandler } from "./handlers/code.actions";
 
 class NexyLspServer {
   private connection = createConnection(ProposedFeatures.all);

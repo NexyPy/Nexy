@@ -31,23 +31,23 @@ export function registerNexyCommands(context: vscode.ExtensionContext, isNexyPro
 
 async function createComponentCommand() {
   const items: (vscode.QuickPickItem & { value: string })[] = [
-    { label: "Page", description: "Page Nexy avec titre", value: "page" },
-    { label: "Layout", description: "Layout Nexy avec slot children", value: "layout" },
-    { label: "Component UI", description: "Petit composant UI réutilisable", value: "component" },
+    { label: "Page", description: "Nexy Page with title", value: "page" },
+    { label: "Layout", description: "Nexy Layout with children slot", value: "layout" },
+    { label: "Component UI", description: "Small reusable UI component", value: "component" },
   ];
 
   const kind = await vscode.window.showQuickPick(items, {
-    title: "Type de composant Nexy",
-    placeHolder: "Choisissez le type de composant à créer",
+    title: "Nexy Component Type",
+    placeHolder: "Choose the type of component to create",
   });
 
   if (!kind) return;
 
   const name = await vscode.window.showInputBox({
-    title: "Nom du composant Nexy",
+    title: "Nexy Component Name",
     placeHolder: "Ex: Sidebar",
     validateInput: (value) =>
-      value.trim().length === 0 ? "Le nom du composant ne peut pas être vide." : undefined,
+      value.trim().length === 0 ? "Component name cannot be empty." : undefined,
   });
 
   if (!name) return;
@@ -68,29 +68,29 @@ async function createComponentCommand() {
   const targetUri = await vscode.window.showSaveDialog({
     defaultUri,
     filters: { Nexy: ["nexy"] },
-    saveLabel: "Créer le composant Nexy",
+    saveLabel: "Create Nexy Component",
   });
 
   if (!targetUri) return;
 
-  const templateLines: string[] = ["---", "# Header Nexy: Définition des propriétés et imports"];
+  const templateLines: string[] = ["---", "# Nexy Header: Define properties and imports"];
 
   if (kind.value === "layout") {
-    templateLines.push("children : prop[callable] # Slot principal");
+    templateLines.push("children : prop[callable] # Main slot");
   } else if (kind.value === "page") {
-    templateLines.push('title : prop[str] = "Titre de page"');
+    templateLines.push('title : prop[str] = "Page Title"');
   } else {
-    templateLines.push('label : prop[str] = "Label" # Exemple de prop');
+    templateLines.push('label : prop[str] = "Label" # Example prop');
   }
 
   templateLines.push("---", "");
 
   if (kind.value === "layout") {
-    templateLines.push("<!-- Layout Nexy: Structure réutilisable -->", "<div>", "  <header>", '    {{ title if title is defined else "Layout" }}', "  </header>", "  <main>", "    {{ children() }}", "  </main>", "</div>", "");
+    templateLines.push("<!-- Nexy Layout: Reusable structure -->", "<div>", "  <header>", '    {{ title if title is defined else "Layout" }}', "  </header>", "  <main>", "    {{ children() }}", "  </main>", "</div>", "");
   } else if (kind.value === "page") {
-    templateLines.push("<!-- Page Nexy: Route de votre application -->", "<main>", "  <h1>{{ title }}</h1>", "  <div>", "    <!-- Contenu de la page -->", "  </div>", "</main>", "");
+    templateLines.push("<!-- Nexy Page: Route of your application -->", "<main>", "  <h1>{{ title }}</h1>", "  <div>", "    <!-- Page content -->", "  </div>", "</main>", "");
   } else {
-    templateLines.push("<!-- Composant UI: Petit et efficace -->", "<button class=\"nexy-btn\">", "  {{ label }}", "</button>", "", "<style>", "  .nexy-btn { padding: 8px 16px; }", "</style>", "");
+    templateLines.push("<!-- UI Component: Small and efficient -->", "<button class=\"nexy-btn\">", "  {{ label }}", "</button>", "", "<style>", "  .nexy-btn { padding: 8px 16px; }", "</style>", "");
   }
 
   const content = templateLines.join("\n");
@@ -98,7 +98,7 @@ async function createComponentCommand() {
 
   const doc = await vscode.workspace.openTextDocument(targetUri);
   await vscode.window.showTextDocument(doc, { preview: false });
-  vscode.window.showInformationMessage(`Composant "${name}.nexy" créé avec succès ! ✨`);
+  vscode.window.showInformationMessage(`Component "${name}.nexy" created successfully! ✨`);
 }
 
 async function insertHeaderCommand() {
@@ -107,7 +107,7 @@ async function insertHeaderCommand() {
 
   const documentText = editor.document.getText();
   if (/^---\s*$/m.test(documentText)) {
-    void vscode.window.showInformationMessage("Ce fichier semble déjà contenir un header Nexy.");
+    void vscode.window.showInformationMessage("This file already seems to contain a Nexy header.");
     return;
   }
 
@@ -121,7 +121,7 @@ async function wrapWithComponentCommand() {
 
   const selection = editor.selection;
   if (selection.isEmpty) {
-    void vscode.window.showInformationMessage("Sélectionnez d'abord le contenu à envelopper.");
+    void vscode.window.showInformationMessage("Select content to wrap first.");
     return;
   }
 

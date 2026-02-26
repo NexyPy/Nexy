@@ -53,27 +53,27 @@
     "commands": [
       {
         "command": "nexy.createComponent",
-        "title": "Nexy: Créer un composant",
+        "title": "Nexy: Create component",
         "category": "Nexy"
       },
       {
         "command": "nexy.insertHeader",
-        "title": "Nexy: Insérer un header",
+        "title": "Nexy: Insert header",
         "category": "Nexy"
       },
       {
         "command": "nexy.wrapWithComponent",
-        "title": "Nexy: Envelopper avec un composant",
+        "title": "Nexy: Wrap with component",
         "category": "Nexy"
       },
       {
         "command": "nexy.openDocs",
-        "title": "Nexy: Ouvrir la documentation",
+        "title": "Nexy: Open documentation",
         "category": "Nexy"
       },
       {
         "command": "nexy.restartLSP",
-        "title": "Nexy: Redémarrer le serveur de langage",
+        "title": "Nexy: Restart language server",
         "category": "Nexy"
       }
     ],
@@ -83,12 +83,12 @@
         "nexy.decorations.enableFrameworkColors": {
           "type": "boolean",
           "default": true,
-          "description": "Colorer les composants Nexy en fonction de leur framework (Vue, Nexy, React, Svelte)."
+          "description": "Color Nexy components based on their framework (Vue, Nexy, React, Svelte)."
         },
         "nexy.statusBar.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Afficher un résumé Nexy (section, props, imports) dans la barre de statut."
+          "description": "Show Nexy summary (section, props, imports) in status bar."
         }
       }
     },

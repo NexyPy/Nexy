@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { parseHeader, getSection } from "../shared/nexyParser";
+import { parseHeader, getSection } from "../shared/nexy.parser";
 
 export class NexyStatusBar {
   private statusBarItem: vscode.StatusBarItem;
@@ -43,17 +43,17 @@ export class NexyStatusBar {
     const { mascot, statusText } = this.getMascotAndStatus(errors, warnings);
 
     this.statusBarItem.text = `${mascot} ${sectionLabel} · ${props.length} props · ${imports.length} imports`;
-    this.statusBarItem.tooltip = `${statusText}\nCliquez pour créer un nouveau composant Nexy.`;
+    this.statusBarItem.tooltip = `${statusText}\nClick to create a new Nexy component.`;
     this.statusBarItem.show();
   }
 
   private getMascotAndStatus(errors: number, warnings: number) {
     if (errors > 0) {
-      return { mascot: "$(error)", statusText: `Nexy: ${errors} erreurs 😱` };
+      return { mascot: "$(error)", statusText: `Nexy: ${errors} errors 😱` };
     } else if (warnings > 0) {
-      return { mascot: "$(warning)", statusText: `Nexy: ${warnings} alertes ⚠️` };
+      return { mascot: "$(warning)", statusText: `Nexy: ${warnings} warnings ⚠️` };
     }
-    return { mascot: "$(rocket)", statusText: "Nexy: Code impeccable ! ✨" };
+    return { mascot: "$(rocket)", statusText: "Nexy: Perfect code! ✨" };
   }
 
   public dispose() {

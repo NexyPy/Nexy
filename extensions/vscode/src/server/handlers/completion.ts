@@ -11,8 +11,8 @@ import {
   getTemplate,
   type NexyImport,
   type NexyProp,
-} from "../../shared/nexyParser";
-import { parseNexyConfig, resolveWithAlias } from "../../shared/configParser";
+} from "../../shared/nexy.parser";
+import { parseNexyConfig, resolveWithAlias } from "../../shared/config.parser";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";
@@ -54,13 +54,13 @@ export class CompletionHandler {
 
     if (/^\w+\s*:\s*prop\[/.test(lineText)) {
       return ["str","int","float","bool","list","dict","callable"].map(t => ({
-        label: t, kind: CompletionItemKind.TypeParameter, detail: "Type Nexy"
+        label: t, kind: CompletionItemKind.TypeParameter, detail: "Nexy Type"
       }));
     }
 
     return [
-      { label: "prop", kind: CompletionItemKind.Keyword, insertText: "${1:name} : prop[${2:str}] = ${3:\"default\"}", insertTextFormat: InsertTextFormat.Snippet, detail: "Déclarer une prop" },
-      { label: "from", kind: CompletionItemKind.Keyword, insertText: "from \"${1:./components/Component.tsx}\" import ${2:Component}", insertTextFormat: InsertTextFormat.Snippet, detail: "Importer un composant" },
+      { label: "prop", kind: CompletionItemKind.Keyword, insertText: "${1:name} : prop[${2:str}] = ${3:\"default\"}", insertTextFormat: InsertTextFormat.Snippet, detail: "Declare a prop" },
+      { label: "from", kind: CompletionItemKind.Keyword, insertText: "from \"${1:./components/Component.tsx}\" import ${2:Component}", insertTextFormat: InsertTextFormat.Snippet, detail: "Import a component" },
     ];
   }
 
@@ -122,7 +122,7 @@ export class CompletionHandler {
           items.push({
             label: alias,
             kind: CompletionItemKind.Reference,
-            detail: `Alias Nexy: ${config.useAliases[alias]}`,
+            detail: `Nexy Alias: ${config.useAliases[alias]}`,
             insertText: alias + "/",
             command: { title: "Suggest", command: "editor.action.triggerSuggest" }
           });
@@ -156,14 +156,14 @@ export class CompletionHandler {
       label: p.name, kind: CompletionItemKind.Variable, detail: `prop[${p.type}]`
     }));
     if (/\|\s*\w*$/.test(lineText)) {
-      JINJA_FILTERS.forEach(f => items.push({ label: f, kind: CompletionItemKind.Function, detail: "Filtre Jinja2" }));
+      JINJA_FILTERS.forEach(f => items.push({ label: f, kind: CompletionItemKind.Function, detail: "Jinja2 Filter" }));
     }
     return items;
   }
 
   private getTagItems(imports: NexyImport[]): CompletionItem[] {
     const items: CompletionItem[] = imports.map(imp => ({
-      label: imp.name, kind: CompletionItemKind.Class, detail: `Composant ${imp.framework}`,
+      label: imp.name, kind: CompletionItemKind.Class, detail: `${imp.framework} Component`,
       insertText: `${imp.name} $1/>`, insertTextFormat: InsertTextFormat.Snippet
     }));
     HTML_TAGS.forEach(tag => items.push({
@@ -185,7 +185,7 @@ export class CompletionHandler {
           return componentProps.map(p => ({
             label: p.name, kind: CompletionItemKind.Property, detail: `Prop ${p.name}: prop[${p.type}]`,
             insertText: `${p.name}="$1"`, insertTextFormat: InsertTextFormat.Snippet,
-            documentation: p.defaultValue ? `Défaut: ${p.defaultValue}` : undefined
+            documentation: p.defaultValue ? `Default: ${p.defaultValue}` : undefined
           }));
         }
       }
@@ -199,7 +199,7 @@ export class CompletionHandler {
       const tag = htmlMatch[1];
       const attrs = [...(HTML_ATTRIBUTES["*"] || []), ...(HTML_ATTRIBUTES[tag] || [])];
       return attrs.map(a => ({
-        label: a, kind: CompletionItemKind.Property, detail: `Attribut <${tag}>`,
+        label: a, kind: CompletionItemKind.Property, detail: `<${tag}> attribute`,
         insertText: a.endsWith("*") ? `${a.slice(0, -1)}$1="$2"` : `${a}="$1"`, insertTextFormat: InsertTextFormat.Snippet
       }));
     }

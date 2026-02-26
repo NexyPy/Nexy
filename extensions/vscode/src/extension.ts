@@ -9,9 +9,9 @@ import {
   HTML_SCHEME, 
   CSS_SCHEME, 
   JS_SCHEME 
-} from "./client/providers/embeddedProvider";
-import { registerServiceDelegation } from "./client/providers/serviceDelegation";
-import { registerSemanticTokens } from "./semanticTokens";
+} from "./client/providers/embedded.provider";
+import { registerServiceDelegation } from "./client/providers/service.delegation";
+import { registerSemanticTokens } from "./semantic.tokens";
 
 let lspClient: NexyLspClient;
 let statusBar: NexyStatusBar;
@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // 7. Nexy Welcome Message
   const nexyFiles = await vscode.workspace.findFiles("**/*.nexy", null, 1);
   if (nexyFiles.length > 0) {
-    vscode.window.showInformationMessage("Nexy est prêt à décoller ! 🚀 Bon code !");
+    vscode.window.showInformationMessage("Nexy is ready to lift off! 🚀 Happy coding!");
   }
 
   registerSemanticTokens(context);

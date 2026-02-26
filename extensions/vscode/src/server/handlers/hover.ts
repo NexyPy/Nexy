@@ -8,8 +8,8 @@ import {
   parseHeader,
   type NexyImport,
   type NexyProp,
-} from "../../shared/nexyParser";
-import { parseNexyConfig, resolveWithAlias } from "../../shared/configParser";
+} from "../../shared/nexy.parser";
+import { parseNexyConfig, resolveWithAlias } from "../../shared/config.parser";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";
@@ -36,7 +36,7 @@ export class HoverHandler {
       return {
         contents: {
           kind: MarkupKind.Markdown,
-          value: `**${prop.name}** : \`prop[${prop.type}]\`${prop.defaultValue ? `\n\nDéfaut : \`${prop.defaultValue}\`` : ""}`
+          value: `**${prop.name}** : \`prop[${prop.type}]\`${prop.defaultValue ? `\n\nDefault: \`${prop.defaultValue}\`` : ""}`
         }
       };
     }
@@ -59,7 +59,7 @@ export class HoverHandler {
     const aliasResolved = resolveWithAlias(imp.path, workspaceRoot, config.useAliases);
     const finalPath = aliasResolved || path.resolve(currentDir, imp.path);
 
-    let value = `**${imp.name}** ${colors[imp.framework] || ""} \`${imp.framework}\`\n\nImporté depuis \`${imp.path}\`${aliasResolved ? `\n(résolu en : \`${aliasResolved}\`)` : ""}`;
+    let value = `**${imp.name}** ${colors[imp.framework] || ""} \`${imp.framework}\`\n\nImported from \`${imp.path}\`${aliasResolved ? `\n(resolved to: \`${aliasResolved}\`)` : ""}`;
 
     if (imp.framework === "nexy") {
       try {
@@ -67,7 +67,7 @@ export class HoverHandler {
           const source = fs.readFileSync(finalPath, "utf8");
           const componentProps = parseHeader(source).props;
           if (componentProps.length > 0) {
-            const propsLines = componentProps.map(p => `- \`${p.name}\`: \`prop[${p.type}]\`${p.defaultValue ? ` (défaut: \`${p.defaultValue}\`)` : ""}`);
+            const propsLines = componentProps.map(p => `- \`${p.name}\`: \`prop[${p.type}]\`${p.defaultValue ? ` (default: \`${p.defaultValue}\`)` : ""}`);
             value += `\n\n**Props**:\n${propsLines.join("\n")}`;
           }
         }

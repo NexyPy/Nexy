@@ -48,7 +48,7 @@ export class NexyLspClient {
     if (this.client) {
       await this.client.stop();
       await this.start();
-      vscode.window.showInformationMessage("Serveur Nexy redémarré ! 🚀");
+      vscode.window.showInformationMessage("Nexy Server restarted! 🚀");
     }
   }
 

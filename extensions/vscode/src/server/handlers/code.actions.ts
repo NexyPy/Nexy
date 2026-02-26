@@ -51,7 +51,7 @@ export class CodeActionHandler {
     } catch {}
 
     return [{
-      title: `Ajouter l'import pour "${componentName}" (${importPath})`,
+      title: `Add import for "${componentName}" (${importPath})`,
       kind: CodeActionKind.QuickFix,
       diagnostics: [diagnostic],
       edit: { changes: { [doc.uri]: [{ range: { start: insertPosition, end: insertPosition }, newText: `from "${importPath}" import ${componentName}\n` }] } }
@@ -65,7 +65,7 @@ export class CodeActionHandler {
     lineEnd = lineEnd === -1 ? text.length : lineEnd + 1;
 
     return {
-      title: diagnostic.code === "nexy.unusedImport" ? "Supprimer l'import inutilisé" : "Supprimer la prop inutilisée",
+      title: diagnostic.code === "nexy.unusedImport" ? "Remove unused import" : "Remove unused prop",
       kind: CodeActionKind.QuickFix,
       diagnostics: [diagnostic],
       edit: { changes: { [doc.uri]: [{ range: { start: doc.positionAt(lineStart), end: doc.positionAt(lineEnd) }, newText: "" }] } }

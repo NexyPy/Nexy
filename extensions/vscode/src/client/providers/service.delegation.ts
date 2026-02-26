@@ -7,7 +7,7 @@ import {
   HTML_SCHEME, 
   CSS_SCHEME, 
   JS_SCHEME 
-} from "./embeddedProvider";
+} from "./embedded.provider";
 
 export function registerServiceDelegation(
   context: vscode.ExtensionContext,

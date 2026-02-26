@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { parseHeader, getTemplate } from "./shared/nexy.parser";
+import { getSection } from "./shared/nexy.parser";
 
 const tokenTypes = new Map<string, number>();
 const tokenTypesLegend = [
