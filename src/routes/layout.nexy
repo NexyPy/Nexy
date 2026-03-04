@@ -3,8 +3,6 @@ from nexy import Vite
 from "src/components/sidebar.nexy" import Sidebar
 from "./card.tsx" import Card
 children:prop[NexyElement]
-
-
 ---
 <!DOCTYPE html>
 

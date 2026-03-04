@@ -1,5 +1,4 @@
 import sys
-import time
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
 from nexy.cli.commands.utilities.console import console
@@ -12,8 +11,7 @@ def build():
     version = __Version__().get()
     console.print(f"nexy@{version} build")
     with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):
-        Builder().build()
-        time.sleep(.05)
+        Builder().build(showlog=True)
     
     if getattr(config, "useVite", False):
         try :
