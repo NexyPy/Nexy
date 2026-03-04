@@ -2,7 +2,6 @@ import { defineConfig, createLogger,type Logger, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import vue from '@vitejs/plugin-vue'
 // import svelte from '@vitejs/plugin-svelte' // Commented out because module not found
-import fs from 'node:fs'
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -46,19 +45,7 @@ const nexy = (): Plugin => {
 }
 
 export default defineConfig(({ mode }) => {
-  const serverPortFile = path.resolve('__nexy__/server.port')
-  let serverPort = 3000
-  
-  try {
-    if (fs.existsSync(serverPortFile)) {
-      const txt = fs.readFileSync(serverPortFile, 'utf8').trim()
-      serverPort = Number(txt) || 3000
-    }
-  } catch (error) {
-    console.error(`[nexy] Error reading server port file: ${error}`)
-  }
-
-  const origin = `http://localhost:${serverPort}`
+ 
 
   const nexyLogger = (): Logger => {
     const logger = createLogger()
@@ -93,13 +80,12 @@ export default defineConfig(({ mode }) => {
     logLevel: 'info',
 
     server: {
-      port: 5173,
       strictPort: true,
-      origin,
-      cors: { origin },
+      cors: { 
+        origin: true, // Autorise l'origine de la requête entrante
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+      },
       watch: {
-        // ATTENTION : On retire les extensions .py, .nexy, .mdx des ignorés
-        // pour que le plugin puisse les voir, mais on ignore toujours __nexy__
         ignored: ['**/node_modules/**', '**/__nexy__/**', '**/.git/**']
       }
     },

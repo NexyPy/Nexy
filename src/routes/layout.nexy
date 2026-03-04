@@ -1,37 +1,30 @@
 ---
 from nexy import Vite
 from "src/components/sidebar.nexy" import Sidebar
+from "./card.tsx" import Card
 children:prop[NexyElement]
+
 
 ---
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard kkk</title>
-    {#<script src="https://cdn.tailwindcss.com"></script>#}
     <Vite/>
 </head>
 <body class="">
-    <div class="flex h-screen p-2">
-
-        <!-- Sidebar -->
-
-        <aside class="w-64 border-r border-slate-800 bg-slate-900">
-            <Sidebar/>
-            
-        </aside>
-        <!-- Main Content -->
+    <div class="flex p-2">
+        <Sidebar/>
         <main class="flex-1 overflow-y-auto">
-            <!-- Header -->
             <header class="border-b border-slate-800/20  px-6 py-4">
                 <div class="flex items-center justify-between">
-                    <h1 class="text-2xl font-bold ">Dashboard</h1>
+                    <h1 class="text-2xl font-bold ">Dashboard h</h1>
+                    <Card/>
                 </div>
             </header>
-            
-            <!-- Content -->
             <div class="p-6">
                 {{children | safe}}
             </div>

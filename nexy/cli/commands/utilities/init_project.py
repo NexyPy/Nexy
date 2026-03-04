@@ -4,12 +4,15 @@ from nexy.cli.commands.utilities.console import console
 
 class InitProject:
     def __init__(self) -> None:
-        version = __Version__().get()
-        console.print(f"nexy@{version} init")
+        self.version = __Version__().get()
         self.config = {}
+        console.print(f"nexy@{self.version} init")
+        self.ask_router()
+        self.ask_project_type()
+    def check_nexy(): pass
 
     def ask_router(self) -> None:
-        self.config['router'] = questionary.confirm(
+        self.config['FBRouter'] = questionary.confirm(
             "Would you like to use the File Based router ?",
             default=True,
             qmark="»",
@@ -31,7 +34,7 @@ class InitProject:
         ).ask()
         if choice == "web":
             self.ask_client_component()
-            
+
         self.config['project_type'] = choice
 
 

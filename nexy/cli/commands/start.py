@@ -6,6 +6,7 @@ from nexy.cli.commands.utilities.server import Server
 
 def start(port: Optional[int] = None, host: Optional[str] = None, reload: bool = False) -> None:
     version = __Version__().get()
+    Server.check_nexy_prod()
     print(f"> nexy@{version} start")
     config = Config()
     run_host = host if host is not None else getattr(config, "useHost", "0.0.0.0")

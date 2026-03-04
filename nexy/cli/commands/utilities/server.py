@@ -14,6 +14,15 @@ from nexy.utils.ports import get_client_port
 
 class Server:
     @staticmethod
+    def check_nexy_prod(delete: bool = False):
+        path = Path("__nexy__/nexy.prod")
+        if delete:
+            path.unlink(missing_ok=True)
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("1", encoding="utf-8")
+            
+    @staticmethod
     def resolve_port(host: Optional[str] = None, port: Optional[int] = None) -> int:
         cfg = Config()
         if port is not None: return port
@@ -68,12 +77,22 @@ class Server:
             return None
 
     @staticmethod
-    def vite(port: Optional[int] = None) -> subprocess.Popen:
-        vite_port = port or get_client_port(5173)
+    def vite(port: Optional[int] = None, build: bool = False) -> subprocess.Popen:
         pm = next((c for c in ("pnpm", "bun", "yarn", "npm.cmd", "npm") if shutil.which(c)), "npm")
+        is_npm = pm not in ("pnpm", "yarn", "bun")
+        cmd = "build" if build else "dev"
         
-        args = [pm,  "--silent", "run", "dev", "--", "--port", str(vite_port)]
-        if pm in ("pnpm", "yarn"):
-            args = [pm, "--silent", "dev", "--port", str(vite_port)]
+
+        args = [pm, "--silent"]
+        if is_npm:
+            args.extend(["run", cmd])
+        else:
+            args.append(cmd)
             
+        if not build:
+            vite_port = port or get_client_port(5173)
+            if is_npm:
+                args.append("--")
+            args.extend(["--port", str(vite_port), "--host"])
+                
         return subprocess.Popen(args)

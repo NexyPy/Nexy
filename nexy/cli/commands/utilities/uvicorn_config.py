@@ -25,14 +25,14 @@ IGNORED_MESSAGES = [
 
 # Dictionnaire étendu pour éviter les KeyError (Ajout de 422 et 307)
 status_emojis = {
-    200: "😊",
-    201: "✅",
-    304: "📦",
-    307: "🔄",
-    400: "😏",
-    404: "😔",
-    422: "🤨", # Très important pour FastAPI
-    500: "😡",
+    200: "✓", 
+    201: "⊕", 
+    304: "⊛", 
+    307: "➜",
+    400: "△", 
+    404: "○", 
+    422: "🞫",
+    500: "‼", 
 }
 
 class NexyFilter(logging.Filter):

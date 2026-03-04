@@ -15,8 +15,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     run_host = host or getattr(config, "useHost", "0.0.0.0")
     base_port = port or getattr(config, "usePort", 3000)
     server_port, client_port = generate_port(run_host, base_port)
-  
-    # État des processus
+    Server.check_nexy_prod(delete=True)
     api_proc = None
     vite_proc = None
 
@@ -66,13 +65,11 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
         while True:
             time.sleep(1)
 
-    except (KeyboardInterrupt, SystemExit):
-        pass
-        # Console.warn("\nŋ dev server stopped")
+    except (KeyboardInterrupt, SystemExit) as e:
         pass
     finally:
         observer.stop()
         observer.join()
         if api_proc: api_proc.terminate()
         if vite_proc: vite_proc.terminate()
-        print("nexy » exited")
+        console.print("[red]nexy » exited [reset]")

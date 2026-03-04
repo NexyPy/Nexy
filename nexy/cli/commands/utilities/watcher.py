@@ -52,7 +52,7 @@ class WatchHandler(PatternMatchingEventHandler):
             self.compiler.compile(path)
             elapsed = time.perf_counter() - start_time
             timer = f"{elapsed:.2f}s"
-            console.print(f"[green]nsc[/green] » [green]compiled[/green] [dim]{path}[/dim] in [dim]{timer}[/dim] [green]✓[/green]")
+            console.print(f"[green]nsc[/green] » [green]compile[/green] [dim]{path}[/dim] in [dim]{timer}[/dim] [green]✓[/green]")
             needs_reload = True
         
         # 2. Si c'est un fichier Python, on doit reload aussi

@@ -96,9 +96,9 @@ class _Importer:
         esc_fw = _html_escape(framework, quote=True)
         esc_url = _html_escape(url, quote=True)
         return (
-            f'<div id="{mount_id}" '
+            f'<use id="{mount_id}" '
             f'data-nexy-fw="{esc_fw}" '
             f'data-nexy-path="{esc_url}" '
             f'data-nexy-symbol="{esc_symbol}" '
-            f'data-nexy-props="{esc_props}"></div>'
+            f'data-nexy-props="{esc_props}"></use>'
         )

@@ -5,6 +5,7 @@ from nexy.frontend import react, vue
 
 class NexyConfig(NexyConfigModel):
     useFF = [react(), vue()]
+    # useFF = [ vue()]
     useAliases: dict[str, str] = {"@": "src/components"}
     # useRouter =AppModule
     usePort: int = 3000

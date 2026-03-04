@@ -3,7 +3,6 @@ from "./count.tsx" import Count
 from "./vuecount.vue" import VueCount
 
 id:prop[str|None] = "use"
-print(f"return {id}")
 
 caller : prop[callable]
 
