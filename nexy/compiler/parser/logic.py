@@ -10,18 +10,18 @@ from nexy.core.models import (
 from .sanitizer import LogicSanitizer
 
 class ASTUtils:
-    """Helper statique pour réduire la complexité de l'inspection AST."""
+    """Helper class to reduce the complexity of AST inspection."""
     
     @staticmethod
     def is_prop_annotation(node: ast.AnnAssign) -> bool:
-        """Vérifie si var: prop[T]"""
+        """Checks if the node is a prop annotation: var: prop[T]"""
         return (isinstance(node.annotation, ast.Subscript) and 
                 isinstance(node.annotation.value, ast.Name) and 
                 node.annotation.value.id == "prop")
 
     @staticmethod
     def extract_loader_args(node: ast.Assign) -> Optional[dict]: # type: ignore
-        """Tente d'extraire path/framework/symbol d'un appel __nexy_loader__."""
+        """Attempts to extract path/framework/symbol from a __nexy_loader__ or __Import call."""
         if not (isinstance(node.value, ast.Call)): return None
         
         call = node.value
@@ -43,7 +43,7 @@ class ASTUtils:
         if not valid_call:
             return None
 
-        # Extraction simple des keywords arguments
+        # Simple extraction of keyword arguments
         args = {}
         for kw in call.keywords:
             if isinstance(kw.value, ast.Constant):
@@ -52,25 +52,34 @@ class ASTUtils:
 
 
 class LogicParser:
+    """
+    Parser for the logic block of a Nexy component.
+    Uses an AST-based approach after sanitization to extract props and component imports.
+    """
     def __init__(self) -> None:
         self.sanitizer = LogicSanitizer()
 
 
     def process(self, code: str, current_file: str) -> LogicResult:
+        """
+        Processes the logic block code and returns a LogicResult containing 
+        extracted props, imports, and the cleaned Python code.
+        """
         result = LogicResult()
         if not code.strip():
             return result
 
-        # 1. Pré-traitement texte
-        clean_code = self.sanitizer.sanitize(code,current_file=current_file)
+        # 1. Pre-processing
+        clean_code = self.sanitizer.sanitize(code, current_file=current_file)
         
-        # 2. Analyse AST
+        # 2. AST Analysis
         try:
             tree = ast.parse(clean_code)
         except SyntaxError as e:
+            # Re-raise with a clear message for the user
             raise SyntaxError(f"Logic Parse Error: {e}")
 
-        # 3. Extraction Données & Construction du code final
+        # 3. Data Extraction & Final Code Construction
         final_body = self._process_nodes(tree.body, result)
         
         if final_body:
@@ -79,29 +88,28 @@ class LogicParser:
         return result
 
     def _process_nodes(self, nodes: List[ast.stmt], result: LogicResult) -> List[ast.stmt]:
+        """Iterates through AST nodes to extract metadata and filter nodes."""
         final_nodes = []
         for node in nodes:
-            # Cas A : Props
+            # Case A: Props
             if isinstance(node, ast.AnnAssign) and ASTUtils.is_prop_annotation(node):
                 result.props.append(self._build_prop(node))
-                # Skip prop annotations in the function body (they become function parameters)
+                # Skip prop annotations in the final function body
                 continue
 
-            # Cas B : Imports de composants (Variable Assignation)
+            # Case B: Component Imports (Variable Assignment from __Import)
             if isinstance(node, ast.Assign):
                 if self._try_extract_import(node, result):
                     final_nodes.append(node) # type: ignore
                     continue
 
-            # Cas C : Code Python standard
+            # Case C: Standard Python code
             final_nodes.append(node) # type: ignore
             
         return final_nodes # type: ignore
 
     def _wrap_in_module(self, nodes: List[ast.stmt]) -> str:
-        """Injecte l'en-tête nécessaire et recrée le code source."""
-        
-        
+        """Unparses the filtered nodes back into a Python source string."""
         full_module = ast.Module(
             body=nodes,
             type_ignores=[]
@@ -109,6 +117,7 @@ class LogicParser:
         return ast.unparse(full_module)
 
     def _build_prop(self, node: ast.AnnAssign) -> NexyProp:
+        """Builds a NexyProp object from an AnnAssign node."""
         ann = cast(ast.Subscript, node.annotation)
         target = cast(ast.Name, node.target)
         
@@ -119,7 +128,7 @@ class LogicParser:
         )
 
     def _try_extract_import(self, node: ast.Assign, result: LogicResult) -> bool:
-        """Tente d'extraire les métadonnées d'import pour le manifest. Retourne True si succès."""
+        """Attempts to extract import metadata for the component manifest."""
         args = ASTUtils.extract_loader_args(node) # type: ignore
         if not args:
             return False
@@ -134,7 +143,7 @@ class LogicParser:
         if not path or not symbol: 
             return False
 
-        # Calculer le type
+        # Determine the component type based on extension or framework hint
         comp_type = self._determine_component_type(path, fw_str) # type: ignore
         ext = path[path.rfind("."):] if "." in path else "" # type: ignore
 
@@ -142,14 +151,14 @@ class LogicParser:
             path=path, # type: ignore
             symbol=symbol, # type: ignore
             alias=alias,
-            raw_source="", # Optionnel maintenant
+            raw_source="",
             extension=ext, # type: ignore
             comp_type=comp_type
         ))
         return True
 
     def _determine_component_type(self, path: str, framework: Optional[str]) -> ComponentType:
-        # Simplification: Délégation logique si besoin, ici on hardcode pour la perf
+        """Maps file extensions and framework strings to ComponentType."""
         path_lower = path.lower()
         mapping = {
             ".nexy": ComponentType.NEXY,
@@ -160,16 +169,17 @@ class LogicParser:
             ".json": ComponentType.JSON
         }
         
-        # 1. Extension prioritaire
+        # 1. Priority to file extension
         for ext, ctype in mapping.items():
             if path_lower.endswith(ext):
                 return ctype
                 
-        # 2. Fallback framework argument
+        # 2. Fallback to framework argument hint
         fw_map = {
             "vue": ComponentType.VUE,
             "react": ComponentType.REACT,
-            "svelte": ComponentType.SVELTE
+            "svelte": ComponentType.SVELTE,
+            "json": ComponentType.JSON
         }
         if framework in fw_map:
             return fw_map[framework]

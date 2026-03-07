@@ -37,6 +37,7 @@ class Config:
         ".jsx": "react",
         ".vue": "vue",
         ".svelte": "svelte",
+        ".json": "json",
     }
 
     def __init__(self) -> None:

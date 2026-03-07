@@ -1,10 +1,11 @@
 ---
 from "./add.py" import add as a
 from "src/components/user.nexy" import User
+import "./data.json" as data
 title:prop[str] = ""
 show_hero = True
 espoir : prop[str]= "hjdhj"
-print("data",data)
+print("data:",data)
 def user():
   return ""
 ---
@@ -17,6 +18,7 @@ def user():
 </div> 
  <User id="dd">
    <button>espoir</button>
+   {{data["$schema"]}}
    <h1 class="text-red-500 text-3xl uppercase py-12 font-bold"> espoir </h1>
   </User>dg
 
