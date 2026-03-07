@@ -12,3 +12,6 @@ from nexy.decorators import useRoute, UseResponse
 def POST():
     
     return ["ddd","eee"]
+
+def GET():
+    return "d"
