@@ -1,0 +1,12 @@
+{
+  "cli.help": "Nexy CLI - The Modular Meta-Framework",
+  "cli.no_command": "Use nx/nexy --help to see available commands.",
+  "init.title": "nexy@{version} init",
+  "init.ask.router": "Would you like to use the file-based router?",
+  "init.ask.project_type": "Choose the type of project",
+  "init.choice.web": "Web (monolith web app)",
+  "init.choice.api": "API (RESTful API)",
+  "init.ask.client_component": "Would you like to use a client component?",
+  "init.ask.framework": "Choose the client framework",
+  "init.ask.tailwind": "Would you like to use Tailwind CSS?"
+}

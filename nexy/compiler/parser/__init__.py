@@ -50,7 +50,7 @@ class Parser:
             frontmatter=logic_result.python_code,
             template=jinja_code,
             props=logic_result.props,
-            context=[None],
+            context=[],
         )
 
 __all__ = ["Parser"]

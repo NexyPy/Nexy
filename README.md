@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# Nexy
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Nexy is a modular meta-framework combining Python (FastAPI, Jinja2) and modern Frontend frameworks (React, Vue, Svelte) with a file‑based component system (.nexy/.mdx) and a developer‑friendly CLI.
 
-Currently, two official plugins are available:
+Badges
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- CI: coming soon
+- Coverage: coming soon
+- License: MIT
 
-## React Compiler
+Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Create and activate a Python 3.12+ environment.
+2. Install dependencies:
 
-## Expanding the ESLint configuration
+   pip install -e .[dev]
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. Run dev server:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   nx dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+4. Build components:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+   nx build
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Makefile
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Lint: make lint
+- Type check: make typecheck
+- Tests: make test
+- Performance: make perf
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Project Structure
+
+- nexy/ Python framework (CLI, builder, compiler, router)
+- extensions/vscode/ VS Code extension for .nexy
+- docs/ Documentation and performance reports
+
+Design Principles
+
+- SOLID and KISS by construction (post‑refactor plan in .rapport/summary.md).
+- Strict typing (mypy, TypedDict, Enums, Pydantic at boundaries).
+- i18n: English by default, strings extracted to i18n/en.json.
+
+Contributing
+
+See CONTRIBUTING.md for the style guide, commit conventions and development workflow.
+
+Architecture Decisions
+
+ADR records will be added under docs/adr as features evolve.
