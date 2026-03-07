@@ -6,6 +6,7 @@ from pathlib import Path
 from html import escape as _html_escape
 from typing import Any, Callable, Dict
 from nexy.core.config import Config
+from pathlib import Path as _Path
 
 
 class Import:
@@ -95,10 +96,28 @@ class _Importer:
         esc_symbol = _html_escape(self.symbol, quote=True)
         esc_fw = _html_escape(framework, quote=True)
         esc_url = _html_escape(url, quote=True)
-        return (
-            f'<use id="{mount_id}" '
-            f'data-nexy-fw="{esc_fw}" '
-            f'data-nexy-path="{esc_url}" '
-            f'data-nexy-symbol="{esc_symbol}" '
-            f'data-nexy-props="{esc_props}"></use>'
-        )
+        # Mode hash en prod: éviter d'exposer la structure de fichiers
+        prod_marker = _Path("__nexy__/nexy.prod").is_file()
+        if prod_marker:
+            key_src = url
+            # Hash stable basé sur le chemin module (pas symbol)
+            h = hashlib.md5(key_src.encode("utf-8")).hexdigest()
+            return (
+                f'<ncc id="{mount_id}" '
+                f'data-nexy-fw="{esc_fw}" '
+                f'data-nexy-key="{h}" '
+                f'data-nexy-symbol="{esc_symbol}" '
+                f'data-nexy-props="{esc_props}"></ncc>'
+            )
+        else:
+            # Dev: conserver le chemin source lisible et ajouter en plus la clé hashée
+            key_src = url
+            h = hashlib.md5(key_src.encode("utf-8")).hexdigest()
+            return (
+                f'<ncc id="{mount_id}" '
+                f'data-nexy-fw="{esc_fw}" '
+                f'data-nexy-path="{esc_url}" '
+                f'data-nexy-key="{h}" '
+                f'data-nexy-symbol="{esc_symbol}" '
+                f'data-nexy-props="{esc_props}"></ncc>'
+            )

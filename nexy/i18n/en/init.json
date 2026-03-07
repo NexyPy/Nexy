@@ -1,0 +1,20 @@
+{
+  "init": {
+    "title": "nexy@{version} init",
+    "ask": {
+      "router": "Would you like to use the file-based router?",
+      "project_type": "Choose the type of project",
+      "client_component": "Would you like to use a client component?",
+      "framework": "Choose the client framework",
+      "tailwind": "Would you like to use Tailwind CSS?"
+    },
+    "choice": {
+      "web": "Web (monolith web app)",
+      "api": "API (RESTful API)"
+    },
+    "already": "Project already initialized here",
+    "no_template": "no template selected",
+    "registry_failed": "registry fetch failed: {error}. Using fallback list.",
+    "template_done": "template '{name}' initialized at {dest}"
+  }
+}

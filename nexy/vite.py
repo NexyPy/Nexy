@@ -16,11 +16,27 @@ def Vite():
         try:
             data = json.loads(manifest_path.read_text(encoding="utf-8"))
             entry = data.get("__nexy__/main.ts") or data.get("/__nexy__/main.ts")
-            css = entry.get("css")
             if entry and "file" in entry:
-                src = f"/__nexy__/client/{entry['file'].lstrip('/')}"
-                csssrc = f"<style>@import url('/__nexy__/client/{css[0].lstrip('/')}');</style>"
-                return f'{csssrc}<script type="module" src="{src}"></script>'
+                file_rel = entry["file"].lstrip("/")
+                css_files = entry.get("css") or []
+                inline = os.getenv("NEXY_INLINE_CLIENT", "").strip() in ("1", "true", "TRUE")
+                if inline:
+                    # Inline CSS and JS content to avoid extra HTTP requests
+                    css_blocks = []
+                    for c in css_files:
+                        p = Path("__nexy__/client").joinpath(c.lstrip("/"))
+                        if p.is_file():
+                            css_blocks.append(f"<style>{p.read_text(encoding='utf-8')}</style>")
+                    js_path = Path("__nexy__/client").joinpath(file_rel)
+                    js_code = js_path.read_text(encoding="utf-8") if js_path.is_file() else ""
+                    return "".join(css_blocks) + f'<script type="module">\n{js_code}\n</script>'
+                else:
+                    src = f"/__nexy__/client/{file_rel}"
+                    css_links = "".join(
+                        f"<link rel=\"stylesheet\" href=\"/__nexy__/client/{c.lstrip('/')}\" />"
+                        for c in css_files
+                    )
+                    return f'{css_links}<script type="module" src="{src}"></script>'
         except Exception:
             pass
     if prod_server.is_file() is True and manifest_path.is_file() is False:
@@ -38,11 +54,15 @@ def Vite():
         s1.type = 'module';
         s1.src = `${{base}}/@vite/client`;
         document.head.appendChild(s1);
-        
+        // Charger le runtime en premier (preamble React + __nexy_import)
+        const s0 = document.createElement('script');
+        s0.type = 'module';
+        s0.src = `${{base}}/__nexy__/src/runtime.ts`;
+        document.head.appendChild(s0);
+
         const s2 = document.createElement('script');
         s2.type = 'module';
         s2.src = `${{base}}/__nexy__/main.ts`;
         document.head.appendChild(s2);
     </script>
     """
-

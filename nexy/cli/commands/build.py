@@ -4,6 +4,7 @@ from nexy.builder import Builder
 from nexy.cli.commands.utilities.console import console
 from nexy.cli.commands.utilities.server import Server
 from nexy.core.config import Config
+from nexy.i18n import t
 
 
 def build():
@@ -18,5 +19,5 @@ def build():
             vite_proc = Server.vite(build=True)
             vite_proc.wait()
         except Exception as e:
-            console.print(f"x Erreur : Le build Vite a échoué. {e}")
+            console.print(t("build.vite_failed", f"Vite build failed. {e}").format(error=e))
             sys.exit(1)

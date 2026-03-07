@@ -86,7 +86,8 @@ export default defineConfig(({ mode }) => {
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
       },
       watch: {
-        ignored: ['**/node_modules/**', '**/__nexy__/**', '**/.git/**']
+        // On ignore uniquement la sortie de build, pas les sources __nexy__/src
+        ignored: ['**/node_modules/**', '**/__nexy__/client/**', '**/.git/**']
       }
     },
 
@@ -101,9 +102,11 @@ export default defineConfig(({ mode }) => {
     },
 
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src/components')
-      }
+      alias: [
+        { find: '@', replacement: path.resolve(__dirname, 'src/components') },
+        // nexy:* pointe vers le dossier source interne, jamais écrasé par le build
+        { find: /^nexy:/, replacement: path.resolve(__dirname, '__nexy__/src') + '/' }
+      ]
     }
   }
 })

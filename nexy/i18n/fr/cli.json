@@ -1,0 +1,6 @@
+{
+  "cli": {
+    "help": "Nexy CLI - Le méta‑framework modulaire",
+    "no_command": "Utilisez nx/nexy --help pour voir les commandes disponibles."
+  }
+}

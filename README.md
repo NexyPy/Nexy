@@ -49,3 +49,15 @@ See CONTRIBUTING.md for the style guide, commit conventions and development work
 Architecture Decisions
 
 ADR records will be added under docs/adr as features evolve.
+
+## Release Tag Planning
+
+| Version | Target Date | Status   |
+|--------:|-------------|----------|
+| 2.0.0   | 2026-03-31  | Planned  |
+| 2.0.1   | 2026-04-15  | Planned  |
+| 2.1.0   | 2026-05-15  | Planned  |
+
+Run check:
+
+  make docs.check

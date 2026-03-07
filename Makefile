@@ -38,3 +38,5 @@ ts.typecheck:
 perf:
 	@$(PY) scripts/perf.py check
 
+docs.check:
+	@$(PY) scripts/check_tag_plan.py

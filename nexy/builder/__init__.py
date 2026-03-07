@@ -1,5 +1,5 @@
 from nexy.builder.discovery import Discovery
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.console import console
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 from pathlib import Path
@@ -32,97 +32,100 @@ class Builder:
         ff_list = getattr(self.config, "useFF", None) or []
         frameworks: set[str] = {getattr(ff, "name", "").lower() for ff in ff_list if getattr(ff, "name", None)}
         dest_dir = Path("__nexy__")
+        src_dir = dest_dir / "src"
         dest_dir.mkdir(parents=True, exist_ok=True)
+        src_dir.mkdir(parents=True, exist_ok=True)
         dest = dest_dir / "main.ts"
-        parts: list[str] = []
-        # Insert the import for /src/globale.css at the top (after potential type definitions)
-        parts.append('import "/src/globale.css";')
-        parts.append("type CompMod = { default: unknown }")
-        parts.append("type Importer = () => Promise<CompMod>")
-        parts.append("type Importers = Record<string, Importer>")
-        parts.append("type NexyProps = Record<string, unknown>")
-        parts.append("const importers: Importers = {")
-        parts.append("  ...import.meta.glob('/src/**/*.{tsx,jsx,ts,js,vue,svelte}', { eager: false }) as Record<string, Importer>,")
-        parts.append("}")
-        parts.append("function normalizePath(p: string): string { return p && !p.startsWith('/') ? `/${p}` : p }")
-        if "react" in frameworks:
-            parts.append("async function __nexy_setup_preamble(){")
-            parts.append("  if (!(import.meta && import.meta.env && import.meta.env.DEV)) return")
-            parts.append("  const mod = await import('/@react-refresh')")
-            parts.append("  const RefreshRuntime = (mod as { default: any }).default")
-            parts.append("  RefreshRuntime.injectIntoGlobalHook(window as any)")
-            parts.append("  ;(window as any).$RefreshReg$ = () => {}")
-            parts.append("  ;(window as any).$RefreshSig$ = () => (type: unknown) => type")
-            parts.append("  ;(window as any).__vite_plugin_react_preamble_installed__ = true")
-            parts.append("}")
-        else:
-            parts.append("async function __nexy_setup_preamble(){}")
-        if "react" in frameworks:
-            parts.append("async function mountReact(el: HTMLElement, path: string, props: NexyProps, symbol: string): Promise<void> {")
-            parts.append("  const loader = importers[path]")
-            parts.append("  if (!loader) throw new Error(`Component not found: ${path}`)")
-            parts.append("  const mod = await loader()")
-            parts.append("  const anyMod = mod as Record<string, unknown> & CompMod")
-            parts.append("  const Comp = (anyMod.default ?? (symbol && anyMod[symbol])) as unknown")
-            parts.append("  const React = (await import('react')) as typeof import('react')")
-            parts.append("  const RDC = (await import('react-dom/client')) as typeof import('react-dom/client')")
-            parts.append("  const root = RDC.createRoot(el)")
-            parts.append("  root.render(React.createElement(Comp as never, props as never))")
-            parts.append("}")
-        if "vue" in frameworks:
-            parts.append("async function mountVue(el: HTMLElement, path: string, props: NexyProps): Promise<void> {")
-            parts.append("  const loader = importers[path]")
-            parts.append("  if (!loader) throw new Error(`Component not found: ${path}`)")
-            parts.append("  const mod = await loader()")
-            parts.append("  const Comp = (mod as CompMod).default as unknown")
-            parts.append("  const vue = await import(/* @vite-ignore */ 'vue').catch(()=>{ throw new Error('Vue not installed') })")
-            parts.append("  const app = (vue as typeof import('vue')).createApp({ render: () => (vue as typeof import('vue')).h(Comp as never, props as never) })")
-            parts.append("  app.mount(el)")
-            parts.append("}")
-        if "svelte" in frameworks:
-            parts.append("async function mountSvelte(el: HTMLElement, path: string, props: NexyProps): Promise<void> {")
-            parts.append("  const loader = importers[path]")
-            parts.append("  if (!loader) throw new Error(`Component not found: ${path}`)")
-            parts.append("  const mod = await loader()")
-            parts.append("  const Comp = (mod as CompMod).default as unknown")
-            parts.append("  new (Comp as new (args: { target: HTMLElement; props: NexyProps }) => unknown)({ target: el, props })")
-            parts.append("}")
-        if "preact" in frameworks:
-            parts.append("async function mountPreact(el: HTMLElement, path: string, props: NexyProps): Promise<void> {")
-            parts.append("  const loader = importers[path]")
-            parts.append("  if (!loader) throw new Error(`Component not found: ${path}`)")
-            parts.append("  const mod = await loader()")
-            parts.append("  const Comp = (mod as CompMod).default as unknown")
-            parts.append("  const preact = await import(/* @vite-ignore */ 'preact').catch(()=>{ throw new Error('Preact not installed') })")
-            parts.append("  ;(preact as typeof import('preact')).render((preact as typeof import('preact')).h(Comp as never, props as never), el)")
-            parts.append("}")
-        parts.append("async function mountOne(el: Element): Promise<void> {")
-        parts.append("  if(!(el instanceof HTMLElement)) return")
-        parts.append("  if(el.dataset.nexyMounted==='1') return")
-        parts.append("  el.dataset.nexyMounted='1'")
-        parts.append("  const fw=(el.dataset.nexyFw||'').toLowerCase()")
-        parts.append("  const rawPath=el.dataset.nexyPath||''")
-        parts.append("  const symbol = el.getAttribute('data-nexy-symbol') || ''")
-        parts.append("  const propsStr=el.dataset.nexyProps||'{}'")
-        parts.append("  let props: NexyProps = {}")
-        parts.append("  try{ props=JSON.parse(propsStr) as NexyProps }catch{}")
-        parts.append("  let path=normalizePath(rawPath)")
-        parts.append("  if(!importers[path]){ const alt = path.startsWith('/')?path.slice(1):path; if(importers[alt]) path=alt; else { return } }")
-        if "react" in frameworks:
-            parts.append("  if(fw==='react') return mountReact(el, path, props, symbol)")
-        if "vue" in frameworks:
-            parts.append("  if(fw==='vue') return mountVue(el, path, props)")
-        if "svelte" in frameworks:
-            parts.append("  if(fw==='svelte') return mountSvelte(el, path, props)")
-        if "preact" in frameworks:
-            parts.append("  if(fw==='preact') return mountPreact(el, path, props)")
-        parts.append("}")
-        parts.append("async function init(): Promise<void> {")
-        parts.append("  await __nexy_setup_preamble();")
-        parts.append("  document.querySelectorAll('[data-nexy-fw]').forEach((el)=>{ void mountOne(el) })")
-        parts.append("}")
-        parts.append("if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', ()=>{ void init() }) } else { void init() }")
-        dest.write_text("\n".join(parts), encoding="utf-8")
+
+        # Génère les clients useFF (export default run) et l'agrégat ff.auto.ts (imports par défaut + invocation)
+        imports: list[str] = []
+        invocations: list[str] = []
+        for ff in ff_list:
+            name = getattr(ff, "name", None)
+            render = getattr(ff, "render", None)
+            if not name or not render:
+                continue
+            target = src_dir / f"{name}.nexy.ts"
+            content = (
+                "const run = () => {\n"
+                f"{render}\n"
+                "};\n"
+                "export default run;\n"
+            )
+            if not target.exists() or target.read_text(encoding="utf-8") != content:
+                target.write_text(content, encoding="utf-8")
+            imports.append(f"import init_{name} from './{target.name}';")
+            invocations.append(f"init_{name}();")
+        ff_auto = src_dir / "ff.auto.ts"
+        ff_lines = []
+        ff_lines.extend(imports)
+        ff_lines.extend(invocations)
+        ff_lines.append("export {};")
+        ff_content = "\n".join(ff_lines) + "\n"
+        if not ff_auto.exists() or ff_auto.read_text(encoding="utf-8") != ff_content:
+            ff_auto.write_text(ff_content, encoding="utf-8")
+        # keys.auto.ts: mapping hash(md5(path)) -> path
+        keys_file = src_dir / "keys.auto.ts"
+        mapping: dict[str, str] = {}
+        exts = (".tsx", ".jsx", ".ts", ".js", ".vue", ".svelte")
+        src_root = Path("src")
+        if src_root.is_dir():
+            for p in src_root.rglob("*"):
+                if p.is_file() and p.suffix.lower() in exts:
+                    rel = "/" + p.as_posix().lstrip("/")
+                    import hashlib as _h
+                    mapping[_h.md5(rel.encode("utf-8")).hexdigest()] = rel
+        lines = ["export const __NEXY_KEYS: Record<string,string> = {"]
+        for k, v in mapping.items():
+            lines.append(f'  "{k}": "{v}",')
+        lines.append("};")
+        keys_content = "\n".join(lines) + "\n"
+        if not keys_file.exists() or keys_file.read_text(encoding="utf-8") != keys_content:
+            keys_file.write_text(keys_content, encoding="utf-8")
+        runtime = src_dir / "runtime.ts"
+        runtime_lines = [
+            "type CompMod = { default: unknown }",
+            "type Importer = () => Promise<CompMod>",
+            "type Importers = Record<string, Importer>",
+            "import { __NEXY_KEYS } from 'nexy:keys.auto.ts';",
+            "const importers: Importers = import.meta.glob('/src/**/*.{tsx,jsx,ts,js,vue,svelte}', { eager: false }) as Record<string, Importer>",
+            "const norm = (p: string) => p && p.startsWith('/') ? p : '/' + p",
+            "const w: any = window as any;",
+            "(async () => {",
+            "  try {",
+            "    if (import.meta && (import.meta as any).env && (import.meta as any).env.DEV) {",
+            "      const mod: any = await import('/@react-refresh');",
+            "      const RefreshRuntime = mod && mod.default;",
+            "      if (RefreshRuntime && typeof RefreshRuntime.injectIntoGlobalHook === 'function') {",
+            "        RefreshRuntime.injectIntoGlobalHook(w);",
+            "        w.$RefreshReg$ = () => {};",
+            "        w.$RefreshSig$ = () => (type: unknown) => type;",
+            "        w.__vite_plugin_react_preamble_installed__ = true;",
+            "      }",
+            "    }",
+            "  } catch { /* ignore */ }",
+            "})();",
+            "w.__nexy_import = (p: string) => {",
+            "  let key = p;",
+            "  if (!key.startsWith('/')) {",
+            "    const mapped = (__NEXY_KEYS as any)[key];",
+            "    if (mapped) key = mapped;",
+            "  }",
+            "  const k1 = norm(key);",
+            "  const k2 = k1.startsWith('/') ? k1.slice(1) : k1;",
+            "  const imp = (importers as any)[k1] || (importers as any)[k2];",
+            "  if (!imp) return Promise.reject(new Error('Component not found: ' + p));",
+            "  return imp();",
+            "}",
+            "export {};",
+        ]
+        runtime_content = "\n".join(runtime_lines) + "\n"
+        if not runtime.exists() or runtime.read_text(encoding="utf-8") != runtime_content:
+            runtime.write_text(runtime_content, encoding="utf-8")
+        # main.ts minimal: styles globaux + agrégat des clients useFF
+        minimal = 'import "/src/globale.css";\nimport "nexy:runtime.ts";\nimport "nexy:ff.auto.ts";\nexport {};\n'
+        if not dest.exists() or dest.read_text(encoding="utf-8") != minimal:
+            dest.write_text(minimal, encoding="utf-8")
 
 
 __all__ = ["Builder"]

@@ -1,0 +1,20 @@
+{
+  "init": {
+    "title": "nexy@{version} init",
+    "ask": {
+      "router": "Souhaitez‑vous utiliser le routeur basé sur les fichiers ?",
+      "project_type": "Choisissez le type de projet",
+      "client_component": "Souhaitez‑vous utiliser un composant client ?",
+      "framework": "Choisissez le framework client",
+      "tailwind": "Souhaitez‑vous utiliser Tailwind CSS ?"
+    },
+    "choice": {
+      "web": "Web (application monolithique)",
+      "api": "API (RESTful API)"
+    },
+    "already": "Projet déjà initialisé dans ce dossier",
+    "no_template": "aucun template sélectionné",
+    "registry_failed": "échec de récupération du registre: {error}. Utilisation de la liste locale.",
+    "template_done": "template '{name}' initialisé dans {dest}"
+  }
+}

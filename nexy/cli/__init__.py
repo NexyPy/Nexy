@@ -2,7 +2,7 @@
 import typer
 from nexy.__version__ import __Version__
 from nexy.cli.commands import dev, init, start, build
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.console import console
 from nexy.i18n import t
 
 version = __Version__().get()

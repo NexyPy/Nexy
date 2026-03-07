@@ -6,7 +6,7 @@ from nexy.builder import Builder
 from nexy.core.config import Config
 from nexy.cli.commands.utilities.server import Server
 from nexy.cli.commands.utilities.watcher import create_observer
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.console import console
 from nexy.utils.ports import generate_port
 
 def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:

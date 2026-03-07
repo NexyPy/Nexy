@@ -4,7 +4,7 @@ from "src/components/user.nexy" import User
 title:prop[str] = ""
 show_hero = True
 espoir : prop[str]= "hjdhj"
-
+print("data",data)
 def user():
   return ""
 ---
