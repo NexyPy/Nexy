@@ -15,6 +15,27 @@
     "already": "Projet déjà initialisé dans ce dossier",
     "no_template": "aucun template sélectionné",
     "registry_failed": "échec de récupération du registre: {error}. Utilisation de la liste locale.",
-    "template_done": "template '{name}' initialisé dans {dest}"
+    "template_done": "template '{name}' initialisé dans {dest}",
+    "merging": "Dossier non vide, fusion des fichiers...",
+    "venv": {
+      "creating": "Création de l'environnement virtuel...",
+      "created": "Environnement virtuel créé.",
+      "error": "Erreur lors de la création de l'environnement virtuel : {error}"
+    },
+    "deps": {
+      "installing_python": "Installation des dépendances Python avec uv...",
+      "python_installed": "Dépendances Python installées avec succès.",
+      "uv_not_found": "uv non trouvé, repli sur pip...",
+      "installing_js": "Installation des dépendances JS...",
+      "using_manager": "Utilisation de {manager}...",
+      "js_installed": "Dépendances JS installées avec succès.",
+      "js_error": "Erreur lors de l'installation des dépendances JS : {error}",
+      "error": "Erreur lors de l'installation des dépendances : {error}"
+    },
+    "success": "Projet initialisé avec succès !",
+    "next_steps": "Étapes suivantes :",
+    "failed": "Échec de l'initialisation : {error}",
+    "template_not_found": "Le template ou la branche '{branch}' n'existe pas sur le dépôt distant.",
+    "checkout_failed": "Échec de l'extraction des fichiers depuis le template '{branch}'."
   }
 }

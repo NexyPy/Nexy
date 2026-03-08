@@ -15,6 +15,27 @@
     "already": "Project already initialized here",
     "no_template": "no template selected",
     "registry_failed": "registry fetch failed: {error}. Using fallback list.",
-    "template_done": "template '{name}' initialized at {dest}"
+    "template_done": "template '{name}' initialized at {dest}",
+    "merging": "Directory not empty, merging files...",
+    "venv": {
+      "creating": "Creating virtual environment...",
+      "created": "Virtual environment created.",
+      "error": "Error creating virtual environment: {error}"
+    },
+    "deps": {
+      "installing_python": "Installing Python dependencies with uv...",
+      "python_installed": "Python dependencies installed successfully.",
+      "uv_not_found": "uv not found, falling back to pip...",
+      "installing_js": "Installing JS dependencies...",
+      "using_manager": "Using {manager}...",
+      "js_installed": "JS dependencies installed successfully.",
+      "js_error": "Error installing JS dependencies: {error}",
+      "error": "Error installing dependencies: {error}"
+    },
+    "success": "Project initialized successfully!",
+    "next_steps": "Next steps:",
+    "failed": "Initialization failed: {error}",
+    "template_not_found": "The template or branch '{branch}' was not found on the remote repository.",
+    "checkout_failed": "Failed to extract files from template '{branch}'."
   }
 }

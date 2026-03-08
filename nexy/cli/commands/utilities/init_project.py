@@ -1,20 +1,41 @@
 from __future__ import annotations
-import json
-import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-import urllib.request
 import questionary
 from nexy.__version__ import __Version__
 from nexy.utils.console import console
 from nexy.i18n import t
 
+BRANCH_MODEL = "[router]-[project_type]-[client_framework]"
+WEB_APP = {
+    "fbr-react":"",
+    "modular-react":"",
+
+    "fbr-vue":"",
+    "modular-vue":"",
+
+    "fbr-preact":"",
+    "modular-preact":"",
+
+    "fbr-svelte":"",
+    "modular-svelte":"",
+    "fbr-none":"",
+    "modular-none":"",
+}
+
+WEB_API = {
+    "modular":"",
+    "fbr":""
+}
+
 class InitProject:
     def __init__(self) -> None:
         self.version = __Version__().get()
         self.config = {}
+
+    def ask_questions(self) -> None:
+        """Triggers the interactive questions to collect configuration."""
         console.print(t("init.title", "nexy init").format(version=self.version))
         self.ask_router()
         self.ask_project_type()
@@ -64,96 +85,255 @@ class InitProject:
     def ask_tailwindcss(self) -> None:
         self.config['tailwind'] = questionary.confirm(t("init.ask.tailwind", "Use Tailwind CSS?"), default=True, qmark="»").ask()
 
-    # --- Template Registry / Silent Clone ---
-    def apply_template(self, template_name: Optional[str], registry_url: Optional[str]) -> None:
-        url = registry_url or os.getenv("NEXY_TEMPLATE_REGISTRY", "").strip() or "https://registry.example.com/templates.json"
-        try:
-            templates = self._fetch_templates(url)
-        except Exception as e:
-            console.print(f"[yellow]nexy[/yellow] » " + t("init.registry_failed", "registry fetch failed: {error}. Using fallback list.").format(error=str(e)))
-            templates = self._fallback_templates()
-
-        entry: Optional[Dict[str, Any]] = None
-        if template_name:
-            entry = next((t for t in templates if t.get("name") == template_name or t.get("id") == template_name), None)
-            if not entry:
-                console.print(f"[red]nexy[/red] » template '{template_name}' not found in registry")
-                return
-        else:
-            choices = [questionary.Choice(f"{t['name']} ({t.get('desc','')})", value=t['id']) for t in templates]
-            chosen_id = questionary.select("Choose a template", choices=choices, pointer="ʋ", qmark="»").ask()
-            entry = next((t for t in templates if t.get("id") == chosen_id), None)
-
-        if not entry:
-            console.print(f"[red]nexy[/red] » " + t("init.no_template", "no template selected"))
-            return
-
-        repo = entry.get("repo", "")
-        branch = entry.get("branch", "main")
-        dest = Path(".")
-        dest_final = dest if self._is_empty_dir(dest) else Path(entry["name"])
-        backed_up = False
-        try:
-            backed_up = self._stash_git_repo()
-            self._git_clone(repo=repo, branch=branch, dest=dest_final)
-            self._cleanup_git(dest_final)
-        finally:
-            if backed_up:
-                self._restore_git_repo()
-        console.print(f"[green]nexy[/green] » " + t("init.template_done", "template '{name}' initialized at {dest}").format(name=entry['name'], dest=dest_final.as_posix()))
-
-    def _fetch_templates(self, url: str) -> List[Dict[str, Any]]:
-        req = urllib.request.Request(url, headers={"User-Agent": "nexy-init"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return list(data) if isinstance(data, list) else []
-
-    def _fallback_templates(self) -> List[Dict[str, Any]]:
-        return [
-            {"id": "react-web", "name": "react-web", "repo": "https://github.com/example/nexy-templates.git", "branch": "react-web", "desc": "React web app"},
-            {"id": "vue-web", "name": "vue-web", "repo": "https://github.com/example/nexy-templates.git", "branch": "vue-web", "desc": "Vue web app"},
-            {"id": "api-fastapi", "name": "api-fastapi", "repo": "https://github.com/example/nexy-templates.git", "branch": "api-fastapi", "desc": "FastAPI API server"},
-        ]
-
+   
     def _is_empty_dir(self, path: Path) -> bool:
         return not any(path.iterdir())
 
-    def _git_clone(self, repo: str, branch: str, dest: Path) -> None:
-        dest.mkdir(parents=True, exist_ok=True)
-        cmd = ["git", "clone", "--depth=1", "--branch", branch, repo, dest.as_posix()]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-        if proc.returncode != 0:
-            raise RuntimeError(f"git clone failed: {proc.stderr.strip() or proc.stdout.strip()}")
+    def _git_clone(self, repo: str, branch: str, dest: Path, subdir: str | None = None) -> None:
+        """Clones the template. If subdir is provided, extracts only that directory's contents."""
+        # On sauvegarde le dépôt git de l'utilisateur s'il existe déjà
+        has_user_git = self._stash_git_repo()
+        
+        try:
+            # Si le dossier contient seulement .venv ou est vide, on peut cloner/extraire
+            is_empty = self._is_empty_dir(dest)
+            has_only_venv = False
+            if not is_empty:
+                items = [i for i in dest.iterdir() if i.name != ".git_old"]
+                if len(items) == 0:
+                    is_empty = True
+                elif len(items) == 1 and items[0].name == ".venv":
+                    has_only_venv = True
+
+            # Common init steps
+            init_cmds = [
+                ["git", "init"],
+                ["git", "remote", "add", "origin", repo],
+                ["git", "fetch", "--depth=1", "origin", branch],
+            ]
+            for cmd in init_cmds:
+                try:
+                    subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                except subprocess.CalledProcessError as e:
+                    if "fetch" in cmd and e.returncode == 128:
+                        raise Exception(t("init.template_not_found", "Template or branch '{branch}' not found on remote.").format(branch=branch))
+                    raise e
+
+            # Extraction logic (sparse or merge)
+            checkout_path = subdir if subdir else "."
+            
+            if is_empty or has_only_venv:
+                # Checkout the subdir contents to the root
+                checkout_cmd = ["git", "checkout", "FETCH_HEAD", "--", checkout_path]
+                try:
+                    subprocess.run(checkout_cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                except subprocess.CalledProcessError:
+                    raise Exception(t("init.checkout_failed", "Failed to extract files from template '{branch}'.").format(branch=branch))
+                
+                # If we used a subdir, move files to root and cleanup
+                if subdir:
+                    self._move_subdir_to_root(dest, Path(subdir))
+            else:
+                console.print(f"[yellow]nexy[/yellow] » " + t("init.merging", "Directory not empty, merging files..."))
+                # Standard merge approach
+                merge_cmds = [
+                    ["git", "checkout", "FETCH_HEAD", "--", checkout_path],
+                    ["git", "merge", "--ff-only", "FETCH_HEAD"],
+                    ["git", "reset", "--hard"]
+                ]
+                for cmd in merge_cmds:
+                    subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                
+                if subdir:
+                    self._move_subdir_to_root(dest, Path(subdir))
+        
+        finally:
+            # Suppression radicale du dossier .git du template pour couper tout lien (origin)
+            self._cleanup_git(dest)
+            
+            # Restauration du dépôt git de l'utilisateur s'il existait
+            if has_user_git:
+                self._restore_git_repo()
+
+    def _move_subdir_to_root(self, root: Path, subdir: Path) -> None:
+        """Moves all contents from a subdirectory to the root and removes the subdirectory."""
+        source = root / subdir
+        if not source.exists():
+            return
+            
+        for item in source.iterdir():
+            target = root / item.name
+            if target.exists():
+                if target.is_dir():
+                    shutil.rmtree(target, ignore_errors=True)
+                else:
+                    target.unlink()
+            shutil.move(str(item), str(root))
+            
+        # Remove empty parent dirs of the subdir
+        current = source
+        while current != root:
+            parent = current.parent
+            shutil.rmtree(current, ignore_errors=True)
+            current = parent
+            if any(current.iterdir()):
+                break
+
+    def resolve_template_path(self) -> str:
+        """Resolves the template folder path based on the user's choices."""
+        router = "fbr" if self.config.get('FBRouter') else "modular"
+        project_type = self.config.get('project_type', 'web')
+        client_framework = self.config.get('client_framework', 'none').lower()
+        
+        # Structure: templates/[router]/[project_type]/[client_framework]
+        if project_type == "api":
+            return f"templates/{router}/api"
+        
+        return f"templates/{router}/{project_type}/{client_framework}"
+
+    def install_dependencies(self, dest: Path) -> None:
+        """Installs dependencies using uv (Python) and detected JS manager (bun/pnpm/npm)."""
+        # Python dependencies with uv
+        console.print(f"[blue]nexy[/blue] » " + t("init.deps.installing_python", "Installing Python dependencies with uv..."))
+        try:
+            # Check if uv is installed
+            subprocess.run(["uv", "--version"], capture_output=True, check=True)
+            
+            # Use uv sync if pyproject.toml exists, else uv pip install
+            if (dest / "pyproject.toml").exists():
+                subprocess.run(["uv", "sync"], cwd=dest.as_posix(), check=True)
+            elif (dest / "requirements.txt").exists():
+                subprocess.run(["uv", "pip", "install", "-r", "requirements.txt"], cwd=dest.as_posix(), check=True)
+            
+            console.print(f"[green]nexy[/green] » " + t("init.deps.python_installed", "Python dependencies installed successfully."))
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            console.print(f"[yellow]nexy[/yellow] » " + t("init.deps.uv_not_found", "uv not found, falling back to pip..."))
+            # Fallback to pip if uv is not available
+            pip_path = dest / ".venv" / ("Scripts" if sys.platform == "win32" else "bin") / "pip"
+            pip_cmd = pip_path.as_posix() if pip_path.exists() else "pip"
+            if (dest / "requirements.txt").exists():
+                subprocess.run([pip_cmd, "install", "-r", "requirements.txt"], cwd=dest.as_posix(), check=True)
+
+        # JS dependencies if package.json and vite.config.ts exist
+        if (dest / "package.json").exists() and (dest / "vite.config.ts").exists():
+            console.print(f"[blue]nexy[/blue] » " + t("init.deps.installing_js", "Installing JS dependencies..."))
+            
+            # Detect manager: bun > pnpm > npm
+            js_manager = "npm"
+            for manager in ["bun", "pnpm"]:
+                try:
+                    subprocess.run([manager, "--version"], capture_output=True, check=True)
+                    js_manager = manager
+                    break
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    continue
+            
+            try:
+                console.print(f"[blue]nexy[/blue] » " + t("init.deps.using_manager", "Using {manager}...").format(manager=js_manager))
+                subprocess.run([js_manager, "install"], cwd=dest.as_posix(), check=True)
+                console.print(f"[green]nexy[/green] » " + t("init.deps.js_installed", "JS dependencies installed successfully."))
+            except subprocess.CalledProcessError as e:
+                console.print(f"[red]nexy[/red] » " + t("init.deps.js_error", "Error installing JS dependencies: {error}").format(error=e))
+
+    def run(self, template: str | None = None) -> None:
+        """Executes the full initialization process."""
+        if template is None:
+            if not self.config:
+                self.ask_questions()
+            template = self.resolve_template_path()
+        
+        repo = "https://github.com/NexyPy/templates.git"
+        branch = "main" # All templates are in folders in the main branch
+        dest = Path(".")
+        
+        try:
+            # The template parameter is now used as a subdir
+            self._git_clone(repo, branch, dest, subdir=template)
+            self.install_dependencies(dest)
+            
+            console.print(f"\n[green]nexy[/green] » " + t("init.success", "Project initialized successfully!"))
+            console.print(f"[bold]{t('init.next_steps', 'Next steps:')}[/bold]")
+            console.print(f"  1. [cyan]nexy dev[/cyan]")
+        except Exception as e:
+            console.print(f"[red]nexy[/red] » " + t("init.failed", "Initialization failed: {error}").format(error=e))
 
     def _cleanup_git(self, dest: Path) -> None:
+        """Removes the .git directory to cut any link with the remote repository."""
+        import os
+        import stat
+
+        def on_rm_error(func, path, exc_info):
+            # Clear read-only bit and retry
+            os.chmod(path, stat.S_IWRITE)
+            func(path)
+
         gitdir = dest / ".git"
         if gitdir.exists():
-            shutil.rmtree(gitdir, ignore_errors=True)
+            shutil.rmtree(gitdir, onerror=on_rm_error)
+        
+        # Supprime également .github si présent (souvent spécifique au dépôt du template)
+        githubdir = dest / ".github"
+        if githubdir.exists():
+            shutil.rmtree(githubdir, onerror=on_rm_error)
 
     def _stash_git_repo(self) -> bool:
+        """Backs up the existing .git directory to .git_old."""
         root = Path(".")
         gitdir = root / ".git"
         backup = root / ".git_old"
+        
+        # If backup already exists, we must remove it first to avoid rename errors
+        if backup.exists():
+            import os
+            import stat
+            def on_rm_error(func, path, exc_info):
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+            shutil.rmtree(backup, onerror=on_rm_error)
+
         if gitdir.exists():
-            if backup.exists():
-                shutil.rmtree(backup, ignore_errors=True)
             try:
                 gitdir.rename(backup)
                 return True
             except Exception:
-                return False
+                # If rename fails, try copy and delete
+                try:
+                    shutil.copytree(gitdir, backup, dirs_exist_ok=True)
+                    import os
+                    import stat
+                    def on_rm_error(func, path, exc_info):
+                        os.chmod(path, stat.S_IWRITE)
+                        func(path)
+                    shutil.rmtree(gitdir, onerror=on_rm_error)
+                    return True
+                except Exception:
+                    return False
         return False
 
     def _restore_git_repo(self) -> None:
+        """Restores the .git directory from .git_old and deletes the backup."""
         root = Path(".")
         gitdir = root / ".git"
         backup = root / ".git_old"
+        
         if backup.exists():
+            # If a new .git was created by the template extraction, remove it
             if gitdir.exists():
-                shutil.rmtree(gitdir, ignore_errors=True)
+                self._cleanup_git(root)
+            
             try:
+                # Restore by renaming (effectively deletes backup)
                 backup.rename(gitdir)
             except Exception:
-                # En dernier recours, recopier le dossier
-                shutil.copytree(backup, gitdir, dirs_exist_ok=True)
-                shutil.rmtree(backup, ignore_errors=True)
+                # Fallback to copy and delete
+                import os
+                import stat
+                def on_rm_error(func, path, exc_info):
+                    os.chmod(path, stat.S_IWRITE)
+                    func(path)
+                
+                try:
+                    shutil.copytree(backup, gitdir, dirs_exist_ok=True)
+                    shutil.rmtree(backup, onerror=on_rm_error)
+                except Exception:
+                    pass

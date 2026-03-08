@@ -2,7 +2,7 @@
 import logging
 import os
 import time
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from nexy.__version__ import __Version__
 from nexy.core.config import Config
@@ -32,9 +32,13 @@ else:
 
 _server = FastAPI(title="Nexy", version=version, docs_url=_docs_url, redoc_url=_redocs_url)
 
-@_server.get("/favicon.ico")
+@_server.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return {"message": "favicon.ico"}
+    try:
+        with open("src/routes/favicon.ico", "rb") as f:
+            return Response(content=f.read(), media_type="image/x-icon")
+    except FileNotFoundError:
+        return {"message": "favicon.ico not found"}
 
 # @_server.get("/docs", include_in_schema=False)
 # async def custom_swagger_ui_html():

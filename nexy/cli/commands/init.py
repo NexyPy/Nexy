@@ -7,24 +7,22 @@ from nexy.i18n import t
 
 
 def init(
-    template: Optional[str] = typer.Option(
+    arg_options: Optional[str] = typer.Option(
         None,
         "--template",
         "-t",
         help="Initialize from a registered template (silent clone).",
-    ),
-    registry: Optional[str] = typer.Option(
-        None,
-        "--registry",
-        help="Override template registry URL.",
-    ),
+    )
 ) -> None:
+    
+    # On vérifie si le projet est déjà initialisé (présence de fichiers de config nexy)
+    # On ignore le dossier .venv car nexy peut être installé localement dedans avant l'init
     already = Path("__nexy__").exists() or Path("nexyconfig.py").exists() or Path("vite.config.ts").exists()
     if already:
         console.print("[red]nexy[/red] » " + t("init.already", "Project already initialized here"))
         raise typer.Exit(code=1)
-    project = InitProject()
-    if template or registry:
-        project.apply_template(template_name=template, registry_url=registry)
+    
+    if not arg_options is None:
+        InitProject().run(template=arg_options)
     else:
-        pass
+        InitProject().run()
