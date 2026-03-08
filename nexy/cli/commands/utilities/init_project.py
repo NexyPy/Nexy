@@ -185,11 +185,11 @@ class InitProject:
         project_type = self.config.get('project_type', 'web')
         client_framework = self.config.get('client_framework', 'none').lower()
         
-        # Structure: templates/[router]/[project_type]/[client_framework]
+        # Structure: templates/[project_type]/[router]/[client_framework]
         if project_type == "api":
-            return f"templates/{router}/api"
+            return f"templates/api/{router}"
         
-        return f"templates/{router}/{project_type}/{client_framework}"
+        return f"templates/{project_type}/{router}/{client_framework}"
 
     def install_dependencies(self, dest: Path) -> None:
         """Installs dependencies using uv (Python) and detected JS manager (bun/pnpm/npm)."""
@@ -240,22 +240,35 @@ class InitProject:
         if template is None:
             if not self.config:
                 self.ask_questions()
-            template = self.resolve_template_path()
+            template_path = self.resolve_template_path()
+        else:
+            # Map user-friendly name (e.g., web-fbr-react) to folder path (templates/web/fbr/react)
+            # Ensure it always starts with templates/ folder in the remote repo
+            parts = template.split("-")
+            if len(parts) >= 1:
+                # Structure: templates/[project_type]/[router]/[framework]
+                # If the user provides something like 'web-fbr-react'
+                # or just 'test'
+                path_parts = [p for p in parts if p] # Remove empty parts
+                template_path = f"templates/{'/'.join(path_parts)}"
+            else:
+                template_path = f"templates/{template}"
         
-        repo = "https://github.com/NexyPy/templates.git"
-        branch = "main" # All templates are in folders in the main branch
+        repo = "https://github.com/NexyPy/nexy.git"
+        branch = "master" # Templates are in the master branch of the nexy repo
         dest = Path(".")
         
         try:
             # The template parameter is now used as a subdir
-            self._git_clone(repo, branch, dest, subdir=template)
+            # We strictly extract ONLY from the templates/ directory
+            self._git_clone(repo, branch, dest, subdir=template_path)
             self.install_dependencies(dest)
             
             console.print(f"\n[green]nexy[/green] » " + t("init.success", "Project initialized successfully!"))
             console.print(f"[bold]{t('init.next_steps', 'Next steps:')}[/bold]")
             console.print(f"  1. [cyan]nexy dev[/cyan]")
         except Exception as e:
-            console.print(f"[red]nexy[/red] » " + t("init.failed", "Initialization failed: {error}").format(error=e))
+            console.print(f"[red]nexy[/red] » {t('init.failed', 'Initialization failed: {error}').format(error=e)}")
 
     def _cleanup_git(self, dest: Path) -> None:
         """Removes the .git directory to cut any link with the remote repository."""
