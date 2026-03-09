@@ -1,7 +1,6 @@
 from nexy.core.models import NexyConfigModel
 
-
 class NexyConfig(NexyConfigModel):
-    useFF = [ ]
+    useFF = ["fbr"]
     useAliases: dict[str, str] = {"@": "src/components"}
-    useTitle: str = "Nexy gh"
+    useTitle: str = "Nexy Web (FBR + React)"

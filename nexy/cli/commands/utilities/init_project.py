@@ -128,7 +128,7 @@ class InitProject:
                 try:
                     subprocess.run(checkout_cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
                 except subprocess.CalledProcessError:
-                    raise Exception(t("init.checkout_failed", "Failed to extract files from template '{branch}'.").format(branch=branch))
+                    raise Exception(t("init.checkout_failed", "Failed to extract files from template '{path}'.").format(path=checkout_path))
                 
                 # If we used a subdir, move files to root and cleanup
                 if subdir:
@@ -142,7 +142,10 @@ class InitProject:
                     ["git", "reset", "--hard"]
                 ]
                 for cmd in merge_cmds:
-                    subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                    try:
+                        subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                    except subprocess.CalledProcessError:
+                        raise Exception(t("init.checkout_failed", "Failed to extract files from template '{path}'.").format(path=checkout_path))
                 
                 if subdir:
                     self._move_subdir_to_root(dest, Path(subdir))
@@ -185,11 +188,11 @@ class InitProject:
         project_type = self.config.get('project_type', 'web')
         client_framework = self.config.get('client_framework', 'none').lower()
         
-        # Structure: templates/[project_type]/[router]/[client_framework]
+        # Structure: templates/[project_type]-[router]-[client_framework]
         if project_type == "api":
-            return f"templates/api/{router}"
+            return f"templates/api-{router}"
         
-        return f"templates/{project_type}/{router}/{client_framework}"
+        return f"templates/{project_type}-{router}-{client_framework}"
 
     def install_dependencies(self, dest: Path) -> None:
         """Installs dependencies using uv (Python) and detected JS manager (bun/pnpm/npm)."""
@@ -242,18 +245,24 @@ class InitProject:
                 self.ask_questions()
             template_path = self.resolve_template_path()
         else:
-            # Map user-friendly name (e.g., web-fbr-react) to folder path (templates/web/fbr/react)
+            # Map user-friendly name (e.g., web-fbr-react) to folder path (templates/web-fbr-react)
             # Ensure it always starts with templates/ folder in the remote repo
-            parts = template.split("-")
-            if len(parts) >= 1:
-                # Structure: templates/[project_type]/[router]/[framework]
-                # If the user provides something like 'web-fbr-react'
-                # or just 'test'
-                path_parts = [p for p in parts if p] # Remove empty parts
-                template_path = f"templates/{'/'.join(path_parts)}"
-            else:
-                template_path = f"templates/{template}"
+            template_path = f"templates/{template}"
         
+        # In dev mode (if we are in the nexy repo), we might want to use local templates
+        is_dev = (Path(__file__).parents[3] / "templates").exists()
+        
+        if is_dev:
+            local_templates = Path(__file__).parents[3] / template_path
+            if local_templates.exists():
+                console.print(f"[blue]nexy[/blue] » Using local template: {template_path}")
+                dest = Path(".")
+                # Simple copy instead of git clone
+                shutil.copytree(local_templates, dest, dirs_exist_ok=True)
+                self.install_dependencies(dest)
+                console.print(f"\n[green]nexy[/green] » " + t("init.success", "Project initialized successfully!"))
+                return
+
         repo = "https://github.com/NexyPy/nexy.git"
         branch = "master" # Templates are in the master branch of the nexy repo
         dest = Path(".")

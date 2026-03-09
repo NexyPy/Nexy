@@ -36,6 +36,6 @@
     "next_steps": "Next steps:",
     "failed": "Initialization failed: {error}",
     "template_not_found": "The template or branch '{branch}' was not found on the remote repository.",
-    "checkout_failed": "Failed to extract files from template '{branch}'."
+    "checkout_failed": "Failed to extract files from template '{path}'."
   }
 }

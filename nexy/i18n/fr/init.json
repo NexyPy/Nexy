@@ -36,6 +36,6 @@
     "next_steps": "Étapes suivantes :",
     "failed": "Échec de l'initialisation : {error}",
     "template_not_found": "Le template ou la branche '{branch}' n'existe pas sur le dépôt distant.",
-    "checkout_failed": "Échec de l'extraction des fichiers depuis le template '{branch}'."
+    "checkout_failed": "Échec de l'extraction des fichiers depuis le template '{path}'."
   }
 }
