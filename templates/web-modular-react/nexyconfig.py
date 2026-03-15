@@ -1,6 +1,8 @@
 from nexy.core.models import NexyConfigModel
+from nexy.frontend import react
 
 class NexyConfig(NexyConfigModel):
-    useFF = []
-    useAliases: dict[str, str] = {"@": "src/components"}
-    useTitle: str = "Nexy Web (Modular + React)"
+    useFF = [react()]
+    useAliases = {"@": "src"}
+    useTitle = "Nexy Web (Modular + React)"
+    useVite = True

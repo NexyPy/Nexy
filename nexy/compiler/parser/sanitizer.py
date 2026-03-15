@@ -77,6 +77,11 @@ class LogicSanitizer:
         
         return source
 
+    def _normalize_alias(self, name: str) -> str:
+        """Converts a string into a valid Python identifier."""
+        # Replace non-alphanumeric characters with underscores
+        return re.sub(r'[^a-zA-Z0-9_]', '_', name)
+
     def _replace_from(self, match: Match, current_file: str) -> str:
         """Callback for 'from "path" import targets' transformation."""
         path_str = match.group("path")
@@ -103,6 +108,7 @@ class LogicSanitizer:
             parts = re.split(r'\s+as\s+', t, flags=re.I)
             symbol = parts[0]
             alias = parts[1] if len(parts) > 1 else symbol
+            alias = self._normalize_alias(alias)
             
             line = (f'{alias} = __Import('
                     f'path="{full_rel_path}", framework="{framework}", symbol="{symbol}")')
@@ -120,7 +126,7 @@ class LogicSanitizer:
         
         # If no alias provided, use the filename stem as the default alias
         if not alias:
-            alias = pathlib.Path(full_rel_path).stem
+            alias = self._normalize_alias(pathlib.Path(full_rel_path).stem)
 
         # --- LOGIC (Nexy / Python) ---
         if ext in ('.nexy', '.py') or ext == '':

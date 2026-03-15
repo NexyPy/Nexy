@@ -1,0 +1,57 @@
+---
+---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy Pure Python</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Nexy est un framework hybride qui combine la puissance du backend Python (FastAPI) 
+            avec une syntaxe de composant unifiée (.nexy).
+        </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-indigo-600">Routage Basé sur les Fichiers</h3>
+            <p class="text-slate-600">
+                Vous n'avez pas besoin de configurer de routes complexes. Chaque fichier dans 
+                <code class="text-indigo-500 font-bold">src/routes/</code> devient une URL accessible 
+                automatiquement.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-500">
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Routage automatique (.nexy)
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Templates Jinja2 intégrés
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Performance maximale sans JS
+                </li>
+            </ul>
+        </div>
+        
+        <div class="flex justify-center">
+            <div class="p-8 bg-indigo-600 rounded-3xl text-white text-center shadow-2xl">
+                <h4 class="text-2xl font-bold mb-2">Pas de JS requis</h4>
+                <p class="text-indigo-100 text-sm italic">Nexy génère du HTML pur ultra-rapide</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Prochaines étapes</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="https://github.com/NexyPy/nexy" class="group p-4 bg-white rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                <span class="block font-semibold text-slate-800 group-hover:text-indigo-600">Documentation →</span>
+                <span class="text-xs text-slate-500">Apprenez à maîtriser Nexy</span>
+            </a>
+            <div class="p-4 bg-white rounded-lg border border-slate-200">
+                <span class="block font-semibold text-slate-800">Modifier cette page</span>
+                <code class="text-xs text-indigo-500">src/routes/index.nexy</code>
+            </div>
+        </div>
+    </section>
+</div>

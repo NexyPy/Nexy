@@ -143,6 +143,10 @@ class LogicParser:
         if not path or not symbol: 
             return False
 
+        # If it's a CSS import, collect it
+        if fw_str == "css" or (path and path.endswith(".css")):
+            result.css_imports.append(path)
+
         # Determine the component type based on extension or framework hint
         comp_type = self._determine_component_type(path, fw_str) # type: ignore
         ext = path[path.rfind("."):] if "." in path else "" # type: ignore

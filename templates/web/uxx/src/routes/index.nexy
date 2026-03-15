@@ -1,6 +1,54 @@
 ---
+from "@/components/Counter.tsx" import Counter
 ---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Nexy est un framework hybride qui combine la puissance du backend Python (FastAPI) 
+            avec la flexibilité du frontend moderne (React, Vue, Svelte).
+        </p>
+    </section>
 
-# Nexy FBR + React Template
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-indigo-600">Composants Mixtes</h3>
+            <p class="text-slate-600">
+                Vous pouvez mélanger des composants statiques générés en Python avec des 
+                composants interactifs en React, comme ce compteur à droite.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-500">
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Routage basé sur les fichiers (.nexy)
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Intégration transparente de Vite
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    Support natif de Tailwind CSS v4
+                </li>
+            </ul>
+        </div>
+        
+        <div class="flex justify-center">
+            <Counter />
+        </div>
+    </div>
 
-Welcome to your new Nexy project!
+    <section class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Prochaines étapes</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="https://github.com/NexyPy/nexy" class="group p-4 bg-white rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                <span class="block font-semibold text-slate-800 group-hover:text-indigo-600">Documentation →</span>
+                <span class="text-xs text-slate-500">Apprenez à maîtriser Nexy</span>
+            </a>
+            <div class="p-4 bg-white rounded-lg border border-slate-200">
+                <span class="block font-semibold text-slate-800">Modifier cette page</span>
+                <code class="text-xs text-indigo-500">src/routes/index.nexy</code>
+            </div>
+        </div>
+    </section>
+</div>

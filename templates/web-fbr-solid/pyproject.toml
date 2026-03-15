@@ -1,0 +1,11 @@
+[project]
+name = "nexy-solid-app"
+version = "0.1.0"
+description = "A Nexy Web App with SolidJS"
+dependencies = [
+    "nexy>=2.0.0",
+]
+requires-python = ">=3.12"
+
+[tool.uv]
+sync = true

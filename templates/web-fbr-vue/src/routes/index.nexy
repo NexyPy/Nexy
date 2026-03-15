@@ -1,0 +1,54 @@
+---
+from "@/components/Counter.vue" import Counter
+---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy + Vue</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Nexy est un framework hybride qui combine la puissance du backend Python (FastAPI) 
+            avec la flexibilité de Vue 3.
+        </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-emerald-600">Composants Vue 3 SFC</h3>
+            <p class="text-slate-600">
+                Vous pouvez utiliser des composants Vue (.vue) directement dans vos pages .nexy.
+                Nexy s'occupe de l'injection et de l'hydratation automatique.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-500">
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Composition API supportée
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    HMR ultra-rapide avec Vite
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Tailwind CSS v4 par défaut
+                </li>
+            </ul>
+        </div>
+        
+        <div class="flex justify-center">
+            <Counter />
+        </div>
+    </div>
+
+    <section class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Prochaines étapes</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="https://github.com/NexyPy/nexy" class="group p-4 bg-white rounded-lg border border-slate-200 hover:border-emerald-300 transition-colors">
+                <span class="block font-semibold text-slate-800 group-hover:text-emerald-600">Documentation →</span>
+                <span class="text-xs text-slate-500">Apprenez à maîtriser Nexy</span>
+            </a>
+            <div class="p-4 bg-white rounded-lg border border-slate-200">
+                <span class="block font-semibold text-slate-800">Modifier cette page</span>
+                <code class="text-xs text-emerald-500">src/routes/index.nexy</code>
+            </div>
+        </div>
+    </section>
+</div>

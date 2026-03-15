@@ -1,13 +1,18 @@
 import os
 import json
 from pathlib import Path
+from nexy.core.config import Config
 from nexy.utils.ports import get_client_port
 
 
 def Vite():
     # 1. Vérification config
+    config = Config()
     if not os.path.exists("vite.config.ts"):
-        raise FileNotFoundError("vite.config.ts not found")
+        return "" # Pas de Vite si pas de config
+    
+    if not getattr(config, "useVite", False):
+        return "" # Pas de Vite si désactivé
 
     manifest_path = Path("__nexy__/client/.vite/manifest.json")
     prod_server = Path("__nexy__/nexy.prod")
@@ -54,11 +59,6 @@ def Vite():
         s1.type = 'module';
         s1.src = `${{base}}/@vite/client`;
         document.head.appendChild(s1);
-        // Charger le runtime en premier (preamble React + __nexy_import)
-        const s0 = document.createElement('script');
-        s0.type = 'module';
-        s0.src = `${{base}}/__nexy__/src/runtime.ts`;
-        document.head.appendChild(s0);
 
         const s2 = document.createElement('script');
         s2.type = 'module';

@@ -51,6 +51,7 @@ class Parser:
             template=jinja_code,
             props=logic_result.props,
             context=[],
+            styles=logic_result.css_imports,
         )
 
 __all__ = ["Parser"]

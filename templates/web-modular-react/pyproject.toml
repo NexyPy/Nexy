@@ -1,7 +1,7 @@
 [project]
-name = "nexy-app-modular"
+name = "nexy-app"
 version = "0.1.0"
-description = "A Modular Nexy Web App"
+description = "A Nexy Web App"
 dependencies = [
     "nexy>=2.0.0",
 ]

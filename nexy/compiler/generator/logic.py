@@ -1,5 +1,7 @@
 import ast
 import textwrap
+import re
+from pathlib import Path
 from nexy.core.models import PaserModel
 from nexy.core.string import StringTransform
 
@@ -24,7 +26,10 @@ class LogicGenerator:
         names = template_path.split("/")
         length = len(names) - 1
         stem = names[length].replace(".md", "").replace(".html", "")
-        self.func_name = self._string_transform.get_component_name(stem)
+        raw_name = self._string_transform.get_component_name(stem)
+        # Normalize function name for Python
+        self.func_name = re.sub(r'[^a-zA-Z0-9_]', '_', raw_name)
+        
         if template_path.endswith(".html"):
             self.output = template_path.replace(".html",".py")
         else :
@@ -113,6 +118,26 @@ class LogicGenerator:
 
         context_items = ", ".join([f'"{n}": {n}' for n in names])
 
+        # Handle CSS imports: read content and wrap in <style>
+        css_blocks = []
+        for css_path in self.source.styles:
+            try:
+                # Resolve CSS path relative to project root
+                p = Path(css_path)
+                if not p.is_absolute():
+                    # Attempt to find it
+                    if not p.exists():
+                        # Try relative to current working directory or src
+                        p = Path.cwd() / css_path
+                
+                if p.exists():
+                    content = p.read_text(encoding="utf-8")
+                    css_blocks.append(f"<style>\n{content}\n</style>")
+            except Exception:
+                continue
+        
+        css_injection = "\n".join(css_blocks)
+
         return f"""from typing import *
 from fastapi import *
 from pathlib import Path as __Path
@@ -124,7 +149,9 @@ def {self.func_name}({props}) -> str:
     {'\r'+LOGIC}
     
     context = {{{context_items}}}
-    return str(__Template().render("{self.template_path}", context))
+    rendered = str(__Template().render("{self.template_path}", context))
+    styles = \"\"\"{css_injection}\"\"\"
+    return rendered + styles
 """
 
    

@@ -83,6 +83,7 @@ class LogicResult:
     nexy_imports: List[NexyImport] = field(default_factory=list)
     props: List[NexyProp] = field(default_factory=list)
     python_code: str = ""
+    css_imports: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -110,6 +111,7 @@ class PaserModel:
     template: str
     props: list[NexyProp]
     context: list[ContextModel] = field(default_factory=list)
+    styles: list[str] = field(default_factory=list)
 
 @dataclass
 class FFModel:

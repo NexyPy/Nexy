@@ -1,0 +1,24 @@
+---
+from "@/components/Counter.tsx" import Counter
+---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy + SolidJS</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            La performance ultime avec SolidJS et le SSR Python.
+        </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-blue-600">Fine-grained Reactivity</h3>
+            <p class="text-slate-600">
+                SolidJS s'intègre parfaitement au workflow hybride de Nexy.
+            </p>
+        </div>
+        
+        <div class="flex justify-center">
+            <Counter />
+        </div>
+    </div>
+</div>

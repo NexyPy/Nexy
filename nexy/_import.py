@@ -24,7 +24,11 @@ class Import:
             except Exception:
                 return {}
 
-        # Cas 2 : image → data URL base64
+        # Cas 2 : CSS → déjà géré à la compilation (injection automatique)
+        if ext == ".css":
+            return ""
+
+        # Cas 3 : image → data URL base64
         if ext in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}:
             try:
                 p = Path(path)

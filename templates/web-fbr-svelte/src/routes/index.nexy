@@ -1,0 +1,24 @@
+---
+from "@/components/Counter.svelte" import Counter
+---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy + Svelte</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Svelte 5 + Python : la réactivité à l'état pur.
+        </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-orange-600">Cybernetically Enhanced</h3>
+            <p class="text-slate-600">
+                Vos composants Svelte sont compilés par Vite et hydratés par le runtime Nexy.
+            </p>
+        </div>
+        
+        <div class="flex justify-center">
+            <Counter />
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+---
+from "@/components/Counter.tsx" import Counter
+---
+<div class="space-y-12">
+    <section class="text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Bienvenue sur votre projet Nexy + Preact</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+            Profitez de la légèreté de Preact combinée à la puissance de Python.
+        </p>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-indigo-600">Performance & Simplicité</h3>
+            <p class="text-slate-600">
+                Nexy gère automatiquement le montage de vos composants Preact dans vos pages SSR.
+            </p>
+        </div>
+        
+        <div class="flex justify-center">
+            <Counter />
+        </div>
+    </div>
+</div>

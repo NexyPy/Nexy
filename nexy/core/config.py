@@ -38,6 +38,7 @@ class Config:
         ".vue": "vue",
         ".svelte": "svelte",
         ".json": "json",
+        ".css": "css",
     }
 
     def __init__(self) -> None:

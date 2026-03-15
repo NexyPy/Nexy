@@ -45,8 +45,12 @@ class Builder:
             console.print(f"[red]nsc[/red] » error generating vite.ts: {e}")
 
     def _generate_vite_entry(self) -> None:
-        ff_list = getattr(self.config, "useFF", None) or []
-        frameworks: set[str] = {getattr(ff, "name", "").lower() for ff in ff_list if getattr(ff, "name", None)}
+        ff_list = []
+        raw_ff = getattr(self.config, "useFF", [])
+        if isinstance(raw_ff, list):
+            ff_list = raw_ff
+        
+        frameworks: set[str] = {getattr(ff, "name", "").lower() for ff in ff_list if hasattr(ff, "name")}
         dest_dir = Path("__nexy__")
         src_dir = dest_dir / "src"
         dest_dir.mkdir(parents=True, exist_ok=True)
@@ -107,21 +111,6 @@ class Builder:
             "const importers: Importers = import.meta.glob('/src/**/*.{tsx,jsx,ts,js,vue,svelte}', { eager: false }) as Record<string, Importer>",
             "const norm = (p: string) => p && p.startsWith('/') ? p : '/' + p",
             "const w: any = window as any;",
-            "(async () => {",
-            "  try {",
-            "    if (import.meta && (import.meta as any).env && (import.meta as any).env.DEV) {",
-            "      // @ts-ignore",
-            "      const mod: any = await import('/@react-refresh');",
-            "      const RefreshRuntime = mod && mod.default;",
-            "      if (RefreshRuntime && typeof RefreshRuntime.injectIntoGlobalHook === 'function') {",
-            "        RefreshRuntime.injectIntoGlobalHook(w);",
-            "        w.$RefreshReg$ = () => {};",
-            "        w.$RefreshSig$ = () => (type: unknown) => type;",
-            "        w.__vite_plugin_react_preamble_installed__ = true;",
-            "      }",
-            "    }",
-            "  } catch { /* ignore */ }",
-            "})();",
             "w.__nexy_import = (p: string) => {",
             "  let key = p;",
             "  if (!key.startsWith('/')) {",
@@ -140,7 +129,24 @@ class Builder:
         if not runtime.exists() or runtime.read_text(encoding="utf-8") != runtime_content:
             runtime.write_text(runtime_content, encoding="utf-8")
         # main.ts minimal: styles globaux + agrégat des clients useFF
-        minimal = 'import "/src/globale.css";\nimport "@nexy/runtime.ts";\nimport "@nexy/ff.auto.ts";\nexport {};\n'
+        preamble = ""
+        if "react" in frameworks:
+            preamble = (
+                "if (import.meta && (import.meta as any).env && (import.meta as any).env.DEV) {\n"
+                "  try {\n"
+                "    const mod: any = await import('/@react-refresh');\n"
+                "    const RefreshRuntime = mod && mod.default;\n"
+                "    if (RefreshRuntime && typeof RefreshRuntime.injectIntoGlobalHook === 'function') {\n"
+                "      RefreshRuntime.injectIntoGlobalHook(window);\n"
+                "      (window as any).$RefreshReg$ = () => {};\n"
+                "      (window as any).$RefreshSig$ = () => (type: unknown) => type;\n"
+                "      (window as any).__vite_plugin_react_preamble_installed__ = true;\n"
+                "    }\n"
+                "  } catch { /* ignore */ }\n"
+                "}\n"
+            )
+        
+        minimal = f'import "/src/globale.css";\nimport "@nexy/runtime.ts";\n{preamble}\nimport "@nexy/ff.auto.ts";\nexport {{}};\n'
         if not dest.exists() or dest.read_text(encoding="utf-8") != minimal:
             dest.write_text(minimal, encoding="utf-8")
 
