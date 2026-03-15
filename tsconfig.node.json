@@ -20,7 +20,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nexy/vite": ["./__nexy__/vite.ts"],
+      "@nexy/*": ["./__nexy__/src/*"]
+    }
   },
   "include": ["vite.config.ts"]
 }

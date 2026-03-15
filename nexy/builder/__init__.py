@@ -27,7 +27,23 @@ class Builder:
                 console.print(f"[red]nsc[/red] » error compiling [reset][dim]{input_path}[/dim] [red]✗[/red]")
                 console.print(f"[red]nsc[/red] » {e}")
         self._generate_vite_entry()
+        self._generate_vite_config()
     
+    def _generate_vite_config(self) -> None:
+        """Copies the frontend vite config from nexy/frontend/vite.ts to __nexy__/vite.ts."""
+        try:
+            # On récupère le chemin du fichier source dans le package nexy
+            import nexy.frontend as frontend
+            source = Path(frontend.__file__).parent / "vite.ts"
+            dest = Path("__nexy__") / "vite.ts"
+            
+            if source.is_file():
+                content = source.read_text(encoding="utf-8")
+                if not dest.exists() or dest.read_text(encoding="utf-8") != content:
+                    dest.write_text(content, encoding="utf-8")
+        except Exception as e:
+            console.print(f"[red]nsc[/red] » error generating vite.ts: {e}")
+
     def _generate_vite_entry(self) -> None:
         ff_list = getattr(self.config, "useFF", None) or []
         frameworks: set[str] = {getattr(ff, "name", "").lower() for ff in ff_list if getattr(ff, "name", None)}
@@ -87,13 +103,14 @@ class Builder:
             "type CompMod = { default: unknown }",
             "type Importer = () => Promise<CompMod>",
             "type Importers = Record<string, Importer>",
-            "import { __NEXY_KEYS } from 'nexy:keys.auto.ts';",
+            "import { __NEXY_KEYS } from '@nexy/keys.auto.ts';",
             "const importers: Importers = import.meta.glob('/src/**/*.{tsx,jsx,ts,js,vue,svelte}', { eager: false }) as Record<string, Importer>",
             "const norm = (p: string) => p && p.startsWith('/') ? p : '/' + p",
             "const w: any = window as any;",
             "(async () => {",
             "  try {",
             "    if (import.meta && (import.meta as any).env && (import.meta as any).env.DEV) {",
+            "      // @ts-ignore",
             "      const mod: any = await import('/@react-refresh');",
             "      const RefreshRuntime = mod && mod.default;",
             "      if (RefreshRuntime && typeof RefreshRuntime.injectIntoGlobalHook === 'function') {",
@@ -123,7 +140,7 @@ class Builder:
         if not runtime.exists() or runtime.read_text(encoding="utf-8") != runtime_content:
             runtime.write_text(runtime_content, encoding="utf-8")
         # main.ts minimal: styles globaux + agrégat des clients useFF
-        minimal = 'import "/src/globale.css";\nimport "nexy:runtime.ts";\nimport "nexy:ff.auto.ts";\nexport {};\n'
+        minimal = 'import "/src/globale.css";\nimport "@nexy/runtime.ts";\nimport "@nexy/ff.auto.ts";\nexport {};\n'
         if not dest.exists() or dest.read_text(encoding="utf-8") != minimal:
             dest.write_text(minimal, encoding="utf-8")
 

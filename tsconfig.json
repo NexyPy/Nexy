@@ -1,4 +1,12 @@
 {
+  "compilerOptions": {
+    
+    "paths": {
+      "@/*": ["./src/*"],
+      "@nexy/vite": ["./__nexy__/vite.ts"],
+      "@nexy/*": ["./__nexy__/*"]
+    }
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },

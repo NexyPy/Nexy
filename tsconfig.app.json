@@ -22,7 +22,13 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@nexy/vite": ["./__nexy__/vite.ts"],
+      "@nexy/*": ["./__nexy__/src/*"]
+    }
   },
-  "include": ["src", "card.tsx"]
+  "include": ["src", "card.tsx", "__nexy__/src"]
 }
