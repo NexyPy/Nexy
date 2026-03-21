@@ -14,4 +14,4 @@ class NexyConfig(NexyConfigModel):
     useDocs: bool = True
     useVite: bool = True
     useMarkdownExtensions: list[str] = []
-    excludeDirs: list[str] = []
+    excludeDirs: list[str] = ["templates","extension"]

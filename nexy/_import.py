@@ -110,6 +110,7 @@ class _Importer:
                 f'<ncc id="{mount_id}" '
                 f'data-nexy-fw="{esc_fw}" '
                 f'data-nexy-key="{h}" '
+                f'style="display: contents;"'
                 f'data-nexy-symbol="{esc_symbol}" '
                 f'data-nexy-props="{esc_props}"></ncc>'
             )
@@ -122,6 +123,7 @@ class _Importer:
                 f'data-nexy-fw="{esc_fw}" '
                 f'data-nexy-path="{esc_url}" '
                 f'data-nexy-key="{h}" '
+                f'style="display: contents;"'
                 f'data-nexy-symbol="{esc_symbol}" '
                 f'data-nexy-props="{esc_props}"></ncc>'
             )

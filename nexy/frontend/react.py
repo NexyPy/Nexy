@@ -5,9 +5,9 @@ def react() -> FFModel:
         name="react",
         render=(
             '(function(){'
-            'const w=window;'
-            'const gi=w.__nexy_import||((p)=>import(/* @vite-ignore */ p));'
-            'async function m(el){'
+            'const w=window as any;'
+            'const gi=w.__nexy_import||((p: any)=>import(/* @vite-ignore */ p));'
+            'async function m(el: any){'
             'if(!el||el.dataset.nexyMounted==="1")return;'
             'el.dataset.nexyMounted="1";'
             'const key=el.getAttribute("data-nexy-key")||"";'
@@ -26,7 +26,7 @@ def react() -> FFModel:
             '}'
             'function init(){'
             'const nodes=w.document.querySelectorAll("[data-nexy-fw=\\"react\\"]");'
-            'nodes.forEach(el=>{m(el)});'
+            'nodes.forEach((el: any)=>{m(el)});'
             '}'
             'if(w.document.readyState==="loading"){'
             'w.document.addEventListener("DOMContentLoaded",init);'

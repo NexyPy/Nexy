@@ -1,0 +1,73 @@
+---
+from "./themeButton.nexy" import ThemeButton
+from "./monitorIcon.nexy" import MonitorIcon
+from "./sunIcon.nexy" import SunIcon
+from "./moonIcon.nexy" import MoonIcon
+---
+
+<div 
+    id="theme-container"
+    class="relative flex size-fit items-center overflow-hidden justify-center gap-0.5 rounded-full border border-border p-1 transition-colors"
+>
+    <div 
+        class="bg-foreground absolute left-0 size-7! rounded-full transition-all duration-300 ease-in-out"
+        style="transform: translateX(var(--spacing-slider-left)); width: var(--spacing-slider-width)"
+    ></div>
+
+    <ThemeButton mode="light" active="{{active}}" onclick="updateTheme('light')">
+        <SunIcon />
+    </ThemeButton>
+    <ThemeButton mode="dark" active="{{active}}" onclick="updateTheme('dark')">
+        <MoonIcon />
+    </ThemeButton>
+    <ThemeButton mode="system" active="{{active}}" onclick="updateTheme('system')">
+        <MonitorIcon />
+    </ThemeButton>
+</div>
+
+<script>
+    let active = localStorage.getItem('nexy-theme') || 'system';
+
+    function updateTheme_slider() {
+        const container = document.getElementById('theme-container');
+        if (!container) return;
+
+        const active_element = container.querySelector(`[data-mode="${active}"]`);
+        if (active_element) {
+            const root = document.documentElement;
+            root.style.setProperty('--spacing-slider-left', `${active_element.offsetLeft}px`);
+            root.style.setProperty('--spacing-slider-width', `${active_element.offsetWidth}px`);
+        }
+    }
+
+    function apply_theme_logic() {
+        const root = document.documentElement;
+        localStorage.setItem('nexy-theme', active);
+
+        const apply_class = (is_dark) => {
+            root.classList.toggle('dark', is_dark);
+        };
+
+        if (active === 'system') {
+            const system_dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            apply_class(system_dark);
+        } else {
+            apply_class(active === 'dark');
+        }
+
+        updateTheme_slider();
+    }
+
+    function updateTheme(new_mode) {
+        active = new_mode;
+        apply_theme_logic();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        apply_theme_logic();
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (active === 'system') apply_theme_logic();
+        });
+    });
+</script>

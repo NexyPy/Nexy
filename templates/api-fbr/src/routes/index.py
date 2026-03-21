@@ -1,7 +1,2 @@
-from fastapi import APIRouter
-
-router = APIRouter()
-
-@router.get("/")
-async def root():
-    return {"message": "Hello Nexy API"}
+def GET():
+    return [{"A":"a"},{"B"}]

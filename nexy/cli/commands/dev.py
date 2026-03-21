@@ -6,6 +6,7 @@ from nexy.builder import Builder
 from nexy.core.config import Config
 from nexy.cli.commands.utilities.server import Server
 from nexy.cli.commands.utilities.watcher import create_observer
+from nexy.frontend import FrontendGenerator
 from nexy.utils.console import console
 from nexy.utils.ports import generate_port
 
@@ -57,6 +58,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
         with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):
             start_time = time.perf_counter()
             Builder().build()
+            FrontendGenerator().generate()
             elapsed = time.perf_counter() - start_time
             timer = f"{elapsed:.2f}s"
             time.sleep(.03)

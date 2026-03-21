@@ -122,7 +122,7 @@ class FFModel:
 class NexyConfigModel:
     useAliases: dict[str, str] | None = None
     useRouter: APIRouter | None = None
-    usePort: int = 8000
+    usePort: int = 3000
     useHost: str = "0.0.0.0"
     useTitle: str = "Nexy"
     useDocsUrl: str = "/docs"

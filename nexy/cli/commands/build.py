@@ -4,6 +4,7 @@ from nexy.builder import Builder
 from nexy.cli.commands.utilities.console import console
 from nexy.cli.commands.utilities.server import Server
 from nexy.core.config import Config
+from nexy.frontend import FrontendGenerator
 from nexy.i18n import t
 
 
@@ -12,6 +13,7 @@ def build():
     version = __Version__().get()
     console.print(f"nexy@{version} build")
     with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):
+        FrontendGenerator().generate()
         Builder().build(showlog=True)
     
     if getattr(config, "useVite", False):
