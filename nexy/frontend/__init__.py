@@ -1,7 +1,7 @@
 from pathlib import Path
+import shutil
 from nexy.utils.console import console
 from nexy.core.config import Config
-
 from .preact import preact
 from .react import react
 from .svelte import svelte
@@ -14,7 +14,17 @@ class FrontendGenerator:
     def generate(self):
         self._generate_vite_entry()
         self._generate_vite_config()
+        self._generate_ssg()
 
+
+    def _generate_ssg(self) -> None:
+        try:
+            import nexy.frontend as frontend
+            source = Path(frontend.__file__).parent / "scripts"
+            dest = Path("__nexy__") / "scripts"
+            shutil.copytree(source, dest, dirs_exist_ok=True)
+        except Exception as e:
+            print(f"[nexy] Error copying scripts: {e}")
     def _generate_vite_config(self) -> None:
         """Copies the frontend vite config from nexy/frontend/vite.ts to __nexy__/vite.ts."""
         try:

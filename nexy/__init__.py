@@ -6,12 +6,12 @@ from .template import Template
 from .vite import Vite
 
 
-
 __all__ = [
     "Audio",
     "Video",
     "Form",
     "Import",
     "Template",
-    "Vite",
+    "Vite"
+    "app"
 ]

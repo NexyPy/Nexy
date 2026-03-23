@@ -1,8 +1,8 @@
 [project]
 name = "nexy"
-version = "2.0.0b3"
+version = "2.0.0b5"
 description = "nexy"
-readme = "README.md"
+readme = "README.pypi.md"
 requires-python = ">=3.10"
 
 dependencies = [

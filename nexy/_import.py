@@ -101,7 +101,18 @@ class _Importer:
         esc_fw = _html_escape(framework, quote=True)
         esc_url = _html_escape(url, quote=True)
         # Mode hash en prod: éviter d'exposer la structure de fichiers
+        
         prod_marker = _Path("__nexy__/nexy.prod").is_file()
+        default = _Path(f"__nexy__/client/static{esc_url.replace(".tsx","")}.Default.html")
+        export = _Path(f"__nexy__/client/static{esc_url.replace(".tsx","")}.{esc_symbol}.html")
+
+        if export.is_file():
+            content = export.read_text(encoding="utf-8")
+        elif default.is_file():
+            content = default.read_text(encoding="utf-8")
+        else:
+            content = ""
+        
         if prod_marker:
             key_src = url
             # Hash stable basé sur le chemin module (pas symbol)
@@ -112,12 +123,13 @@ class _Importer:
                 f'data-nexy-key="{h}" '
                 f'style="display: contents;"'
                 f'data-nexy-symbol="{esc_symbol}" '
-                f'data-nexy-props="{esc_props}"></ncc>'
+                f'data-nexy-props="{esc_props}">{content}</ncc>'
             )
         else:
             # Dev: conserver le chemin source lisible et ajouter en plus la clé hashée
             key_src = url
             h = hashlib.md5(key_src.encode("utf-8")).hexdigest()
+            
             return (
                 f'<ncc id="{mount_id}" '
                 f'data-nexy-fw="{esc_fw}" '
@@ -125,5 +137,5 @@ class _Importer:
                 f'data-nexy-key="{h}" '
                 f'style="display: contents;"'
                 f'data-nexy-symbol="{esc_symbol}" '
-                f'data-nexy-props="{esc_props}"></ncc>'
+                f'data-nexy-props="{esc_props}">{content}</ncc>'
             )

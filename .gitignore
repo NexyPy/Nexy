@@ -36,3 +36,4 @@ dist-ssr
 __nexy__/
 
 .vercel
+.env

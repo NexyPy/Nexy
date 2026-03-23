@@ -60,6 +60,8 @@ if os.path.isdir("__nexy__/client"):
     _server.mount("/__nexy__/client", StaticFiles(directory="__nexy__/client"), name="nexy_client")
 if os.path.isdir("__nexy__/client"):
     _server.mount("/client", StaticFiles(directory="__nexy__/client"), name="client")
+if os.path.isdir("__nexy__/client/assets"):
+    _server.mount("/assets", StaticFiles(directory="__nexy__/client/assets"), name="assets")
 router_source = config.nexy_config.useRouter if config.nexy_config else None
 
 if isinstance(router_source, APIRouter):
