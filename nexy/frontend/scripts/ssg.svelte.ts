@@ -48,7 +48,7 @@ async function loadModule(file: string): Promise<Record<string, any>> {
   const generated = fs.readdirSync(path.dirname(outFile))
     .find(f => f === `${fileName}-${timestamp}.mjs`)
 
-  if (!generated) throw new Error(`[nexy] Vite failed to produce output for ${fileName}`)
+  if (!generated) throw new Error(` Vite failed to produce output for ${fileName}`)
 
   const mod = await import(`${pathToFileURL(outFile).href}?t=${timestamp}`)
   fs.rmSync(outFile, { force: true })
@@ -74,7 +74,7 @@ export async function run(): Promise<number> {
     try {
       mod = await loadModule(file)
     } catch (err) {
-      console.error(`${c.red}[nexy] Failed to load ${file}:${c.reset}`, err)
+      console.error(`${c.red} Failed to load ${file}:${c.reset}`, err)
       continue
     }
 
@@ -95,7 +95,7 @@ export async function run(): Promise<number> {
         props: { children: emptySnippet }
       }).html
     } catch (e) {
-      console.error(`${c.red}[nexy] Failed to render ${fileName}:${c.reset}`, e)
+      console.error(`${c.red} Failed to render ${fileName}:${c.reset}`, e)
       continue
     }
 

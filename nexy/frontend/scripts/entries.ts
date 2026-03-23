@@ -93,7 +93,7 @@ if (el) hydrate(Component, { target: el })
 async function generateEntries() {
   const usedFrameworks = getProjectFrameworks()
   if (usedFrameworks.size === 0) {
-    console.warn(`${c.yellow}[nexy] No components found.${c.reset}`)
+    console.warn(`${c.yellow}No components found.${c.reset}`)
     return
   }
 
@@ -123,7 +123,7 @@ async function generateEntries() {
     try {
       exportNames = await loadModuleExports(file, framework)
     } catch (err) {
-      console.error(`[nexy] Failed to load exports from ${file}:`, err)
+      console.error(` Failed to load exports from ${file}:`, err)
       continue
     }
 
@@ -148,10 +148,10 @@ async function generateEntries() {
   }
 
   fs.rmSync(path.resolve(process.cwd(), 'node_modules/.nexy-temp'), { recursive: true, force: true })
-  // console.log('[nexy] Entries generated successfully')
+  // console.log(' Entries generated successfully')
 }
 
 generateEntries().then(() => process.exit(0)).catch(err => {
-  console.error('[nexy] Failed to generate entries:', err)
+  console.error(' Failed to generate entries:', err)
   process.exit(1)
 })

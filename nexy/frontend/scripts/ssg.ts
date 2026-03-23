@@ -34,11 +34,11 @@ async function run() {
 
   const usedFrameworks = getProjectFrameworks()
   if (usedFrameworks.size === 0) {
-    console.warn(`${c.yellow}[nexy] No components found.${c.reset}`)
+    console.warn(`${c.yellow} No components found.${c.reset}`)
     return
   }
 
-  console.log(`[nexy] Detected: ${[...usedFrameworks].join(', ')}`)
+  console.log(` Detected: ${[...usedFrameworks].join(', ')}`)
   const installedFrameworks = checkFrameworks(usedFrameworks)
 
   const hasTsx = glob.sync('**/*.{tsx,jsx}', {
@@ -67,7 +67,7 @@ async function run() {
       !installedFrameworks.has('preact') &&
       !installedFrameworks.has('solid')
     ) {
-      console.log(`${c.yellow}[nexy] No tsx framework — compiling to plain HTML${c.reset}`)
+      console.log(`${c.yellow} No tsx framework — compiling to plain HTML${c.reset}`)
       const { run } = await import('./ssg.html')
       await run()
     }
@@ -79,7 +79,7 @@ async function run() {
       const { run } = await import('./ssg.vue')
       await run()
     } else {
-      console.warn(`${c.yellow}[nexy] *.vue files found but vue is not installed. Run: pnpm add vue${c.reset}`)
+      console.warn(`${c.yellow} *.vue files found but vue is not installed. Run: pnpm add vue${c.reset}`)
     }
   }
 
@@ -89,12 +89,12 @@ async function run() {
       const { run } = await import('./ssg.svelte')
       await run()
     } else {
-      console.warn(`${c.yellow}[nexy] *.svelte files found but svelte is not installed. Run: pnpm add svelte${c.reset}`)
+      console.warn(`${c.yellow} *.svelte files found but svelte is not installed. Run: pnpm add svelte${c.reset}`)
     }
   }
 }
 
 run().then(() => process.exit(0)).catch(err => {
-  console.error('[nexy] SSG failed:', err)
+  console.error(' SSG failed:', err)
   process.exit(1)
 })

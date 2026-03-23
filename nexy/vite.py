@@ -36,9 +36,11 @@ def Vite():
                     js_code = js_path.read_text(encoding="utf-8") if js_path.is_file() else ""
                     return "".join(css_blocks) + f'<script type="module">\n{js_code}\n</script>'
                 else:
-                    src = f"/__nexy__/client/{file_rel}"
+                    # src = f"/__nexy__/client/{file_rel}"
+                    src = f"/{file_rel}"
                     css_links = "".join(
-                        f"<link rel=\"stylesheet\" href=\"/__nexy__/client/{c.lstrip('/')}\" />"
+                        f"<link rel=\"stylesheet\" href=\"/{c.lstrip('/')}\" />"
+                        # f"<link rel=\"stylesheet\" href=\"/__nexy__/client/{c.lstrip('/')}\" />"
                         for c in css_files
                     )
                     return f'{css_links}<script type="module" src="{src}"></script>'

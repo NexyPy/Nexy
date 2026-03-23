@@ -17,7 +17,7 @@ function getTsxPath(): string {
     const resolved = require.resolve('tsx/esm')
     return pathToFileURL(resolved).href
   } catch {
-    throw new Error('[nexy] "tsx" is required. Run: pnpm add -D tsx')
+    throw new Error(' "tsx" is required. Run: pnpm add -D tsx')
   }
 }
 
@@ -95,7 +95,7 @@ function nexyPlugin(): Plugin {
       if (isSSRBuild) return
       nexySSGDone = false
       const tsxPath = getTsxPath()
-      console.log(`${c.dim}[nexy] Generating entries...${c.reset}`)
+      console.log(`${c.dim} Generating entries...${c.reset}`)
       execSync(`node --import "${tsxPath}" __nexy__/scripts/entries.ts`, {
         stdio: 'inherit',
         cwd: process.cwd()
@@ -108,7 +108,7 @@ function nexyPlugin(): Plugin {
       nexySSGDone = true
 
       const tsxPath = getTsxPath()
-      console.log(`${c.dim}[nexy] Running Static Site Generation...${c.reset}`)
+      console.log(`${c.dim} Running Static Site Generation...${c.reset}`)
       execSync(`node --import "${tsxPath}" __nexy__/scripts/ssg.ts`, {
         stdio: 'inherit',
         cwd: process.cwd()

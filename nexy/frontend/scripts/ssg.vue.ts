@@ -51,8 +51,8 @@ async function loadModule(file: string): Promise<Record<string, any>> {
 
   if (!fs.existsSync(outFile)) {
     const files = fs.readdirSync(path.dirname(outFile))
-    console.log('[nexy] Files in temp dir:', files)
-    throw new Error(`[nexy] Vite failed to produce output for ${fileName}`)
+    console.log(' Files in temp dir:', files)
+    throw new Error(` Vite failed to produce output for ${fileName}`)
   }
 
   const mod = await import(`${pathToFileURL(outFile).href}?t=${timestamp}`)
@@ -79,7 +79,7 @@ export async function run(): Promise<number> {
     try {
       mod = await loadModule(file)
     } catch (err) {
-      console.error(`${c.red}[nexy] Failed to load ${file}:${c.reset}`, err)
+      console.error(`${c.red} Failed to load ${file}:${c.reset}`, err)
       continue
     }
 
@@ -92,7 +92,7 @@ export async function run(): Promise<number> {
       const { createSSRApp } = await import('vue')
       html = await renderToString(createSSRApp(Component))
     } catch (e) {
-      console.error(`${c.red}[nexy] Failed to render ${fileName}:${c.reset}`, e)
+      console.error(`${c.red} Failed to render ${fileName}:${c.reset}`, e)
       continue
     }
 

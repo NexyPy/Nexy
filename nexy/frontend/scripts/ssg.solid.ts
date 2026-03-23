@@ -54,7 +54,7 @@ async function loadModule(file: string): Promise<Record<string, any>> {
   })
 
   if (!fs.existsSync(outFile)) {
-    throw new Error(`[nexy] Vite failed to produce output for ${fileName}`)
+    throw new Error(` Vite failed to produce output for ${fileName}`)
   }
 
   const mod = await import(`${pathToFileURL(outFile).href}?t=${timestamp}`)
@@ -85,7 +85,7 @@ export async function run(): Promise<number> {
     try {
       mod = await loadModule(file)
     } catch (err) {
-      console.error(`${c.red}[nexy] Failed to load ${file}:${c.reset}`, err)
+      console.error(`${c.red} Failed to load ${file}:${c.reset}`, err)
       continue
     }
 
@@ -100,7 +100,7 @@ export async function run(): Promise<number> {
         html = renderToString(() => (Component as any)(jinjaProps))
         html = restoreJinjaVars(html, propPaths)
       } catch (e) {
-        console.error(`${c.red}[nexy] Failed to render ${entryId}:${c.reset}`, e)
+        console.error(`${c.red} Failed to render ${entryId}:${c.reset}`, e)
         continue
       }
 
