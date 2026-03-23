@@ -103,8 +103,12 @@ class _Importer:
         # Mode hash en prod: éviter d'exposer la structure de fichiers
         
         prod_marker = _Path("__nexy__/nexy.prod").is_file()
-        default = _Path(f"__nexy__/client/static{esc_url.replace(".tsx","")}.Default.html")
+        if framework == "vue" or framework == "svelte":
+            default = _Path(f"__nexy__/client/static{esc_url}.html")
+        else :
+            default = _Path(f"__nexy__/client/static{esc_url.replace(".tsx","")}.Default.html")
         export = _Path(f"__nexy__/client/static{esc_url.replace(".tsx","")}.{esc_symbol}.html")
+
 
         if export.is_file():
             content = export.read_text(encoding="utf-8")

@@ -48,17 +48,17 @@ async function run() {
 
   if (hasTsx) {
     if (installedFrameworks.has('react')) {
-      console.log(`[nexy] Compiling tsx → React`)
+      console.log(`React`)
       const { run } = await import('./ssg.react')
       await run()
     }
     if (installedFrameworks.has('preact')) {
-      console.log(`[nexy] Compiling tsx → Preact`)
+      console.log(`Preact`)
       const { run } = await import('./ssg.preact')
       await run()
     }
     if (installedFrameworks.has('solid')) {
-      console.log(`[nexy] Compiling tsx → Solid`)
+      console.log(`Solid`)
       const { run } = await import('./ssg.solid')
       await run()
     }
@@ -75,7 +75,7 @@ async function run() {
 
   if (usedFrameworks.has('vue')) {
     if (installedFrameworks.has('vue')) {
-      console.log(`[nexy] Compiling *.vue → Vue`)
+      console.log(` Vue`)
       const { run } = await import('./ssg.vue')
       await run()
     } else {
@@ -85,7 +85,7 @@ async function run() {
 
   if (usedFrameworks.has('svelte')) {
     if (installedFrameworks.has('svelte')) {
-      console.log(`[nexy] Compiling *.svelte → Svelte`)
+      console.log(`Svelte`)
       const { run } = await import('./ssg.svelte')
       await run()
     } else {

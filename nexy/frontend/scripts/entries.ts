@@ -148,7 +148,7 @@ async function generateEntries() {
   }
 
   fs.rmSync(path.resolve(process.cwd(), 'node_modules/.nexy-temp'), { recursive: true, force: true })
-  console.log('[nexy] Entries generated successfully')
+  // console.log('[nexy] Entries generated successfully')
 }
 
 generateEntries().then(() => process.exit(0)).catch(err => {
