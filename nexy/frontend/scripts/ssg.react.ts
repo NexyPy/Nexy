@@ -99,7 +99,8 @@ export async function run(): Promise<number> {
         html = renderToString(createElement(Component as any, jinjaProps))
         html = restoreJinjaVars(html, propPaths)
       } catch (e) {
-        console.error(`${c.red} Failed to render ${entryId}:${c.reset}`, e)
+        // console.error(`${c.red} Failed to render ${entryId}:${c.reset}`, e)
+        console.error(`${c.red} Failed to render  ${entryId}${c.reset} in server`)
         continue
       }
 
