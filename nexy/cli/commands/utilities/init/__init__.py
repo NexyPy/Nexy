@@ -1,0 +1,2 @@
+class InitProject:
+    pass

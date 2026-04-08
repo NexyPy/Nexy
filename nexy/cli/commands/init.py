@@ -13,10 +13,7 @@ def init(
         "-t",
         help="Initialize from a registered template (silent clone).",
     )
-) -> None:
-    
-    # On vérifie si le projet est déjà initialisé (présence de fichiers de config nexy)
-    # On ignore le dossier .venv car nexy peut être installé localement dedans avant l'init
+) -> None: 
     already = Path("__nexy__").exists() or Path("nexyconfig.py").exists() or Path("vite.config.ts").exists()
     if already:
         console.print("[red]nexy[/red] » " + t("init.already", "Project already initialized here"))

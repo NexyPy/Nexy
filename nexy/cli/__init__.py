@@ -5,17 +5,26 @@ from nexy.cli.commands import dev, init, start, build
 from nexy.utils.console import console
 from nexy.i18n import t
 
-version = __Version__().get()
+VERSION = __Version__().get()
 
 CLI = typer.Typer(help=t("cli.help", "Nexy CLI"))
 
-@CLI.callback(invoke_without_command=True)
-def main(ctx: typer.Context):
-    """Main entry point executed when no command is provided."""
-    if ctx.invoked_subcommand is None:
-        console.print(version)
-        typer.echo(f" {t('cli.no_command', 'Use nx/nexy --help to see commands.')}")
 
+
+@CLI.callback(invoke_without_command=True)
+def main(
+    ctx: typer.Context,
+    version: bool = typer.Option(False, "--version", "-v", help="Show version")
+    ) -> None:
+    """Main entry point executed when no command is provided."""
+
+    if version:
+        console.print(f"[green]nexy[/green] {VERSION}")
+        raise typer.Exit()
+    
+    if ctx.invoked_subcommand is None:
+        console.print(VERSION)
+        typer.echo(f" {t('cli.no_command', 'Use nx/nexy --help to see commands.')}")
 
 CLI.command()(dev)
 CLI.command()(start)

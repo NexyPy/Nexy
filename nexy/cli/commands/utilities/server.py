@@ -6,6 +6,7 @@ from typing import Optional
 import uvicorn as _uvicorn
 from nexy.core.config import Config
 from nexy.cli.commands.utilities.find_port import find_port
+from nexy.utils import console
 from nexy.utils.ports import get_client_port
 
 
@@ -48,32 +49,51 @@ class Server:
         run_host = host or "127.0.0.1"
         run_port = port or 3000
         
-        # On s'assure que le dossier temporaire existe pour d'autres usages
-        Path("__nexy__").mkdir(exist_ok=True)
+        try:
+            # Ensure temporary directory exists
+            Path("__nexy__").mkdir(exist_ok=True)
 
-        if as_process:
-            # On génère un mini-script pour lancer uvicorn avec la config importée
-            # Cela permet de garder les classes (Filter/Formatter) actives
-            launcher_code = (
-                "import uvicorn\n"
-                "from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG\n"
-                f"uvicorn.run('nexy.routers.app:_server', host='{run_host}', port={run_port}, "
-                "log_config=NEXY_LOG_CONFIG, log_level='info')"
-            )
+            if as_process:
+                # Generate a mini-launcher to preserve Nexy's logging configuration
+                launcher_code = (
+                    "import uvicorn\n"
+                    "try:\n"
+                    "    from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG\n"
+                    f"    uvicorn.run('nexy.routers.app:_server', host='{run_host}', port={run_port}, "
+                    "log_config=NEXY_LOG_CONFIG, log_level='info')\n"
+                    "except Exception as e:\n"
+                    "    print(f'Critical error in Nexy subprocess: {e}')\n"
+                )
+                
+                return subprocess.Popen(
+                    [sys.executable, "-c", launcher_code],
+                    stdout=None,  # Inherit terminal for direct logging
+                    stderr=subprocess.STDOUT
+                )
             
-            return subprocess.Popen([sys.executable, "-c", launcher_code])
-        
-        else:
-            # Import local pour éviter les cycles d'import si nécessaire
-            from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG
-            
-            _uvicorn.run(
-                "nexy.routers.app:_server", 
-                host=run_host, 
-                port=run_port, 
-                log_config=NEXY_LOG_CONFIG,
-                log_level="info" # On force info car notre filtre s'occupe du reste
-            )
+            else:
+                # Blocking mode (Standard)
+                try:
+                    from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG
+                    
+                    _uvicorn.run(
+                        "nexy.routers.app:_server", 
+                        host=run_host, 
+                        port=run_port, 
+                        log_config=NEXY_LOG_CONFIG,
+                        log_level="info"
+                    )
+                except ImportError:
+                    console.print("[red]✘ Error:[/red] Could not find [bold]NEXY_LOG_CONFIG[/bold].")
+                except Exception as e:
+                    console.print(f"[red]✘ Server launch failed:[/red] {e}")
+                
+                return None
+
+        except PermissionError:
+            console.print(f"[red]✘ Error:[/red] Insufficient permissions to create [bold]__nexy__[/bold] directory.")
+        except Exception as e:
+            console.print(f"[red]✘ An unexpected error occurred:[/red] {e}")
             return None
 
     @staticmethod
