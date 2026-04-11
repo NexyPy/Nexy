@@ -11,8 +11,8 @@ Nexy 2 transforms the development experience by masking complex architectural pa
 Mastering Nexy involves three essential pillars:
 
 ### 1. The .nexy Format (Polyglot Component)
-The fundamental unit of Nexy is the `.nexy` file. Unlike traditional frameworks, it allows for a fluid composition of multiple languages:
-- **Header (Python)**: Defined within `---` blocks, this is where you declare properties (`prop`) and import components (whether they are `.nexy`, `.vue`, `.tsx`, or even Python functions).
+While Nexy is fully functional for pure backend development (FastAPI-based APIs), the `.nexy` file is its powerful optional unit for building fullstack interfaces. It allows for a fluid composition of multiple languages:
+- **Header (Python)**: Defined within `---` blocks, this is where you declare properties (`prop`) and import components (whether they are `.nexy`, `.vue`, `.tsx`, `.mdx`, or even Python functions).
 - **Template (HTML/Jinja2)**: The structure of your component, rendered server-side with the power of Jinja2.
 - **Script & Style (Optional)**: Integrate JavaScript/TypeScript or CSS (Tailwind native) directly into your component. These blocks are extracted and optimized by Vite.
 
@@ -52,8 +52,8 @@ The `nx` command-line tool centralizes your development workflow:
 - `nx dev`: Starts both the FastAPI server and the Vite dev server in parallel.
 - `nx build`: Compiles your assets for optimized production deployment.
 
-### VS Code Extension
-A dedicated extension (LSP) is included in the repository to provide a first-class development experience: real-time diagnostics, prop and import auto-completion, and contextual snippets.
+### VS Code Extension (Alpha)
+A dedicated extension (LSP) is included in the repository (currently in **Alpha**) to provide a first-class development experience: real-time diagnostics, prop and import auto-completion, and contextual snippets.
 
 ## Getting Started
 

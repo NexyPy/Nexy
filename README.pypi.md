@@ -11,8 +11,8 @@ Nexy 2 transforme l'expérience de développement en masquant la complexité arc
 L'apprentissage de Nexy repose sur trois piliers essentiels :
 
 ### 1. Le Format .nexy (Composant Polyglotte)
-L'unité de base de Nexy est le fichier `.nexy`. Contrairement aux frameworks traditionnels, il permet une composition fluide de plusieurs langages :
-- **Header (Python)** : Délimité par `---`, c'est ici que vous définissez vos propriétés (`prop`) et importez vos composants (qu'ils soient `.nexy`, `.vue`, `.tsx`, ou même des fonctions Python).
+Bien que Nexy soit pleinement fonctionnel pour du développement backend pur (APIs basées sur FastAPI), le fichier `.nexy` est son unité optionnelle et puissante pour bâtir des interfaces fullstack. Contrairement aux frameworks traditionnels, il permet une composition fluide de plusieurs langages :
+- **Header (Python)** : Délimité par `---`, c'est ici que vous définissez vos propriétés (`prop`) et importez vos composants (qu'ils soient `.nexy`, `.vue`, `.tsx`, `.mdx`, ou même des fonctions Python).
 - **Template (HTML/Jinja2)** : La structure de votre composant, rendue côté serveur avec la puissance de Jinja2.
 
 
@@ -49,8 +49,8 @@ L'outil `nx` centralise vos commandes de développement :
 - `nx build` ou `nexy build` : Compile vos assets pour une mise en production optimisée.
 - `nx start` ou ``nexy start` : lance le serveur Nexy pour la production et sans vite en parrallèle 
 
-### Extension VS Code
-Une extension dédiée (LSP) est incluse dans le dépôt pour offrir une expérience de développement de premier plan : diagnostics en temps réel, auto-complétion des props et des imports, et snippets contextuels.
+### Extension VS Code (Alpha)
+Une extension dédiée (LSP) est incluse dans le dépôt (actuellement en version **Alpha**) pour offrir une expérience de développement de premier plan : diagnostics en temps réel, auto-complétion des props et des imports, et snippets contextuels.
 
 ## Démarrage Rapide
 
