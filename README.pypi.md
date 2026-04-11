@@ -1,60 +1,58 @@
 # Nexy
 
-Nexy est un meta-framework Python Fullstack conçu pour simplifier la création d'applications web modernes. En combinant la robustesse de FastAPI avec la flexibilité des outils frontend actuels (Vite, React, Vue, Svelte, Solid), Nexy 2 permet de bâtir des interfaces riches et performantes au sein d'un écosystème Python unifié.
+Nexy is a modular fullstack meta-framework designed to simplify modern web development. By bridging the gap between FastAPI backends and Vite-powered frontend ecosystems (React, Vue, Svelte, Solid.js), Nexy 2 allows you to build rich, interactive applications within a unified Python environment.
 
-## La vision de Nexy 2
+## The Nexy 2 Vision
 
-Nexy 2 transforme l'expérience de développement en masquant la complexité architecturale derrière une interface intuitive. Le framework gère l'orchestration entre le serveur Python et le client JavaScript, vous permettant de vous concentrer exclusivement sur la logique métier et l'interface utilisateur.
+Nexy 2 transforms the development experience by masking complex architectural patterns behind an intuitive interface. The framework handles the orchestration between the Python server and the JavaScript client, allowing you to focus exclusively on business logic and UI.
 
-## Concepts Fondamentaux
+## Core Concepts
 
-L'apprentissage de Nexy repose sur trois piliers essentiels :
+Mastering Nexy involves three essential pillars:
 
-### 1. Le Format .nexy (Composant Polyglotte)
-Bien que Nexy soit pleinement fonctionnel pour du développement backend pur (APIs basées sur FastAPI), le fichier `.nexy` est son unité optionnelle et puissante pour bâtir des interfaces fullstack. Contrairement aux frameworks traditionnels, il permet une composition fluide de plusieurs langages :
-- **Header (Python)** : Délimité par `---`, c'est ici que vous définissez vos propriétés (`prop`) et importez vos composants (qu'ils soient `.nexy`, `.vue`, `.tsx`, `.mdx`, ou même des fonctions Python).
-- **Template (HTML/Jinja2)** : La structure de votre composant, rendue côté serveur avec la puissance de Jinja2.
-
+### 1. The .nexy Format (Polyglot Component)
+While Nexy is fully functional for pure backend development (FastAPI-based APIs), the `.nexy` file is its powerful optional unit for building fullstack interfaces. It allows for a fluid composition of multiple languages:
+- **Header (Python)**: Defined within `---` blocks, this is where you declare properties (`prop`) and import components (whether they are `.nexy`, `.vue`, `.tsx`, `.mdx`, or even Python functions).
+- **Template (HTML/Jinja2)**: The structure of your component, rendered server-side with the power of Jinja2.
 
 ```html
 ---
-# Logique de définition (Python)
-title : prop[str] = "Composant Nexy"
+# Definition Logic (Python)
+title : prop[str] = "Nexy Component"
 from "@/components/Card.nexy" import Card
-from nexy import Vite  # Injection automatique des assets
+from nexy import Vite  # Automatic asset injection
 ---
-<!-- Rendu Serveur (Jinja2) -->
+<!-- Server Rendering (Jinja2) -->
 <div class="p-6 bg-white rounded-xl shadow-lg">
     <h1 class="text-2xl font-bold">{{ title }}</h1>
-    <Card content="Je peux contenir d'autres composants." />
+    <Card content="I can contain other components." />
 </div>
-
 ```
 
-### 2. Routage Hybride et Intelligent
-Nexy s'adapte à la taille de votre projet :
-- **File-Based Routing** : La structure de `src/routes/` définit vos URLs (ex: `index.nexy` -> `/`).
-- **Module-Based Routing** : Pour les architectures d'entreprise, utilisez une approche modulaire inspirée de NestJS.
-- **Rendu Hybride** : Mélangez pages statiques et routes API dynamiques dans un même projet.
+### 2. Intelligent Hybrid Routing
+Nexy scales with your project size:
+- **File-Based Routing**: Your `src/routes/` directory structure defines your URLs (e.g., `index.nexy` -> `/`).
+- **Module-Based Routing**: For enterprise architectures, use a modular approach inspired by NestJS.
+- **Hybrid Rendering**: Mix static pages and dynamic API routes within the same project.
 
-### 3. Écosystème Unifié via Vite
-Nexy n'impose pas de framework client. Vous pouvez importer et utiliser des composants React, Vue, Svelte ou Solid directement dans vos templates Nexy. Le pipeline de build Vite s'occupe de tout, garantissant des performances optimales et une configuration zéro.
+### 3. Unified Ecosystem via Vite
+Nexy is framework-agnostic. You can import and use React, Vue, Svelte, or Solid.js components directly within your Nexy templates. The Vite build pipeline handles everything, ensuring optimal performance and zero configuration.
 
-## Outillage et Développement
+## Tooling and Development
 
-### CLI Nexy (nx)
-L'outil `nx` centralise vos commandes de développement :
-- `nx init` ou `nexy init` : Initialise un projet nexy 
-- `nx dev` ou `nexy dev` : Lance le serveur Nexy pour le developpement avec Vite en parallèle.
-- `nx build` ou `nexy build` : Compile vos assets pour une mise en production optimisée.
-- `nx start` ou ``nexy start` : lance le serveur Nexy pour la production et sans vite en parrallèle 
+### Nexy CLI (nx)
+The `nx` command-line tool centralizes your development workflow:
+- `nx init` or `nexy init`: Initializes a Nexy project.
+- `nx dev` or `nexy dev`: Starts the Nexy server for development with Vite in parallel.
+- `nx build` or `nexy build`: Compiles your assets for optimized production deployment.
+- `nx start` or `nexy start`: Starts the Nexy server for production without Vite in parallel.
 
-### Extension VS Code (Alpha)
-Une extension dédiée (LSP) est incluse dans le dépôt (actuellement en version **Alpha**) pour offrir une expérience de développement de premier plan : diagnostics en temps réel, auto-complétion des props et des imports, et snippets contextuels.
+### VS Code Extension (Alpha)
+A dedicated extension (LSP) is included in the repository (currently in **Alpha**) to provide a first-class development experience: real-time diagnostics, prop and import auto-completion, and contextual snippets.
 
-## Démarrage Rapide
+## Getting Started
 
-### Pré-requis
+### Prerequisites
 - Python 3.10+
 - Node.js 18+
 
@@ -63,21 +61,21 @@ Une extension dédiée (LSP) est incluse dans le dépôt (actuellement en versio
 pip install nexy
 ```
 
-### Initialisation
+### Project Initialization
 ```bash
 nexy init
 ```
-L'assistant interactif vous permettra de choisir votre framework frontend préféré et d'activer Tailwind CSS.
+The interactive assistant will help you choose your preferred frontend framework and enable Tailwind CSS.
 
-### Lancement
+### Run
 ```bash
 nexy dev
 ```
 
-## Sécurité et Fiabilité
-- **Typage Strict** : Utilisation de Pydantic pour la validation des données et des props.
-- **Protection Native** : Auto-escaping Jinja2 contre les failles XSS.
-- **Architecture Durable** : Respect des principes SOLID pour faciliter la maintenance à long terme.
+## Security and Reliability
+- **Strict Typing**: Pydantic integration for robust data and prop validation.
+- **Native Protection**: Automatic Jinja2 character escaping against XSS vulnerabilities.
+- **Architectural Integrity**: Built on SOLID principles for long-term maintainability.
 
-## Licence
-Distribué sous licence MIT.
+## License
+Distributed under the MIT License.
