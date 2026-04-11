@@ -12,6 +12,6 @@ __all__ = [
     "Form",
     "Import",
     "Template",
-    "Vite"
+    "Vite",
     "app"
 ]

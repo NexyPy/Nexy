@@ -1,9 +1,14 @@
 [project]
 name = "nexy"
 version = "2.0.0b8"
-description = "nexy"
+description = "The Modern Fullstack Python Meta-Framework: Build high-performance web apps ."
 readme = "README.pypi.md"
 requires-python = ">=3.10"
+keywords = [
+    "python", "fastapi", "fullstack", "meta-framework", "vite", "react", "vue", "svelte", "solid", "jinja2", 
+    "ssr", "web-development", "nextjs-alternative", "astro-alternative", "modern-web", "dx", 
+    "frontend-agnostic", "python-ssr", "vite-python", "web-framework"
+]
 
 dependencies = [
     "fastapi>=0.128.0",
