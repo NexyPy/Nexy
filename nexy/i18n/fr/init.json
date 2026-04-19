@@ -36,6 +36,18 @@
     "next_steps": "Étapes suivantes :",
     "failed": "Échec de l'initialisation : {error}",
     "template_not_found": "Le template ou la branche '{branch}' n'existe pas sur le dépôt distant.",
-    "checkout_failed": "Échec de l'extraction des fichiers depuis le template '{path}'."
+    "checkout_failed": "Échec de l'extraction des fichiers depuis le template '{path}'.",
+    "initializing": "Initialisation de {name}...",
+    "success_title": "Projet initialisé avec succès !",
+    "happy_coding": "Bon codage avec Nexy !",
+    "step_run_dev": "Démarrer le serveur de développement",
+    "step_help": "Explorer les commandes disponibles",
+    "installing_node": "Installation des dépendances Node.js...",
+    "node_installed": "Dépendances Node.js installées.",
+    "node_install_failed": "Échec de l'installation des dépendances Node.js. Veuillez lancer '{cmd}' manuellement.",
+    "node_manager_not_found": "Aucun gestionnaire de paquets Node.js trouvé (npm, pnpm, yarn). Veuillez installer les dépendances manuellement.",
+    "installing_python": "Installation des dépendances Python...",
+    "python_installed": "Dépendances Python installées.",
+    "python_install_failed": "Échec de l'installation des dépendances Python. Veuillez les installer manuellement."
   }
 }

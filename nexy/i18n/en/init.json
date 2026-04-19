@@ -36,6 +36,18 @@
     "next_steps": "Next steps:",
     "failed": "Initialization failed: {error}",
     "template_not_found": "The template or branch '{branch}' was not found on the remote repository.",
-    "checkout_failed": "Failed to extract files from template '{path}'."
+    "checkout_failed": "Failed to extract files from template '{path}'.",
+    "initializing": "Initializing {name}...",
+    "success_title": "Project initialized successfully!",
+    "happy_coding": "Happy coding with Nexy!",
+    "step_run_dev": "Start the development server",
+    "step_help": "Explore available commands",
+    "installing_node": "Installing Node.js dependencies...",
+    "node_installed": "Node.js dependencies installed.",
+    "node_install_failed": "Failed to install Node.js dependencies. Please run '{cmd}' manually.",
+    "node_manager_not_found": "No Node.js package manager found (npm, pnpm, yarn). Please install dependencies manually.",
+    "installing_python": "Installing Python dependencies...",
+    "python_installed": "Python dependencies installed.",
+    "python_install_failed": "Failed to install Python dependencies. Please install them manually."
   }
 }

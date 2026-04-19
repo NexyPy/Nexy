@@ -1,9 +1,9 @@
 [project]
 name = "nexy"
-version = "2.0.1"
+version = "2.0.2"
 description = "The Modern Fullstack Python Meta-Framework: Build high-performance web apps ."
 readme = "README.pypi.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 keywords = [
     "python", "fastapi", "fullstack", "meta-framework", "vite", "react", "vue", "svelte", "solid", "jinja2", 
     "ssr", "web-development", "nextjs-alternative", "astro-alternative", "modern-web", "dx", 
@@ -56,6 +56,4 @@ target-version = "py312"
 testpaths = ["tests"]
 
 [tool.uv.workspace]
-members = [
-    "templates",
-]
+members = []

@@ -1,7 +1,0 @@
----
-className : prop[str] 
-caller :prop[callable]
----
-<div class="p-5 space-y-3 rounded-xl border border-border-second relative bg-background-second/5 text-foreground-second backdrop-blur-xs  transition-all duration-300 {{className}}">    
-    {{caller()}}
-</div>

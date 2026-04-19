@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: nexy-app
-Version: 0.1.0
-Summary: A Nexy Web App
-Requires-Python: >=3.12
-Requires-Dist: nexy>=2.0.0
