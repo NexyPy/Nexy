@@ -87,6 +87,29 @@ class GitClone:
             if has_user_git:
                 self._restore_git_repo()
 
+    def _move_subdir_to_root(self, root: Path, subdir: Path) -> None:
+        """Moves all contents from a subdirectory to the root and removes the subdirectory."""
+        source = root / subdir
+        if not source.exists():
+            return
+            
+        for item in source.iterdir():
+            target = root / item.name
+            if target.exists():
+                if target.is_dir():
+                    shutil.rmtree(target, ignore_errors=True)
+                else:
+                    target.unlink()
+            shutil.move(str(item), str(root))
+            
+        # Remove empty parent dirs of the subdir
+        current = source
+        while current != root:
+            parent = current.parent
+            shutil.rmtree(current, ignore_errors=True)
+            current = parent
+            if any(current.iterdir()):
+                break
 
     def _cleanup_git(self, dest: Path) -> None:
 
