@@ -1,6 +1,6 @@
 [project]
 name = "nexy"
-version = "2.0.0b8"
+version = "2.0.1"
 description = "The Modern Fullstack Python Meta-Framework: Build high-performance web apps ."
 readme = "README.pypi.md"
 requires-python = ">=3.10"
