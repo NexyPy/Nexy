@@ -14,6 +14,7 @@ class GitClone:
         self.repo = "https://github.com/NexyPy/nexy.git"
         self.branch = "master" # Templates are in the master branch of the nexy repo
         self.dest = Path(".")
+        self.is_windows = os.name == "nt"
 
     def _is_empty_dir(self, path: Path) -> bool:
         return not any(path.iterdir())
@@ -42,7 +43,14 @@ class GitClone:
             ]
             for cmd in init_cmds:
                 try:
-                    subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                    subprocess.run(
+                        cmd, 
+                        cwd=dest.as_posix(), 
+                        capture_output=True, 
+                        text=True, 
+                        check=True,
+                        shell=self.is_windows
+                    )
                 except subprocess.CalledProcessError as e:
                     if "fetch" in cmd and e.returncode == 128:
                         raise Exception(t("init.template_not_found", "Template or branch '{branch}' not found on remote.").format(branch=branch))
@@ -55,7 +63,14 @@ class GitClone:
                 # Checkout the subdir contents to the root
                 checkout_cmd = ["git", "checkout", "FETCH_HEAD", "--", checkout_path]
                 try:
-                    subprocess.run(checkout_cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                    subprocess.run(
+                        checkout_cmd, 
+                        cwd=dest.as_posix(), 
+                        capture_output=True, 
+                        text=True, 
+                        check=True,
+                        shell=self.is_windows
+                    )
                 except subprocess.CalledProcessError:
                     raise Exception(t("init.checkout_failed", "Failed to extract files from template '{path}'.").format(path=checkout_path))
                 
@@ -72,7 +87,14 @@ class GitClone:
                 ]
                 for cmd in merge_cmds:
                     try:
-                        subprocess.run(cmd, cwd=dest.as_posix(), capture_output=True, text=True, check=True)
+                        subprocess.run(
+                            cmd, 
+                            cwd=dest.as_posix(), 
+                            capture_output=True, 
+                            text=True, 
+                            check=True,
+                            shell=self.is_windows
+                        )
                     except subprocess.CalledProcessError:
                         raise Exception(t("init.checkout_failed", "Failed to extract files from template '{path}'.").format(path=checkout_path))
                 
@@ -93,7 +115,16 @@ class GitClone:
         if not source.exists():
             return
             
+        excluded = ["build", "dist", ".venv", "node_modules", "__pycache__"]
+            
         for item in source.iterdir():
+            if item.name in excluded:
+                if item.is_dir():
+                    shutil.rmtree(item, ignore_errors=True)
+                else:
+                    item.unlink()
+                continue
+                
             target = root / item.name
             if target.exists():
                 if target.is_dir():
