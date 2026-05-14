@@ -35,3 +35,310 @@ children:prop[NexyElement]
 </body>
 
 </html>
+
+<script defer>
+(() => {
+
+    /*
+    |--------------------------------------------------------------------------
+    | CACHE & STATE
+    |--------------------------------------------------------------------------
+    */
+
+    const PAGES_CACHE = new Map()
+    const PREFETCHED = new Set()
+
+    const supportsViewTransition =
+        typeof document.startViewTransition === "function"
+
+    /*
+    |--------------------------------------------------------------------------
+    | UTILITIES
+    |--------------------------------------------------------------------------
+    */
+
+    function getURL(link) {
+        try {
+            return new URL(link.href)
+        } catch {
+            return null
+        }
+    }
+
+    function isSameOrigin(url) {
+        return url && url.origin === location.origin
+    }
+
+    function shouldHandleLink(link) {
+
+        if (link.target === "_blank") return false
+        if (link.hasAttribute("download")) return false
+
+        const url = getURL(link)
+
+        if (!url) return false
+        if (url.protocol === "mailto:" || url.protocol === "tel:") return false
+
+        return isSameOrigin(url)
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VIEWPORT PREFETCH
+    |--------------------------------------------------------------------------
+    */
+
+    const observer = new IntersectionObserver((entries) => {
+
+        entries.forEach(entry => {
+
+            if (!entry.isIntersecting) return
+
+            const link = entry.target
+            const url = getURL(link)
+
+            if (!url) return
+
+            const key = url.pathname + url.search
+
+            if (PREFETCHED.has(key)) {
+                observer.unobserve(link)
+                return
+            }
+
+            PREFETCHED.add(key)
+            fetchPage(url)
+
+            observer.unobserve(link)
+        })
+
+    }, {
+        rootMargin: "300px"
+    })
+
+    /*
+    |--------------------------------------------------------------------------
+    | INIT LINKS
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initLinks(document)
+    })
+
+    function initLinks(root) {
+
+        const links = root.querySelectorAll("[prefetchlink]")
+
+        links.forEach(link => {
+
+            if (!shouldHandleLink(link)) return
+
+            const url = getURL(link)
+            if (!url) return
+
+            const key = url.pathname + url.search
+
+            /*
+            |--------------------------------------------------------------
+            | VIEWPORT PREFETCH
+            |--------------------------------------------------------------
+            */
+
+            observer.observe(link)
+
+            /*
+            |--------------------------------------------------------------
+            | HOVER PREFETCH
+            |--------------------------------------------------------------
+            */
+
+            link.addEventListener("mouseenter", () => {
+
+                if (PREFETCHED.has(key)) return
+
+                PREFETCHED.add(key)
+                fetchPage(url)
+
+            }, { passive: true })
+
+            /*
+            |--------------------------------------------------------------
+            | CLICK NAVIGATION
+            |--------------------------------------------------------------
+            */
+
+            link.addEventListener("click", navigate)
+        })
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FETCH PAGE
+    |--------------------------------------------------------------------------
+    */
+
+    async function fetchPage(url) {
+
+        const key = url.pathname + url.search
+
+        if (PAGES_CACHE.has(key)) {
+            return PAGES_CACHE.get(key)
+        }
+
+        try {
+
+            const response = await fetch(url.href, {
+                headers: {
+                    "X-Prefetch": "true"
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`)
+            }
+
+            const html = await response.text()
+
+            PAGES_CACHE.set(key, html)
+
+            return html
+
+        } catch (err) {
+
+            console.error("Prefetch error:", err)
+            return null
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGE TRANSITION SWAP
+    |--------------------------------------------------------------------------
+    */
+
+    function swapContent(newMain, currentMain) {
+
+        const update = () => {
+            currentMain.innerHTML = newMain.innerHTML
+        }
+
+        if (supportsViewTransition) {
+
+            document.startViewTransition(() => {
+                update()
+            })
+
+        } else {
+            update()
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAVIGATION
+    |--------------------------------------------------------------------------
+    */
+
+    async function navigate(event) {
+
+        event.preventDefault()
+
+        const link = event.currentTarget
+        const url = getURL(link)
+
+        if (!url) return
+
+        const key = url.pathname + url.search
+
+        try {
+
+            let html = PAGES_CACHE.get(key)
+
+            if (!html) {
+                html = await fetchPage(url)
+            }
+
+            if (!html) {
+                window.location.href = url.href
+                return
+            }
+
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(html, "text/html")
+
+            const newMain = doc.querySelector("main")
+            const currentMain = document.querySelector("main")
+
+            if (!newMain || !currentMain) {
+                window.location.href = url.href
+                return
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | PAGE TRANSITION SWAP
+            |--------------------------------------------------------------------------
+            */
+
+            swapContent(newMain, currentMain)
+
+            /*
+            |--------------------------------------------------------------------------
+            | UPDATE STATE
+            |--------------------------------------------------------------------------
+            */
+
+            document.title = doc.title
+            history.pushState({}, "", url.href)
+
+            window.scrollTo({
+                top: 0,
+                behavior: "instant"
+            })
+
+            initLinks(document)
+
+        } catch (err) {
+
+            console.error("Navigation error:", err)
+            window.location.href = url.href
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | POPSTATE
+    |--------------------------------------------------------------------------
+    */
+
+    window.addEventListener("popstate", async () => {
+
+        const url = new URL(location.href)
+        const key = url.pathname + url.search
+
+        let html = PAGES_CACHE.get(key)
+
+        if (!html) {
+            html = await fetchPage(url)
+        }
+
+        if (!html) return
+
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, "text/html")
+
+        const newMain = doc.querySelector("main")
+        const currentMain = document.querySelector("main")
+
+        if (!newMain || !currentMain) return
+
+        swapContent(newMain, currentMain)
+
+        document.title = doc.title
+
+        initLinks(document)
+    })
+
+})()
+</script>

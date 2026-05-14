@@ -16,8 +16,6 @@ export default defineConfig({
     output: {
       format: 'esm',
     },
-    // Ne pas mettre 'react' en external si tu veux que Vite 
-    // l'inclue proprement dans le bundle généré
     external: [], 
   }
   }

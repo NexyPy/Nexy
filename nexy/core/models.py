@@ -65,6 +65,7 @@ class ComponentType(Enum):
     SVELTE = "svelte"
     REACT = "react"
     JSON = "json"
+    MDX = "mdx"
     UNKNOWN = "unknown"
 
 

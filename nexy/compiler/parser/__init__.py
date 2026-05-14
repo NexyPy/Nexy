@@ -59,8 +59,24 @@ class Parser:
         
         jinja_code = self.template_parser.parse(blocks.template_block, known_components=known_components)
         if current_file.endswith(".mdx"):
-            jinja_code = markdown.markdown(jinja_code, extensions=self.config.MARKDOWN_EXTENSIONS)
             jinja_code = self._clean_jinja_wrapping(jinja_code)
+            jinja_code = jinja_code.replace("{%", "<startblock>").replace("%}","</endblock>")
+            jinja_code = markdown.markdown(jinja_code, 
+                                           extensions=self.config.MARKDOWN_EXTENSIONS,
+                                           extension_configs={
+                                                "pymdownx.highlight": {
+
+                                                    # IMPORTANT
+                                                    "pygments_lang_class": True,
+
+                                                    "linenums": False,
+                                                    
+                                                }
+                                                
+                                            },
+                                           )
+            jinja_code = jinja_code.replace("<startblock>", "{%").replace("</endblock>", "%}")
+            jinja_code = jinja_code.replace("<p>{%", "{%").replace("%}</p>", "%}")
 
         return PaserModel(
             frontmatter=logic_result.python_code,

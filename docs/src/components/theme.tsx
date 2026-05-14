@@ -4,32 +4,39 @@ type ThemeMode = 'light' | 'dark' | 'system';
 
 const Theme = () => {
     const [active, setActive] = useState<ThemeMode>(() => {
-        return (localStorage.getItem('nexy-theme') as ThemeMode) || 'system';
+        if (typeof window !== 'undefined') {
+
+            return (localStorage.getItem('nexy-theme') as ThemeMode) || 'system';
+        }
+        return "system"
     });
 
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const root = document.documentElement;
-        localStorage.setItem('nexy-theme', active);
+        if (typeof window !== 'undefined') {
+            const root = document.documentElement;
+            localStorage.setItem('nexy-theme', active);
 
-        const applyTheme = (isDark: boolean) => {
-            if (isDark) {
-                root.style.colorScheme = 'dark';
-                root.classList.add('dark');
+            const applyTheme = (isDark: boolean) => {
+                if (isDark) {
+                    root.style.colorScheme = 'dark';
+                    root.classList.add('dark');
+                } else {
+                    root.style.colorScheme = 'light';
+                    root.classList.remove('dark');
+                }
+            };
+
+            if (active === 'system') {
+                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(systemDark);
+
             } else {
-                root.style.colorScheme = 'light';
-                root.classList.remove('dark');
+                applyTheme(active === 'dark');
             }
-        };
-
-        if (active === 'system') {
-            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyTheme(systemDark);
-
-        } else {
-            applyTheme(active === 'dark');
         }
+
     }, [active]);
 
     useLayoutEffect(() => {

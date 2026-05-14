@@ -1,23 +1,25 @@
 ---
 from "@/components/card.nexy" import Card
+from "@/components/link.nexy" import Link
 from "@/components/background.nexy" import Background
+from "./heroright.mdx" import Heroright
 
 ---
 <section
     class="relative w-container flex-1   overflow-hidden  md:grid place-content-center md:border-x border-dashed border-x-border  py-6.5 px-4 sm:px-6 md:px-16 lg:p-24 lg:px-20 bg-background-second ">
-    <Background className="z-0 absolute bottom-20 -right-50 opacity-30 scale-90" />
+    <Background className="z-0 absolute -bottom-10 -right-20 opacity-30 scale-90 " />
     <aside class=" w-full md:w-fit md:flex-1 flex flex-col md:flex-row gap-6 items-center justify-center ">
         <div
             class="w-full lg:w-1/2 h-fit md:h-full flex flex-col justify-between  p-8 gap-6 border-[1.34px] md:border-dashed  border-gray-500/30 rounded-4xl corner hover:rounded-5xl hover:border-4 hover:border-double hover:bg-[hsl(180,8%,3%)]/2 transition-all duration-300">
             <div class="flex gap-4 items-center ">
                 <p class="text-white/70 text-xs border border-white/40 rounded-full w-fit px-2 py-1">Try It Before</p>
 
-                <a class="rounded-full w-fit h-6 border border-green-500/40 block  overflow-hidden"
+                <Link className="rounded-full w-fit h-6 border border-green-500/40 block  overflow-hidden"
                     target="_blank"
                     href="https://pepy.tech/projects/nexy"><img class="h-6"
                         src="https://static.pepy.tech/personalized-badge/nexy?period=total&units=INTERNATIONAL_SYSTEM&left_color=BRIGHTGREEN&right_color=BLUE&left_text=downloads"
                         alt="PyPI Downloads">
-                </a>
+                </Link>
             </div>
 
             <div class="flex-1 text-white space-y-6">
@@ -30,8 +32,9 @@ from "@/components/background.nexy" import Background
                 
             </div>
             <div class="flex items-center gap-4 ">
-                    <a href="/docs"
-                        class="bg-white text-black font-medium w-fit flex items-center gap-2 px-6 py-3 rounded-full corner">
+                    <Link href="/docs"
+                        className="bg-white text-black font-medium w-fit flex items-center gap-2 px-6 py-3 rounded-full corner"
+                    >
                         <span>Get started</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5 " viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,10 +50,10 @@ from "@/components/background.nexy" import Background
                             <path d="M21 9v2" />
                             <path d="M3 14v1" />
                         </svg>
-                    </a>
+                    </Link>
 
-                    <a href="https://github.com/NexyPy/nexy.git" target="_blank"
-                        class="border border-white/40 text-white  w-fit md:flex  hidden items-center gap-2 px-6 py-3 rounded-full corner">
+                    <Link href="https://github.com/NexyPy/nexy.git" target="_blank"
+                        className="border border-white/40 text-white  w-fit md:flex  hidden items-center gap-2 px-6 py-3 rounded-full corner">
                         <span>View on Github</span>
                         <svg width="20" height="20" class="size-4.5 hidden md:block" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"
                             stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
@@ -59,7 +62,7 @@ from "@/components/background.nexy" import Background
                                 d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
                             <path d="M9 18c-4.51 2-5-2-7-2" />
                         </svg>
-                    </a>
+                    </Link>
                 </div>
         </div>
         </div>
@@ -71,75 +74,7 @@ from "@/components/background.nexy" import Background
         </div>
         <section class=" w-full md:w-1/2 flex flex-col gap-4  z-1">
 
-            <a href="https://github.com/NexyPy/nexy" target="_blank">
-                <Card className="hover:bg-[hsl(193,46%,29%)]/10  hover:rounded-2xl hover:border-dashed">
-                    <svg class="absolute top-2 right-2 size-5 text-white/80" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
-                        <path d="M7 7h10v10" />
-                        <path d="M7 17 17 7" />
-                    </svg>
-
-                    <h2
-                        class="text-white uppercase text-base font-mono tracking-widest font-semibold flex gap-3 items-center">
-                        <svg class="size-4 " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-book-text-icon lucide-book-text">
-                            <path
-                                d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-                            <path d="M8 11h8" />
-                            <path d="M8 7h6" />
-                        </svg>
-                        Documentation
-                    </h2>
-                    <p class="text-gray-300 font-light  text-base leading-5.5 tracking-wider"
-                        style="align-self: stretch">
-                        Maîtrisez les API de routage et les stratégies de rendu hybride pour bâtir des applications Nexy
-                        haute performance.
-                    </p>
-                </Card>
-            </a>
-            <a href="https://github.com/NexyPy/nexy" target="_blank">
-                <Card className="hover:bg-[hsl(193,46%,29%)]/10  hover:rounded-2xl hover:border-dashed">
-                    <svg class="absolute top-2 right-2 size-5 text-white/80" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
-                        <path d="M7 7h10v10" />
-                        <path d="M7 17 17 7" />
-                    </svg>
-                    <h2
-                        class="text-white uppercase text-base font-mono tracking-widest font-semibold  flex gap-3 items-center">
-                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                            <path d="M9 18c-4.51 2-5-2-7-2" />
-                        </svg>
-                        Communauté & Open Source
-                    </h2>
-                    <p class="text-gray-300 font-light  text-base leading-5.5 tracking-wider"
-                        style="align-self: stretch">
-                        Le futur de Nexy se construit avec vous. Parcourez le code source, proposez des fonctionnalités
-                        ou soumettez votre première Pull Request.
-                    </p>
-                </Card>
-            </a>
-            <Card className="bg-yellow-300 border-yellow-300 text-gray-950">
-                <h2 class="uppercase text-base font-mono tracking-widest font-semibold flex gap-3 items-center">
-                    <svg class="size-4.5 " viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path
-                            d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                    </svg>
-                    Démarrage rapide
-                </h2>
-                <p class=" font-light  text-base leading-5.5 tracking-wider" style="align-self: stretch">
-                    Éditez <code class="text-gray-600 py-0.5 px-1.5  bg-yellow-400/64">src/routes/index.nexy</code> pour
-                    commencer l'aventure.
-                </p>
-            </Card>
-
+            <Heroright/>
         </section>
     </aside>
 

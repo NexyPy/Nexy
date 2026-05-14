@@ -7,7 +7,7 @@ class NexyConfig(NexyConfigModel):
     useFF = [react(), vue()]
     # useFF = [ vue()]
     useAliases: dict[str, str] = {"@": "src/components"}
-    # useRouter =AppModule
+    useRouter =AppModule
     usePort: int = 3000
     useHost: str = "0.0.0.0"
     useTitle: str = "Nexy gh"

@@ -170,7 +170,8 @@ class LogicParser:
             ".svelte": ComponentType.SVELTE,
             ".tsx": ComponentType.REACT,
             ".jsx": ComponentType.REACT,
-            ".json": ComponentType.JSON
+            ".json": ComponentType.JSON,
+            ".mdx": ComponentType.MDX
         }
         
         # 1. Priority to file extension

@@ -12,7 +12,7 @@ if current_dir not in sys.path:
 class Config:
     ALIASES: dict[str, str] = {}
     NAMESPACE: str = "__nexy__/"
-    MARKDOWN_EXTENSIONS: list[str] = ["extra", "codehilite"]
+    MARKDOWN_EXTENSIONS: list[str] = ["extra","tables","fenced_code","codehilite","toc","admonition","attr_list","pymdownx.highlight","pymdownx.superfences","pymdownx.inlinehilite","pymdownx.details","pymdownx.tabbed"]
     TARGET_EXTENSIONS: list[str] = [".nexy", ".mdx"]
     FF_REGISTRY: dict[str, object] = {}
     ROUTE_FILE_EXTENSIONS: list[str] = [".nexy", ".mdx", ".py"]
