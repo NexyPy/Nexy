@@ -18,50 +18,6 @@ import {
   c
 } from './utils'
 
-async function loadModule(file: string): Promise<Record<string, any>> {
-  const tempDir = path.resolve(process.cwd(), 'node_modules/.nexy-temp')
-  fs.mkdirSync(tempDir, { recursive: true })
-
-  const timestamp = Date.now()
-  const ext = path.extname(file)
-  const fileName = path.basename(file, ext)
-  const absoluteFile = path.resolve(process.cwd(), file)
-  const outFile = path.join(tempDir, `${fileName}-${timestamp}.mjs`)
-
-  const { default: viteSolidPlugin } = await import('vite-plugin-solid')
-
-  await build({
-    logLevel: 'silent',
-    configFile: false,
-    plugins: [
-      viteSolidPlugin({
-        ssr: true  // ← forcer SSR
-      })
-    ],
-    build: {
-      ssr: true,
-      outDir: path.dirname(outFile),
-      emptyOutDir: false,
-      rollupOptions: {
-        input: { [fileName]: absoluteFile },
-        output: {
-          entryFileNames: `${fileName}-${timestamp}.mjs`,
-          format: 'esm'
-        },
-        external: ['solid-js', 'solid-js/web', 'solid-js/store']
-      }
-    }
-  })
-
-  if (!fs.existsSync(outFile)) {
-    throw new Error(` Vite failed to produce output for ${fileName}`)
-  }
-
-  const mod = await import(`${pathToFileURL(outFile).href}?t=${timestamp}`)
-  fs.rmSync(outFile, { force: true })
-  return mod
-}
-
 export async function run(): Promise<number> {
   const manifest = getManifest()
   const files = glob.sync('**/*.{tsx,jsx}', {
@@ -70,6 +26,52 @@ export async function run(): Promise<number> {
   }).filter(f => detectTsxFramework(path.resolve(process.cwd(), f)) === 'solid')
 
   if (!files.length) return 0
+
+  // --- Batch SSR build: one Vite build for all components ---
+  const tempDir = path.resolve(process.cwd(), 'node_modules/.nexy-temp-ssg')
+  fs.mkdirSync(tempDir, { recursive: true })
+  const timestamp = Date.now()
+  const entries: Record<string, string> = {}
+
+  for (let i = 0; i < files.length; i++) {
+    entries[`_c${i}`] = path.resolve(process.cwd(), files[i])
+  }
+
+  const { default: viteSolidPlugin } = await import('vite-plugin-solid')
+  await build({
+    logLevel: 'silent',
+    configFile: false,
+    plugins: [
+      viteSolidPlugin({
+        ssr: true
+      })
+    ],
+    build: {
+      ssr: true,
+      outDir: tempDir,
+      emptyOutDir: true,
+      rollupOptions: {
+        input: entries,
+        output: {
+          entryFileNames: `[name].mjs`,
+          format: 'esm'
+        },
+        external: ['solid-js', 'solid-js/web', 'solid-js/store']
+      }
+    }
+  })
+
+  const modules = new Map<string, Record<string, any>>()
+  for (let i = 0; i < files.length; i++) {
+    const outFile = path.join(tempDir, `_c${i}.mjs`)
+    if (fs.existsSync(outFile)) {
+      const mod = await import(`${pathToFileURL(outFile).href}?t=${timestamp}`)
+      modules.set(files[i], mod)
+    }
+  }
+
+  fs.rmSync(tempDir, { recursive: true, force: true })
+  // --- End batch SSR build ---
 
   const snippets: Record<string, string> = {}
 
@@ -81,11 +83,9 @@ export async function run(): Promise<number> {
     const propPaths = extractPropPaths(path.resolve(process.cwd(), file))
     const jinjaProps = createJinjaProps(propPaths)
 
-    let mod: Record<string, any>
-    try {
-      mod = await loadModule(file)
-    } catch (err) {
-      console.error(`${c.red} Failed to load ${file}:${c.reset}`, err)
+    const mod = modules.get(file)
+    if (!mod) {
+      console.error(`${c.red} Failed to load ${file}${c.reset}`)
       continue
     }
 
@@ -109,7 +109,6 @@ export async function run(): Promise<number> {
     }
   }
 
-  fs.rmSync(path.resolve(process.cwd(), 'node_modules/.nexy-temp'), { recursive: true, force: true })
   saveSnippets(snippets)
   return Object.keys(snippets).length
 }
