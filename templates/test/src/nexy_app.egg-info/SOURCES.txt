@@ -1,8 +1,0 @@
-pyproject.toml
-src/__init__.py
-src/nexy_app.egg-info/PKG-INFO
-src/nexy_app.egg-info/SOURCES.txt
-src/nexy_app.egg-info/dependency_links.txt
-src/nexy_app.egg-info/requires.txt
-src/nexy_app.egg-info/top_level.txt
-src/routes/__init__.py

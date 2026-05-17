@@ -1,0 +1,29 @@
+---
+from "@/components/codeblock.nexy" import Codeblock
+
+---
+
+<Codeblock tabs='{{["index.nexy", "users.py","dependencies.py"]}}'>
+```python
+from src.services.users import UserService
+from src.models.users import User
+
+user_service = UserService()
+
+def GET(id: int):
+    user = user_service.get_by_id(id)
+    return user
+
+def POST(user: User):
+    response = user_service.create(user)
+    return response
+    
+```
+</Codeblock>
+
+<Codeblock tabs='{{["uv", "poetry","pip"]}}'>
+```bash
+uv init && uvx nexy init
+```
+</Codeblock>
+

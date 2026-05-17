@@ -1,9 +1,84 @@
-def useNexyRender(path):
-    pass
 
-def useWebHook(path):
-    pass
+import importlib
+import traceback
+from typing import Optional, Dict, Any
+
+from fastapi import Request
+from fastapi.responses import HTMLResponse
+
+from nexy.core.config import Config
+from nexy.core.string import StringTransform
+from nexy import Vite, Import as __Import
+str_tools = StringTransform()
 
 
-def UseStorage():
-    pass
+
+
+def _get_req() -> Request:
+    from .routers.context import current_request
+    req = current_request.get()
+    if not req:
+        raise RuntimeError(
+            "Navigation hooks can only be called within the context of an HTTP request."
+        )
+    return req
+
+
+def usePathname() -> str:
+    return _get_req().url.path
+
+
+def useSearchParams() -> dict:
+    return dict(_get_req().query_params)
+
+
+def useRouter() -> dict:
+    req = _get_req()
+    return {
+        "path": req.url.path,
+        "base_url": str(req.base_url),
+        "url_for": req.app.url_for if req.app else None
+    }
+
+
+def useQuery() -> dict:
+    return _get_req().path_params
+
+
+def useSession() -> dict:
+    return getattr(_get_req(), "session", {})
+
+
+def useCookies() -> dict:
+    return _get_req().cookies
+
+
+PYTHON_VIEWS = (".nexy", ".mdx")
+FRONTEND_VIEWS = (".tsx", ".vue", ".svelte", ".jsx")
+
+def useViews(path: str, context: Optional[Dict[str, Any]] = None) -> HTMLResponse:
+    ctx = context or {}
+
+    if path.endswith(PYTHON_VIEWS):
+        mapped = str_tools.normalize_route_path_for_namespace(path)
+        import_path = f"{Config.NAMESPACE}{mapped}".replace("/", ".").rsplit(".", 1)[0]
+
+        try:      
+            module = importlib.import_module(import_path)
+            
+            file_name = path.split("/")[-1].split(".", 1)[0]
+            func_name = str_tools.get_component_name(file_name)
+            component_func = getattr(module, func_name)
+            return HTMLResponse(Vite() + component_func(**ctx))
+            
+        except (ImportError, AttributeError) as e:
+            traceback.print_exc()
+            raise ValueError(f"Failed to load module or function for path: {path}") from e
+
+    elif any(ext in path for ext in FRONTEND_VIEWS): 
+        func_name = __Import(path=path, framework='react', symbol='default')()
+        # return HTMLResponse(Vite() + func_name)
+        raise NotImplementedError("Frontend view rendering is not implemented yet.")
+
+    else:
+        raise ValueError(f"Unsupported view type for path: {path}")

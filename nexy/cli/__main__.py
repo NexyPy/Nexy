@@ -2,6 +2,7 @@ from . import CLI
 
 
 def main() -> None:
+    
     CLI()
 
 

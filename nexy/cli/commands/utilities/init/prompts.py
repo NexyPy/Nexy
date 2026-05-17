@@ -1,13 +1,14 @@
 import questionary
+from typing import Any
 from nexy.i18n import t
 
 class ProjectPrompter:
     """Handles all interactive questions for project initialization."""
 
-    def __init__(self):
-        self.config = {}
+    def __init__(self) -> None:
+        self.config: dict[str, Any] = {}
 
-    def ask_all(self) -> dict:
+    def ask_all(self) -> dict[str, Any]:
         """Runs the full questionnaire and returns the configuration dictionary."""
         self.ask_router()
         self.ask_project_type()

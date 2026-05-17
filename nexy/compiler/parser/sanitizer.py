@@ -1,3 +1,4 @@
+from ast import alias
 import os
 import re
 import pathlib
@@ -10,7 +11,7 @@ class LogicSanitizer:
     Handles custom import syntaxes like 'from "./file.nexy" import Comp' 
     or 'import "./data.json" as data' and converts them to valid Python code.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.aliases = Config.ALIASES
         self.namespace = Config.NAMESPACE
         
@@ -71,7 +72,6 @@ class LogicSanitizer:
         """
         # 1. Transform 'from "path" import targets'
         source = self.RE_NEXY_FROM.sub(lambda m: self._replace_from(m, current_file), source)
-        
         # 2. Transform 'import "path" [as alias]'
         source = self.RE_NEXY_IMPORT.sub(lambda m: self._replace_import(m, current_file), source)
         
@@ -82,7 +82,7 @@ class LogicSanitizer:
         # Replace non-alphanumeric characters with underscores
         return re.sub(r'[^a-zA-Z0-9_]', '_', name)
 
-    def _replace_from(self, match: Match, current_file: str) -> str:
+    def _replace_from(self, match: Match[str], current_file: str) -> str:
         """Callback for 'from "path" import targets' transformation."""
         path_str = match.group("path")
         targets_raw = match.group("targets")
@@ -92,10 +92,10 @@ class LogicSanitizer:
         targets = self._clean_targets(targets_raw)
 
         # --- LOGIC (Nexy / Python) ---
-        if ext in ('.nexy', '.py') or ext == '':
-            is_nexy = ext == '.nexy'
+        if ext in ('.nexy', '.py', '.mdx', ''):
+            is_nexy = ext in (".nexy", ".mdx")
             prefix = f"{self.namespace.replace('/', '.')}" if is_nexy else ""
-            module_name = re.sub(r'\.nexy$|\.py$', '', full_rel_path)
+            module_name = re.sub(r'\.nexy$|\.py$|\.mdx$', '', full_rel_path)
             module_name = re.sub(r'\.+', '.', module_name.replace("/", ".")).strip(".")
             module_name = prefix + module_name
             return f"from {module_name} import {', '.join(targets)}"
@@ -116,7 +116,7 @@ class LogicSanitizer:
 
         return "\n".join(import_lines)
 
-    def _replace_import(self, match: Match, current_file: str) -> str:
+    def _replace_import(self, match: Match[str], current_file: str) -> str:
         """Callback for 'import "path" [as alias]' transformation."""
         path_str = match.group("path")
         alias = match.group("alias")
@@ -129,12 +129,65 @@ class LogicSanitizer:
             alias = self._normalize_alias(pathlib.Path(full_rel_path).stem)
 
         # --- LOGIC (Nexy / Python) ---
-        if ext in ('.nexy', '.py') or ext == '':
-            is_nexy = ext == '.nexy'
-            prefix = f"{self.namespace.replace('/', '.')}" if is_nexy else ""
-            module_name = re.sub(r'\.nexy$|\.py$', '', full_rel_path)
-            module_name = re.sub(r'\.+', '.', module_name.replace("/", ".")).strip(".")
-            module_name = prefix + module_name
+        if ext in (".nexy", ".py", ".mdx", ""):
+            is_nexy_module = ext in (".nexy", ".mdx")
+
+            prefix = ""
+
+            if is_nexy_module and self.namespace:
+
+                prefix = (
+                    self.namespace
+                    .replace("\\", "/")
+                    .replace("/", ".")
+                    .strip(".")
+                )
+
+                if prefix:
+                    prefix += "."
+
+            # remove extension
+            module_name = re.sub(
+                r"\.(nexy|py|mdx)$",
+                "",
+                full_rel_path
+            )
+
+            # normalize path
+            module_name = (
+                module_name
+                .replace("\\", "/")
+                .replace("/", ".")
+                .strip(".")
+            )
+
+            # remove duplicated dots
+            module_name = re.sub(
+                r"\.+",
+                ".",
+                module_name
+            )
+
+            # validate module name
+            if not re.match(
+                r"^[a-zA-Z_][a-zA-Z0-9_\.]*$",
+                module_name
+            ):
+                raise ValueError(
+                    f"Invalid module name: {module_name}"
+                )
+
+            # validate alias
+            if not re.match(
+                r"^[a-zA-Z_][a-zA-Z0-9_]*$",
+                alias
+            ):
+                raise ValueError(
+                    f"Invalid alias: {alias}"
+                )
+
+            module_name = f"{prefix}{module_name}"
+
             return f"import {module_name} as {alias}"
 
         # --- RUNTIME (JSON, VUE, etc.) ---

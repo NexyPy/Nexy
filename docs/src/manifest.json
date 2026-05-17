@@ -1,0 +1,410 @@
+{
+  "ar": [
+    {
+      "title": "البدء",
+      "items": [
+        {
+          "label": "التثبيت",
+          "href": "/docs/ar//"
+        },
+        {
+          "label": "البدء السريع",
+          "href": "/docs/ar//"
+        }
+      ]
+    },
+    {
+      "title": "الهندسة المعمارية",
+      "items": [
+        {
+          "label": "النموذج الذهني",
+          "href": "/docs/ar//"
+        },
+        {
+          "label": "مكونات الخادم مقابل العميل",
+          "href": "/docs/ar//"
+        }
+      ]
+    },
+    {
+      "title": "التوجيه",
+      "items": [
+        {
+          "label": "نظرة عامة",
+          "href": "/docs/ar//"
+        },
+        {
+          "label": "معالجة الأخطاء",
+          "href": "/docs/ar//"
+        }
+      ]
+    },
+    {
+      "title": "المكونات الأساسية",
+      "items": [
+        {
+          "label": "ملف .nexy",
+          "href": "/docs/ar//nexy"
+        },
+        {
+          "label": "التدويل",
+          "href": "/docs/ar//"
+        }
+      ]
+    },
+    {
+      "title": "التكامل",
+      "items": [
+        {
+          "label": "React",
+          "href": "/docs/ar//react"
+        }
+      ]
+    },
+    {
+      "title": "المراجع",
+      "items": [
+        {
+          "label": "CLI",
+          "href": "/docs/ar//cli"
+        },
+        {
+          "label": "التكوين",
+          "href": "/docs/ar//"
+        },
+        {
+          "label": "API",
+          "href": "/docs/ar//api"
+        }
+      ]
+    }
+  ],
+  "en": [
+    {
+      "title": "Getting Started",
+      "items": [
+        {
+          "label": "Installation",
+          "href": "/docs/en/getting-started/installation"
+        },
+        {
+          "label": "Quick Start",
+          "href": "/docs/en/getting-started/quick-start"
+        }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "items": [
+        {
+          "label": "Mental Model",
+          "href": "/docs/en/architecture/mental-model"
+        },
+        {
+          "label": "Server vs Client",
+          "href": "/docs/en/architecture/server-vs-client"
+        }
+      ]
+    },
+    {
+      "title": "Routing",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/docs/en/routing/overview"
+        }
+      ]
+    },
+    {
+      "title": "Building Blocks",
+      "items": [
+        {
+          "label": "Nexy File",
+          "href": "/docs/en/building-blocks/nexy-file"
+        }
+      ]
+    },
+    {
+      "title": "Integrations",
+      "items": [
+        {
+          "label": "React",
+          "href": "/docs/en/integrations/react"
+        }
+      ]
+    },
+    {
+      "title": "Reference",
+      "items": [
+        {
+          "label": "CLI",
+          "href": "/docs/en/reference/cli"
+        },
+        {
+          "label": "API",
+          "href": "/docs/en/reference/api"
+        },
+        {
+          "label": "ConfigurationModels",
+          "href": "/docs/en/reference/configurationmodels"
+        },
+        {
+          "label": "NexyApplication",
+          "href": "/docs/en/reference/nexyapplication"
+        },
+        {
+          "label": "Routing",
+          "href": "/docs/en/reference/routing"
+        },
+        {
+          "label": "Templates",
+          "href": "/docs/en/reference/templates"
+        }
+      ]
+    }
+  ],
+  "fr": [
+    {
+      "title": "Démarrage",
+      "items": [
+        {
+          "label": "Installation",
+          "href": "/docs/fr/d-marrage/installation"
+        },
+        {
+          "label": "Quick Start",
+          "href": "/docs/fr/d-marrage/quick-start"
+        }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "items": [
+        {
+          "label": "Mental Model",
+          "href": "/docs/fr/architecture/mental-model"
+        },
+        {
+          "label": "Serveur vs Client",
+          "href": "/docs/fr/architecture/serveur-vs-client"
+        }
+      ]
+    },
+    {
+      "title": "Routage",
+      "items": [
+        {
+          "label": "Aperçu",
+          "href": "/docs/fr/routage/aper-u"
+        },
+        {
+          "label": "Gestion des Erreurs",
+          "href": "/docs/fr/routage/gestion-des-erreurs"
+        }
+      ]
+    },
+    {
+      "title": "Composants de Base",
+      "items": [
+        {
+          "label": "Fichier .nexy",
+          "href": "/docs/fr/composants-de-base/fichier-nexy"
+        },
+        {
+          "label": "Internationalisation",
+          "href": "/docs/fr/composants-de-base/internationalisation"
+        }
+      ]
+    },
+    {
+      "title": "Intégrations",
+      "items": [
+        {
+          "label": "React",
+          "href": "/docs/fr/int-grations/react"
+        }
+      ]
+    },
+    {
+      "title": "Référence",
+      "items": [
+        {
+          "label": "CLI",
+          "href": "/docs/fr/r-f-rence/cli"
+        },
+        {
+          "label": "Configuration",
+          "href": "/docs/fr/r-f-rence/configuration"
+        },
+        {
+          "label": "API",
+          "href": "/docs/fr/r-f-rence/api"
+        }
+      ]
+    }
+  ],
+  "hi": [
+    {
+      "title": "शुरू करना",
+      "items": [
+        {
+          "label": "स्थापना",
+          "href": "/docs/hi//"
+        },
+        {
+          "label": "क्विक स्टार्ट",
+          "href": "/docs/hi//"
+        }
+      ]
+    },
+    {
+      "title": "आर्किटेक्चर",
+      "items": [
+        {
+          "label": "मेंटल मॉडल",
+          "href": "/docs/hi//"
+        },
+        {
+          "label": "सर्वर बनाम क्लाइंट घटक",
+          "href": "/docs/hi//"
+        }
+      ]
+    },
+    {
+      "title": "रूटिंग",
+      "items": [
+        {
+          "label": "अवलोकन",
+          "href": "/docs/hi//"
+        },
+        {
+          "label": "मॉड्यूल और कंट्रोलर",
+          "href": "/docs/hi//"
+        },
+        {
+          "label": "त्रुटि प्रबंधन",
+          "href": "/docs/hi//"
+        }
+      ]
+    },
+    {
+      "title": "मुख्य घटक",
+      "items": [
+        {
+          "label": ".nexy फ़ाइल",
+          "href": "/docs/hi//nexy"
+        },
+        {
+          "label": "अंतर्राष्ट्रीयकरण",
+          "href": "/docs/hi//"
+        }
+      ]
+    },
+    {
+      "title": "एकीकरण",
+      "items": [
+        {
+          "label": "React",
+          "href": "/docs/hi//react"
+        }
+      ]
+    },
+    {
+      "title": "संदर्भ",
+      "items": [
+        {
+          "label": "CLI",
+          "href": "/docs/hi//cli"
+        },
+        {
+          "label": "कॉन्फ़िगरेशन",
+          "href": "/docs/hi//"
+        },
+        {
+          "label": "API",
+          "href": "/docs/hi//api"
+        }
+      ]
+    }
+  ],
+  "zh": [
+    {
+      "title": "入门",
+      "items": [
+        {
+          "label": "安装",
+          "href": "/docs/zh//"
+        },
+        {
+          "label": "快速开始",
+          "href": "/docs/zh//"
+        }
+      ]
+    },
+    {
+      "title": "架构",
+      "items": [
+        {
+          "label": "思维模型",
+          "href": "/docs/zh//"
+        },
+        {
+          "label": "服务端 vs 客户端组件",
+          "href": "/docs/zh//vs"
+        }
+      ]
+    },
+    {
+      "title": "路由",
+      "items": [
+        {
+          "label": "概览",
+          "href": "/docs/zh//"
+        },
+        {
+          "label": "错误处理",
+          "href": "/docs/zh//"
+        }
+      ]
+    },
+    {
+      "title": "核心组件",
+      "items": [
+        {
+          "label": ".nexy 文件",
+          "href": "/docs/zh//nexy"
+        },
+        {
+          "label": "国际化",
+          "href": "/docs/zh//"
+        }
+      ]
+    },
+    {
+      "title": "集成",
+      "items": [
+        {
+          "label": "React",
+          "href": "/docs/zh//react"
+        }
+      ]
+    },
+    {
+      "title": "参考",
+      "items": [
+        {
+          "label": "CLI",
+          "href": "/docs/zh//cli"
+        },
+        {
+          "label": "配置",
+          "href": "/docs/zh//"
+        },
+        {
+          "label": "API",
+          "href": "/docs/zh//api"
+        }
+      ]
+    }
+  ]
+}

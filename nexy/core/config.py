@@ -8,15 +8,18 @@ from nexy.core.models import NexyConfigModel
 current_dir = os.getcwd()
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
+# class Config(NexyConfigModel):
+
+
 
 class Config:
     ALIASES: dict[str, str] = {}
     NAMESPACE: str = "__nexy__/"
-    MARKDOWN_EXTENSIONS: list[str] = ["extra", "codehilite"]
+    MARKDOWN_EXTENSIONS: list[str] = ["extra","tables","fenced_code","codehilite","toc","admonition","attr_list","pymdownx.highlight","pymdownx.superfences","pymdownx.inlinehilite","pymdownx.details","pymdownx.tabbed"]
     TARGET_EXTENSIONS: list[str] = [".nexy", ".mdx"]
     FF_REGISTRY: dict[str, object] = {}
     ROUTE_FILE_EXTENSIONS: list[str] = [".nexy", ".mdx", ".py"]
-    ROUTE_FILE_EXCEPTIONS: list[str] = ["__init__.py", "layout.nexy"]
+    ROUTE_FILE_EXCEPTIONS: list[str] = ["__init__.py", "layout.nexy","dependencies.py"]
     ROUTE_FILE_DEFAULT: list[str] = ["index.py", "index.nexy", "index.mdx"]
     PROJECT_ROOT: str = "."
     ROUTER_PATH: str = "src/routes"

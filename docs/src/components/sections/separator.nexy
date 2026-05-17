@@ -1,0 +1,9 @@
+---
+horizontal:prop[bool] = False
+className:prop[str] = ""
+---
+<ul class=" {{ "w-72" if horizontal else "md:flex w-72 md:w-fit md:h-72 mx-auto " }} {{ className }}">
+    {% for _ in range(20) %}
+     <li class="{{"w-full border-t" if horizontal else "w-full md:w-fit md:h-full  border-t md:border-l "}} border-border border-dotted rounded-xs corner"></li>
+    {% endfor %}
+</ul>

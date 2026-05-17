@@ -1,0 +1,75 @@
+---
+from "@/components/background.nexy" import Background
+---
+<section class="overflow-hidden">
+    <aside class="relative w-full w-container px-6 md:px-16 py-24 space-y-4 ">
+        <Background className="-z-10 rotate-y-180 absolute -bottom-20 -right-50 opacity-20 scale-110" />
+        <Background className="-z-10 rotate-x-180 absolute -top-20 -left-50 opacity-20 scale-110" />
+
+        <h2 class="text-3xl font-medium">What is Nexy ?</h2>
+        <p class="text-base font-light max-w-xl leading-6">
+            Nexy is a Python web framework optimized for building fast, content-driven
+            websites, API services, and more.
+        </p>
+        <div class="space-y-4 md:space-y-0 md:grid grid-cols-3 mt-12 z">
+            <div
+                class=" p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] md:rounded-br-none corder ">
+                <div class="bg-linear-150 to-[#119f6b] from-[#00D084] p-6 rounded-4xl corder space-y-3 ">
+                    <h3 class="text-xl font-medium">Server-First</h3>
+                    <p>
+                        Nexy improves website performance by rendering components on the server, sending lightweight
+                        HTML to the browser by using Python
+                    </p>
+                </div>
+            </div>
+            <div
+                class='gap-[.6px] md:hidden  mx-auto flex md:flex-col opacity-30 dark:opacity-100 w-[80%] md:w-fit   md:h-98 lg:max-h-112 overflow-hidden  '>
+                {% for x in range(380) %}
+                <div class='border-r md:border-r-0 md:border-b border-border  md:w-16 w-0 md:h-0 h-6'></div>
+                {% endfor %}
+            </div>
+            <div class="hidden md:grid place-content-center ">
+                <svg width="112" height="109" viewBox="0 0 112 109" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M73.3037 1H73.9023V1.5752L90.9102 17.918L108.608 34.7314C109.602 35.6754 110.165 36.9859 110.165 38.3564V103C110.165 105.761 107.926 108 105.165 108H76.9023C74.1409 108 71.9023 105.761 71.9023 103V37.6396H39.2627V103C39.2627 105.761 37.0241 108 34.2627 108H6C3.23857 108 1 105.761 1 103V72.0713L1.00684 71.8115C1.07386 70.5197 1.63973 69.2997 2.59082 68.4131L9.30176 62.1572L9.30273 62.1562L37.2627 36.2031V6C37.2627 3.23864 39.5014 1.0001 42.2627 1H71.9023V-0.347656L73.3037 1Z"
+                        stroke="url(#paint0_linear_1890_8950)" stroke-width="2" />
+                    <defs>
+                        <linearGradient id="paint0_linear_1890_8950" x1="99.8325" y1="83.0579" x2="36.8325" y2="23.8079"
+                            gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#00D084" />
+                            <stop offset="1" stop-color="#61ABED" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+            </div>
+            <div
+                class=" p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] md:rounded-bl-none corder ">
+                <div
+                    class="border border-[#7AA7DA] bg-linear-150 to-[#4d80a1] from-[#7AA7DA] p-6 rounded-4xl corder space-y-3 ">
+                    <h3 class="text-xl font-medium">Customizable</h3>
+                    <p>
+                        Extend Nexy with your favorite tools. Bring your own JavaScript UI components, CSS libraries,
+                        themes, integrations, and more.
+                    </p>
+                </div>
+            </div>
+            <div
+                class='gap-[.6px] md:hidden  mx-auto flex md:flex-col opacity-30 dark:opacity-100 w-[80%] md:w-fit   md:h-98 lg:max-h-112 overflow-hidden  '>
+                {% for x in range(380) %}
+                <div class='border-r md:border-r-0 md:border-b border-border  md:w-16 w-0 md:h-0 h-6'></div>
+                {% endfor %}
+            </div>
+            <div
+                class=" p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] md:rounded-t-none corder col-start-2 ">
+                <div class="bg-linear-150 to-[#119f6b] from-[#00D084] p-6 rounded-4xl corder space-y-3 ">
+                    <h3 class="text-xl font-medium">Content-Driven</h3>
+                    <p>
+                        Nexy was designed to work with your content, no matter where it lives. Load data from your file
+                        system, external API, or your favorite CMS.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+</section>

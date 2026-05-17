@@ -1,0 +1,25 @@
+---
+src = """https://cdn.dribbble.com/userupload/21654101/file/original-b78035e70995d79d73418a7a668076eb.jpg?resize=752x564&vertical=center"""
+src = """https://cdn.dribbble.com/userupload/47594505/file/a5197266701f4116e5f60a7498d8bcfb.png?resize=2048x1536&vertical=center"""
+#src = """https://cdn.dribbble.com/userupload/47596559/file/daa4e447d47855799be55b27a314bffa.png?resize=2048x1537&vertical=center"""
+---
+
+<article class=" w-full h-fit p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] corder ">
+    <div
+        style="background-image: url({{src}}); background-size: cover; background-position:center -1px; background-repeat: no-repeat;"
+        class="min-h-80 p-2 border border-border overflow-hidden relative flex flex-col justify-end  bg-linear-to-b from-white/56 to-white/96 text-black  rounded-4xl corder  backdrop-blur-xl ">
+
+        <div class="flex justify-between items-center p-4  backdrop-blur-sm bg-background/76 text-foreground border border-border rounded-3xl corner ">
+
+            <div>
+                <h3 class="text-lg font-medium">Muse</h3>
+            <p class="text-xs tracking-wide font-mono">
+                Marketing & Media
+            </p>
+            </div>
+            <div class="size-10 border border-border grid place-content-center rounded-2xl corner">
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"/><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h2"/><path d="M14 3h1"/><path d="M3 9v1"/><path d="M21 9v2"/><path d="M3 14v1"/></svg>
+            </div>
+        </div>
+    </div>
+</article>

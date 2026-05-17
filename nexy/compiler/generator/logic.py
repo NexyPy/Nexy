@@ -2,8 +2,10 @@ import ast
 import textwrap
 import re
 from pathlib import Path
+from typing import *
 from nexy.core.models import PaserModel
 from nexy.core.string import StringTransform
+from nexy.routers.fbrouter.layout import RouteLayout
 
 
 class LogicGenerator:
@@ -14,128 +16,88 @@ class LogicGenerator:
         self.template_path: str = ""
         self.FRONTMATTER: str = ""
         self._string_transform = StringTransform()
+        self.source_path: str = None
     
-    def generate(
-            self,
-            template_path: str,
-            source: PaserModel,
-            )-> None:
+    def generate(self, template_path: str, source: PaserModel, source_path:str = None) -> None:
         self.source = source
-        
+        self.source_path = source_path
         self.template_path = template_path
         names = template_path.split("/")
-        length = len(names) - 1
-        stem = names[length].replace(".md", "").replace(".html", "")
+        stem = names[-1].replace(".md", "").replace(".html", "")
         raw_name = self._string_transform.get_component_name(stem)
-        # Normalize function name for Python
+        
         self.func_name = re.sub(r'[^a-zA-Z0-9_]', '_', raw_name)
         
         if template_path.endswith(".html"):
-            self.output = template_path.replace(".html",".py")
-        else :
-            self.output = template_path.replace(".md",".py")
-        
+            self.output = template_path.replace(".html", ".py")
+        else:
+            self.output = template_path.replace(".md", ".py")
+
         self.FRONTMATTER = self._component_model()
         with open(self.output, "w", encoding="utf-8") as file:
             file.write(self.FRONTMATTER)
 
     def _resolve_props(self) -> str:
+        assert self.source is not None
         if not self.source.props:
             return ""
-        parts = [f"{p.name}: {p.type} = {p.default}" for p in self.source.props]
-        return ", ".join(parts)
+        return ", ".join([f"{p.name}: {p.type} = {p.default}" for p in self.source.props])
 
     def _component_model(self) -> str:
-        LOGIC = self.source.frontmatter
-        LOGIC = textwrap.indent(LOGIC, "    ")
+        assert self.source is not None
+        LOGIC = textwrap.indent(self.source.frontmatter, "    ")
         props = self._resolve_props()
-        is_layout = self.template_path.endswith("layout.html") or self.template_path.endswith("layout.md")
+    
+        is_layout_file = self.source_path.endswith("layout.nexy")
+        layout_import = RouteLayout.get_closest_import(self.source_path, is_layout=is_layout_file)
+        
+        layout_header = ""
+        render_wrapper = "rendered"
+        layout_children = ""
+        
+        if layout_import:
+            layout_header = f"from {layout_import} import Layout as __Layout\n"
+            render_wrapper = "str(__Layout(children=rendered))"
+        # -----------------------
 
-        # Build an explicit context dict (no locals()) by collecting
-        # prop names, top-level identifiers, AND imported names
-        # Handles all Python import cases: simple, aliases, wildcards, relative, etc.
-        names = []
+        if is_layout_file :
+            layout_children = f"""children = f"<nslot  style='display:contents;'>{"{children}"}</nslot>" """
+
+        # Extraction des identifiants Python (AST)
+        idents = set()
         try:
             tree = ast.parse(self.source.frontmatter)
-            idents = set()
             for node in tree.body:
-                # Handle all import types
                 if isinstance(node, ast.ImportFrom):
-                    # from module import name [as alias]
-                    # from . import module
-                    # from .. import module
-                    # from module import *
                     for alias in node.names:
-                        if alias.name == '*':
-                            # Wildcard import: from module import *
-                            # Can't determine names, skip
-                            continue
-                        # Use alias if present, otherwise use imported name
-                        imported_name = alias.asname if alias.asname else alias.name
-                        # Handle dotted names (from x.y.z import name -> name)
-                        if '.' in imported_name:
-                            imported_name = imported_name.split('.')[-1]
-                        if imported_name and not imported_name.startswith('_'):
-                            idents.add(imported_name)
-                
+                        if alias.name != '*':
+                            idents.add(alias.asname if alias.asname else alias.name)
                 elif isinstance(node, ast.Import):
-                    # import module [as alias]
-                    # import module1, module2 [as a1, a2]
-                    # import .relative
-                    # import ..relative
                     for alias in node.names:
-                        # Use alias if present, otherwise use first part of module name
-                        imported_name = alias.asname if alias.asname else alias.name
-                        # For 'import a.b.c' -> use 'a' unless aliased
-                        if '.' in imported_name and not alias.asname:
-                            imported_name = imported_name.split('.')[0]
-                        if imported_name and not imported_name.startswith('_'):
-                            idents.add(imported_name)
-                
-                # Assign targets
+                        idents.add(alias.asname if alias.asname else alias.name.split('.')[0])
                 elif isinstance(node, ast.Assign):
                     for t in node.targets:
-                        if isinstance(t, ast.Name):
-                            idents.add(t.id)
-                        elif isinstance(t, ast.Tuple):
-                            for el in t.elts:
-                                if isinstance(el, ast.Name):
-                                    idents.add(el.id)
-                
-                # Function and class definitions
+                        if isinstance(t, ast.Name): idents.add(t.id)
                 elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                     idents.add(node.name)
-        except Exception:
-            idents = set()
+        except: pass
 
-        # Include props (they are function parameters) and collected idents
-        prop_names = [p.name for p in self.source.props]
-        for n in prop_names:
-            idents.add(n)
-
-        # Filter and order for stable output
+        for p in self.source.props: idents.add(p.name)
         names = [n for n in sorted(idents) if not n.startswith('_')]
-
+        
         context_items = ", ".join([f'"{n}": {n}' for n in names])
+        Slot = ""
+        if "src/routes/" not in self.source_path:
+            Slot = "Slot = caller if caller else lambda: ''"
+            context_items = context_items + ", 'Slot':Slot" if context_items != "" else "'Slot':Slot"   
+            props = props+ ", caller:Union[callable, None] = None" if props != "" else "caller:Union[callable, None] = None"
 
-        # Handle CSS imports: read content and wrap in <style>
+        # Gestion CSS
         css_blocks = []
         for css_path in self.source.styles:
-            try:
-                # Resolve CSS path relative to project root
-                p = Path(css_path)
-                if not p.is_absolute():
-                    # Attempt to find it
-                    if not p.exists():
-                        # Try relative to current working directory or src
-                        p = Path.cwd() / css_path
-                
-                if p.exists():
-                    content = p.read_text(encoding="utf-8")
-                    css_blocks.append(f"<style>\n{content}\n</style>")
-            except Exception:
-                continue
-        
+            p = Path(css_path)
+            if p.exists():
+                css_blocks.append(f"<style>\n{p.read_text(encoding='utf-8')}\n</style>")
         css_injection = "\n".join(css_blocks)
 
         return f"""from typing import *
@@ -144,14 +106,16 @@ from pathlib import Path as __Path
 from nexy import Template as __Template , Import as __Import
 from jinja2 import Template as __JinjaTemplate
 NexyElement = Union[callable, __JinjaTemplate]
-
+{layout_header}
 def {self.func_name}({props}) -> str:
-    {'\r'+LOGIC}
-    
+    {Slot}
+{LOGIC}
+    {layout_children}
     context = {{{context_items}}}
     rendered = str(__Template().render("{self.template_path}", context))
     styles = \"\"\"{css_injection}\"\"\"
-    return rendered + styles
+    
+    # Rendu final (potentiellement enveloppé par le Layout)
+    return {render_wrapper} + styles
 """
-
-   
+    

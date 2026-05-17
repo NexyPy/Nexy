@@ -1,5 +1,5 @@
 import ast
-from typing import List, Optional, cast
+from typing import Any, List, Optional, cast
 
 from nexy.core.models import (
     LogicResult,
@@ -20,7 +20,7 @@ class ASTUtils:
                 node.annotation.value.id == "prop")
 
     @staticmethod
-    def extract_loader_args(node: ast.Assign) -> Optional[dict]: # type: ignore
+    def extract_loader_args(node: ast.Assign) -> Optional[dict[str, Any]]:
         """Attempts to extract path/framework/symbol from a __nexy_loader__ or __Import call."""
         if not (isinstance(node.value, ast.Call)): return None
         
@@ -48,7 +48,7 @@ class ASTUtils:
         for kw in call.keywords:
             if isinstance(kw.value, ast.Constant):
                 args[kw.arg] = kw.value.value
-        return args # type: ignore
+        return args
 
 
 class LogicParser:
@@ -100,13 +100,13 @@ class LogicParser:
             # Case B: Component Imports (Variable Assignment from __Import)
             if isinstance(node, ast.Assign):
                 if self._try_extract_import(node, result):
-                    final_nodes.append(node) # type: ignore
+                    final_nodes.append(node)
                     continue
 
             # Case C: Standard Python code
-            final_nodes.append(node) # type: ignore
-            
-        return final_nodes # type: ignore
+            final_nodes.append(node)
+
+        return final_nodes
 
     def _wrap_in_module(self, nodes: List[ast.stmt]) -> str:
         """Unparses the filtered nodes back into a Python source string."""
@@ -129,18 +129,18 @@ class LogicParser:
 
     def _try_extract_import(self, node: ast.Assign, result: LogicResult) -> bool:
         """Attempts to extract import metadata for the component manifest."""
-        args = ASTUtils.extract_loader_args(node) # type: ignore
+        args = ASTUtils.extract_loader_args(node)
         if not args:
             return False
 
         target = node.targets[0]
         alias = target.id if isinstance(target, ast.Name) else None
-        
-        path = args.get("path") # type: ignore
-        symbol = args.get("symbol") # type: ignore
-        fw_str = args.get("framework") # type: ignore
 
-        if not path or not symbol: 
+        path = args.get("path")
+        symbol = args.get("symbol")
+        fw_str = args.get("framework")
+
+        if not path or not symbol:
             return False
 
         # If it's a CSS import, collect it
@@ -148,15 +148,15 @@ class LogicParser:
             result.css_imports.append(path)
 
         # Determine the component type based on extension or framework hint
-        comp_type = self._determine_component_type(path, fw_str) # type: ignore
-        ext = path[path.rfind("."):] if "." in path else "" # type: ignore
+        comp_type = self._determine_component_type(path, fw_str)
+        ext = path[path.rfind("."):] if "." in path else ""
 
         result.nexy_imports.append(NexyImport(
-            path=path, # type: ignore
-            symbol=symbol, # type: ignore
+            path=path,
+            symbol=symbol,
             alias=alias,
             raw_source="",
-            extension=ext, # type: ignore
+            extension=ext,
             comp_type=comp_type
         ))
         return True
@@ -170,7 +170,8 @@ class LogicParser:
             ".svelte": ComponentType.SVELTE,
             ".tsx": ComponentType.REACT,
             ".jsx": ComponentType.REACT,
-            ".json": ComponentType.JSON
+            ".json": ComponentType.JSON,
+            ".mdx": ComponentType.MDX
         }
         
         # 1. Priority to file extension

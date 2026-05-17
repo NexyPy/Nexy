@@ -1,0 +1,534 @@
+[
+  {
+    "id": 0,
+    "title": "مقدمة",
+    "content": "مقدمة\n\nNexy هو إطار عمل Python متكامل (meta-framework) مصمم لتطوير تطبيقات الويب الحديثة. يجمع بين FastAPI لمنطق الواجهة الخلفية (backend) و Vite للتفاعل في الواجهة الأمامية (frontend)، مما يوفر نظامً",
+    "href": "/docs/ar/introduction",
+    "lang": "ar"
+  },
+  {
+    "id": 1,
+    "title": "التثبيت",
+    "content": "التثبيت\n\nNexy سهل التثبيت والبدء.\n\nالبدء السريع\n\nأسرع طريقة للبدء هي استخدام الأمر nx init.\n\n1. تثبيت Nexy عبر pip\n\nbash\npip install nexy\n\n\n2. تهيئة المشروع\n\nbash\nnx init my-app\n\n\nسيرشدك المساعد التفا",
+    "href": "/docs/ar/البدء/التثبيت",
+    "lang": "ar"
+  },
+  {
+    "id": 2,
+    "title": "البدء السريع: من API إلى Fullstack في 5 دقائق",
+    "content": "البدء السريع: من API إلى Fullstack في 5 دقائق\n\nتم تصميم هذا الدليل للمطورين الذين يرغبون في فهم مرونة Nexy بسرعة، بدءًا من واجهة خلفية قوية وانتهاءً بواجهة مختلطة.\n\n1. التثبيت\n\nbash\npip install nexy\n\n",
+    "href": "/docs/ar/البدء/البدء-السريع",
+    "lang": "ar"
+  },
+  {
+    "id": 3,
+    "title": "النموذج الذهني: كيف يعمل Nexy داخليًا",
+    "content": "النموذج الذهني: كيف يعمل Nexy داخليًا\n\nNexy هو طبقة تجريد موحدة تقوم بمزامنة الخادم (Python/FastAPI) والواجهة (HTML/JS). لاستخدام Nexy بفعالية، من الضروري فهم عملية التجميع ودورة العرض الخاصة به.\n\n1. ",
+    "href": "/docs/ar/الهندسة-المعمارية/النموذج-الذهني",
+    "lang": "ar"
+  },
+  {
+    "id": 4,
+    "title": "مكونات الخادم مقابل العميل",
+    "content": "مكونات الخادم مقابل العميل\n\nيستخدم Nexy نموذج مكونات هجين. لبناء تطبيقات عالية الأداء ، من الأهمية بمكان فهم الفرق بين مكونات الخادم و مكونات العميل.\n\nمكونات الخادم (.nexy, .mdx)\n\nبشكل افتراضي ، كل مل",
+    "href": "/docs/ar/الهندسة-المعمارية/مكونات-الخادم-مقابل-العميل",
+    "lang": "ar"
+  },
+  {
+    "id": 5,
+    "title": "استراتيجيات التوجيه: Routes Router و Modular Router",
+    "content": "استراتيجيات التوجيه: Routes Router و Modular Router\n\nيقدم Nexy استراتيجيتين رئيسيتين للتوجيه: Routes Router (القائم على الملفات) و Modular Router (القائم على الوحدات).\n\nRoutes Router (القائم على الملف",
+    "href": "/docs/ar/التوجيه/نظرة-عامة",
+    "lang": "ar"
+  },
+  {
+    "id": 6,
+    "title": "معالجة الأخطاء والتخطيطات",
+    "content": "معالجة الأخطاء والتخطيطات\n\nيوفر Nexy نظامًا قويًا لمعالجة الأخطاء وهيكلة صفحاتك باستخدام التخطيطات (layouts).\n\n1. التخطيطات الهرمية (Layouts)\n\nملف layout.nexy في مجلد ما ينطبق تلقائيًا على جميع المسار",
+    "href": "/docs/ar/التوجيه/معالجة-الأخطاء",
+    "lang": "ar"
+  },
+  {
+    "id": 7,
+    "title": "Routes Router: الصفحات وواجهات البرمجة و WebSockets",
+    "content": "Routes Router: الصفحات وواجهات البرمجة و WebSockets\n\nيعد Routes Router (التوجيه القائم على الملفات) هو المحرك الافتراضي لـ Nexy. يستخدم هيكل دليل src/routes/ لتعريف نقاط الدخول لتطبيقك تلقائيًا ، سواء",
+    "href": "/docs/ar/التوجيه/routes-router/الصفحات-والتخطيطات",
+    "lang": "ar"
+  },
+  {
+    "id": 8,
+    "title": "Modular Router (App Router)",
+    "content": "Modular Router (App Router)\n\nتم تصميم Modular Router (الموجود في src/app/) للبنيات المؤسسية. يعتمد على نظام المتحكمات (Controllers) و الوحدات (Modules) و حقن الاعتمادية.\n\nعلى عكس أطر العمل الأخرى ، يس",
+    "href": "/docs/ar/التوجيه/modular-router/الوحدات-والمتحكمات",
+    "lang": "ar"
+  },
+  {
+    "id": 9,
+    "title": "المكونات الأساسية: .nexy و .mdx",
+    "content": "المكونات الأساسية: .nexy و .mdx\n\nيقدم Nexy وحدتي تكوين رئيسيتين لبناء واجهات الاستخدام: ملفات .nexy وملفات .mdx.\n\nملف .nexy\n\nملف .nexy هو مكون خادم يجمع بين منطق بايثون وقوالب HTML (Jinja2).\n\nالهيكل\n\n",
+    "href": "/docs/ar/المكونات-الأساسية/ملف-.nexy",
+    "lang": "ar"
+  },
+  {
+    "id": 10,
+    "title": "التدويل (i18n)",
+    "content": "التدويل (i18n)\n\nيدمج Nexy نظام تدويل بسيط وعالي الأداء لجعل تطبيقاتك متاحة لجمهور عالمي.\n\n1. هيكل الملفات\n\nيتم تخزين ملفات الترجمة في دليل locales/ (أو الدليل المحدد في التكوين الخاص بك) في شكل ملفات ",
+    "href": "/docs/ar/المكونات-الأساسية/التدويل",
+    "lang": "ar"
+  },
+  {
+    "id": 11,
+    "title": "التكامل: React و Vue و Svelte و Solid.js",
+    "content": "التكامل: React و Vue و Svelte و Solid.js\n\nNexy غير مرتبط بإطار عمل واجهة أمامية محدد. يمكنك استخدام أي إطار عمل JavaScript رئيسي في صفحاتك التي يعرضها الخادم.\n\nكيف يعمل\n\nيستخدم Nexy Vite كمنسق لتجميع ",
+    "href": "/docs/ar/التكامل/react",
+    "lang": "ar"
+  },
+  {
+    "id": 12,
+    "title": "مرجع CLI",
+    "content": "مرجع CLI\n\nتعد واجهة سطر أوامر Nexy (nx) أداة قوية لإدارة تدفق التطوير الخاص بك.\n\nالأوامر\n\nnx init\n\nيهيئ مشروع Nexy جديد. اتبع المساعد التفاعلي لاختيار إطار عمل الواجهة الأمامية الخاص بك، وتفعيل Tailwi",
+    "href": "/docs/ar/المراجع/cli",
+    "lang": "ar"
+  },
+  {
+    "id": 13,
+    "title": "التكوين (`nexyconfig.py`)",
+    "content": "التكوين (nexyconfig.py)\n\nتم تصميم Nexy ليعمل بأقل قدر من التكوين (الاصطلاح على التكوين). ومع ذلك، بالنسبة للمشاريع المعقدة، يمكنك تخصيص سلوك إطار العمل عبر ملف nexyconfig.py في جذر مشروعك.\n\n1. الهيكل ",
+    "href": "/docs/ar/المراجع/التكوين",
+    "lang": "ar"
+  },
+  {
+    "id": 14,
+    "title": "مرجع API",
+    "content": "مرجع API\n\nتدرج هذه الصفحة جميع واجهات برمجة التطبيقات العامة والمزخرفات والأدوات المساعدة المتوفرة في Nexy.\n\nالمزخرفات (nexy.decorators)\n\nيستخدم Nexy مزخرفات الفئات لهيكلة تطبيقك وإدارة الاعتماديات.\n\n",
+    "href": "/docs/ar/المراجع/api",
+    "lang": "ar"
+  },
+  {
+    "id": 15,
+    "title": "Introduction",
+    "content": "Introduction\n\nNexy is a full-stack Python meta-framework designed for building modern web applications. It unifies FastAPI for backend logic and Vite for interactive frontend development, providing a ",
+    "href": "/docs/en/introduction",
+    "lang": "en"
+  },
+  {
+    "id": 16,
+    "title": "Installation",
+    "content": "Installation\n\nNexy is easy to install and get started with.\n\nQuick Start\n\nThe fastest way to get started is by using the nx init command.\n\n1. Install Nexy via pip\n\nbash\npip install nexy\n\n\n2. Initializ",
+    "href": "/docs/en/getting-started/installation",
+    "lang": "en"
+  },
+  {
+    "id": 17,
+    "title": "Quick Start: From API to Fullstack in 5 Minutes",
+    "content": "Quick Start: From API to Fullstack in 5 Minutes\n\nThis guide is designed for developers who want to quickly understand Nexy's flexibility, starting with a robust backend and ending with a hybrid interf",
+    "href": "/docs/en/getting-started/quick-start",
+    "lang": "en"
+  },
+  {
+    "id": 18,
+    "title": "Mental Model: Nexy's Internal Workings",
+    "content": "Mental Model: Nexy's Internal Workings\n\nNexy is a unified abstraction layer that synchronizes the server (Python/FastAPI) and the interface (HTML/JS). To use Nexy effectively, it is essential to under",
+    "href": "/docs/en/architecture/mental-model",
+    "lang": "en"
+  },
+  {
+    "id": 19,
+    "title": "Server vs Client Components",
+    "content": "Server vs Client Components\n\nNexy uses a hybrid component model. To build efficient applications, it's crucial to understand the difference between Server Components and Client Components.\n\nServer Com",
+    "href": "/docs/en/architecture/server-vs-client",
+    "lang": "en"
+  },
+  {
+    "id": 20,
+    "title": "Routing Strategies: Routes Router & Modular Router",
+    "content": "Routing Strategies: Routes Router & Modular Router\n\nNexy offers two primary routing strategies: Routes Router (File-Based) and Modular Router (Module-Based).\n\nRoutes Router (File-Based)\n\nThe Routes Ro",
+    "href": "/docs/en/routing/overview",
+    "lang": "en"
+  },
+  {
+    "id": 21,
+    "title": "Routes Router: Pages, APIs & WebSockets",
+    "content": "Routes Router: Pages, APIs & WebSockets\n\nThe Routes Router (File-Based Routing) is Nexy's default engine. It uses the structure of your src/routes/ directory to automatically define your application's",
+    "href": "/docs/en/routing/routes-router/pages-and-layouts",
+    "lang": "en"
+  },
+  {
+    "id": 22,
+    "title": "Modular Router (App Router)",
+    "content": "Modular Router (App Router)\n\nThe Modular Router (located in src/app/) is designed for enterprise architectures. It relies on a system of Controllers, Modules, and Dependency Injection.\n\nUnlike other f",
+    "href": "/docs/en/routing/modular-router/modules-and-controllers",
+    "lang": "en"
+  },
+  {
+    "id": 23,
+    "title": "Building Blocks: .nexy and .mdx",
+    "content": "Building Blocks: .nexy and .mdx\n\nNexy provides two primary units of composition for building interfaces: .nexy files and .mdx files.\n\nThe .nexy File\n\nA .nexy file is a Server Component that combines P",
+    "href": "/docs/en/building-blocks/nexy-file",
+    "lang": "en"
+  },
+  {
+    "id": 24,
+    "title": "Integrations: React, Vue, Svelte, Solid.js",
+    "content": "Integrations: React, Vue, Svelte, Solid.js\n\nNexy is framework-agnostic. You can use any of the major JavaScript frontend frameworks within your server-rendered pages.\n\nHow it Works\n\nNexy uses Vite as ",
+    "href": "/docs/en/integrations/react",
+    "lang": "en"
+  },
+  {
+    "id": 25,
+    "title": "CLI Reference",
+    "content": "CLI Reference\n\nThe Nexy CLI (nx) is a powerful tool for managing your development workflow.\n\nCommands\n\nnx init\n\nInitializes a new Nexy project. Follow the interactive assistant to choose your frontend",
+    "href": "/docs/en/reference/cli",
+    "lang": "en"
+  },
+  {
+    "id": 26,
+    "title": "API Reference",
+    "content": "API Reference\n\nThis page provides a comprehensive list of all public APIs, decorators, and utilities available in Nexy.\n\nDecorators (nexy.decorators)\n\nNexy uses class-based decorators to structure you",
+    "href": "/docs/en/reference/api",
+    "lang": "en"
+  },
+  {
+    "id": 27,
+    "title": "Configuration Models",
+    "content": "Configuration Models\n\nReference for the nexy.core.models module.\n\nclass Binding\n\nBinding(name: str, value: Any, isprop: bool = False, datatype: str = 'any')\n\nclass ComponentNode\n\nComponentNode(name: s",
+    "href": "/docs/en/reference/configurationmodels",
+    "lang": "en"
+  },
+  {
+    "id": 28,
+    "title": "Nexy Application",
+    "content": "Nexy Application\n\nReference for the nexy.app module.",
+    "href": "/docs/en/reference/nexyapplication",
+    "lang": "en"
+  },
+  {
+    "id": 29,
+    "title": "Routing",
+    "content": "Routing\n\nReference for the nexy.router module.",
+    "href": "/docs/en/reference/routing",
+    "lang": "en"
+  },
+  {
+    "id": 30,
+    "title": "Templates",
+    "content": "Templates\n\nReference for the nexy.template module.\n\nclass Template\n\nClasse pour gérer le rendu des templates Jinja2 et Markdown.\n\nrender(self, path: str, context: Optional[Dict[str, Any]] = None) -> s",
+    "href": "/docs/en/reference/templates",
+    "lang": "en"
+  },
+  {
+    "id": 31,
+    "title": "Introduction",
+    "content": "Introduction\n\nNexy est un méta-framework full-stack Python conçu pour le développement d'applications web modernes. Il unifie FastAPI pour la logique backend et Vite pour la gestion réactive du fronte",
+    "href": "/docs/fr/introduction",
+    "lang": "fr"
+  },
+  {
+    "id": 32,
+    "title": "Installation",
+    "content": "Installation\n\nNexy est facile à installer et à prendre en main.\n\nDémarrage Rapide\n\nLe moyen le plus rapide de commencer est d'utiliser la commande nx init.\n\n1. Installer Nexy via pip\n\nbash\npip install",
+    "href": "/docs/fr/démarrage/installation",
+    "lang": "fr"
+  },
+  {
+    "id": 33,
+    "title": "Quick Start : De l'API au Fullstack en 5 Minutes",
+    "content": "Quick Start : De l'API au Fullstack en 5 Minutes\n\nCe guide est conçu pour les développeurs qui veulent comprendre rapidement la flexibilité de Nexy, en commençant par un backend robuste pour finir sur",
+    "href": "/docs/fr/démarrage/quick-start",
+    "lang": "fr"
+  },
+  {
+    "id": 34,
+    "title": "Mental Model : Fonctionnement Interne de Nexy",
+    "content": "Mental Model : Fonctionnement Interne de Nexy\n\nNexy est une couche d'abstraction unifiée qui synchronise le serveur (Python/FastAPI) et l'interface (HTML/JS). Pour utiliser Nexy efficacement, il est e",
+    "href": "/docs/fr/architecture/mental-model",
+    "lang": "fr"
+  },
+  {
+    "id": 35,
+    "title": "Composants Serveur vs Client",
+    "content": "Composants Serveur vs Client\n\nNexy utilise un modèle de composants hybrides. Pour construire des applications performantes, il est crucial de comprendre la différence entre les Composants Serveur et l",
+    "href": "/docs/fr/architecture/serveur-vs-client",
+    "lang": "fr"
+  },
+  {
+    "id": 36,
+    "title": "Stratégies de Routage : Routes Router & Modular Router",
+    "content": "Stratégies de Routage : Routes Router & Modular Router\n\nNexy propose deux stratégies principales de routage : le Routes Router (Basé sur les fichiers) et le Modular Router (Basé sur les modules).\n\nRou",
+    "href": "/docs/fr/routage/aperçu",
+    "lang": "fr"
+  },
+  {
+    "id": 37,
+    "title": "Gestion des Erreurs et Layouts",
+    "content": "Gestion des Erreurs et Layouts\n\nNexy propose un système robuste pour gérer les erreurs et structurer vos pages avec des layouts.\n\n1. Layouts Hiérarchiques\n\nUn fichier layout.nexy dans un dossier s'app",
+    "href": "/docs/fr/routage/gestion-des-erreurs",
+    "lang": "fr"
+  },
+  {
+    "id": 38,
+    "title": "Routes Router : Pages, APIs & WebSockets",
+    "content": "Routes Router : Pages, APIs & WebSockets\n\nLe Routes Router (File-Based Routing) est le moteur par défaut de Nexy. Il utilise la structure de votre répertoire src/routes/ pour définir automatiquement l",
+    "href": "/docs/fr/routage/routes-router/pages-et-layouts",
+    "lang": "fr"
+  },
+  {
+    "id": 39,
+    "title": "Modular Router (App Router)",
+    "content": "Modular Router (App Router)\n\nLe Modular Router (situé dans src/app/) est conçu pour les architectures d'entreprise. Il repose sur un système de Contrôleurs, de Modules et d'Injection de Dépendances.\n\n",
+    "href": "/docs/fr/routage/modular-router/modules-et-contrôleurs",
+    "lang": "fr"
+  },
+  {
+    "id": 40,
+    "title": "Building Blocks : .nexy et .mdx",
+    "content": "Building Blocks : .nexy et .mdx\n\nNexy propose deux unités principales de composition pour construire des interfaces : les fichiers .nexy et les fichiers .mdx.\n\nLe Fichier .nexy\n\nUn fichier .nexy est u",
+    "href": "/docs/fr/composants-de-base/fichier-.nexy",
+    "lang": "fr"
+  },
+  {
+    "id": 41,
+    "title": "Internationalisation (i18n)",
+    "content": "Internationalisation (i18n)\n\nNexy intègre un système d'internationalisation simple et performant pour rendre vos applications accessibles à un public mondial.\n\n1. Structure des Fichiers\n\nLes fichiers ",
+    "href": "/docs/fr/composants-de-base/internationalisation",
+    "lang": "fr"
+  },
+  {
+    "id": 42,
+    "title": "Intégrations : React, Vue, Svelte, Solid.js",
+    "content": "Intégrations : React, Vue, Svelte, Solid.js\n\nNexy est agnostique vis-à-vis du framework frontend. Vous pouvez utiliser n'importe quel framework JavaScript majeur dans vos pages rendues par le serveur.",
+    "href": "/docs/fr/intégrations/react",
+    "lang": "fr"
+  },
+  {
+    "id": 43,
+    "title": "Référence CLI",
+    "content": "Référence CLI\n\nLa CLI de Nexy (nx) est un outil puissant pour gérer votre flux de développement.\n\nCommandes\n\nnx init\n\nInitialise un nouveau projet Nexy. Suivez l'assistant interactif pour choisir votr",
+    "href": "/docs/fr/référence/cli",
+    "lang": "fr"
+  },
+  {
+    "id": 44,
+    "title": "Configuration (`nexyconfig.py`)",
+    "content": "Configuration (nexyconfig.py)\n\nNexy est conçu pour fonctionner avec un minimum de configuration (Convention over Configuration). Cependant, pour les projets complexes, vous pouvez personnaliser le com",
+    "href": "/docs/fr/référence/configuration",
+    "lang": "fr"
+  },
+  {
+    "id": 45,
+    "title": "Référence API",
+    "content": "Référence API\n\nCette page répertorie l'ensemble des APIs publiques, décorateurs et utilitaires disponibles dans Nexy.\n\nDécorateurs (nexy.decorators)\n\nNexy utilise des décorateurs de classe pour struct",
+    "href": "/docs/fr/référence/api",
+    "lang": "fr"
+  },
+  {
+    "id": 46,
+    "title": "परिचय",
+    "content": "परिचय\n\nNexy एक आधुनिक वेब एप्लिकेशन बनाने के लिए डिज़ाइन किया गया एक Python फुल-स्टैक मेटा-फ़्रेमवर्क है। यह बैकएंड लॉजिक के लिए FastAPI और इंटरेक्टिव फ्रंटएंड डेवलपमेंट के लिए Vite को एकीकृत करता है,",
+    "href": "/docs/hi/introduction",
+    "lang": "hi"
+  },
+  {
+    "id": 47,
+    "title": "स्थापना",
+    "content": "स्थापना\n\nNexy को स्थापित करना और शुरू करना आसान है।\n\nत्वरित शुरुआत\n\nशुरू करने का सबसे तेज़ तरीका nx init कमांड का उपयोग करना है।\n\n1. pip के माध्यम से Nexy स्थापित करें\n\nbash\npip install nexy\n\n\n2. एक प",
+    "href": "/docs/hi/शुरू-करना/स्थापना",
+    "lang": "hi"
+  },
+  {
+    "id": 48,
+    "title": "क्विक स्टार्ट: API से फुलस्टैक तक सिर्फ 5 मिनट में",
+    "content": "क्विक स्टार्ट: API से फुलस्टैक तक सिर्फ 5 मिनट में\n\nयह गाइड उन डेवलपर्स के लिए डिज़ाइन की गई है जो Nexy के लचीलेपन को जल्दी से समझना चाहते हैं, एक मजबूत बैकएंड से शुरू करके एक हाइब्रिड इंटरफ़ेस पर समा",
+    "href": "/docs/hi/शुरू-करना/क्विक-स्टार्ट",
+    "lang": "hi"
+  },
+  {
+    "id": 49,
+    "title": "मेंटल मॉडल: Nexy का आंतरिक कामकाज",
+    "content": "मेंटल मॉडल: Nexy का आंतरिक कामकाज\n\nNexy एक एकीकृत एब्स्ट्रैक्शन लेयर है जो सर्वर (Python/FastAPI) और इंटरफ़ेस (HTML/JS) को सिंक्रोनाइज़ करती है। Nexy का प्रभावी ढंग से उपयोग करने के लिए, इसकी संकलन प्",
+    "href": "/docs/hi/आर्किटेक्चर/मेंटल-मॉडल",
+    "lang": "hi"
+  },
+  {
+    "id": 50,
+    "title": "सर्वर बनाम क्लाइंट घटक",
+    "content": "सर्वर बनाम क्लाइंट घटक\n\nNexy एक हाइब्रिड घटक मॉडल का उपयोग करता है। उच्च प्रदर्शन वाले एप्लिकेशन बनाने के लिए, सर्वर घटकों और क्लाइंट घटकों के बीच अंतर को समझना महत्वपूर्ण है।\n\nसर्वर घटक (.nexy, .mdx)",
+    "href": "/docs/hi/आर्किटेक्चर/सर्वर-बनाम-क्लाइंट-घटक",
+    "lang": "hi"
+  },
+  {
+    "id": 51,
+    "title": "रूटिंग रणनीतियाँ: Routes Router और Modular Router",
+    "content": "रूटिंग रणनीतियाँ: Routes Router और Modular Router\n\nNexy दो मुख्य रूटिंग रणनीतियाँ प्रदान करता है: Routes Router (फ़ाइल-आधारित) और Modular Router (मॉड्यूल-आधारित)।\n\nRoutes Router (फ़ाइल-आधारित)\n\nRoutes",
+    "href": "/docs/hi/रूटिंग/अवलोकन",
+    "lang": "hi"
+  },
+  {
+    "id": 52,
+    "title": "Modular Router (App Router)",
+    "content": "Modular Router (App Router)\n\nModular Router (src/app/ में स्थित) उद्यम आर्किटेक्चर के लिए डिज़ाइन किया गया है। यह कंट्रोलर्स, मॉड्यूल और निर्भरता इंजेक्शन की प्रणाली पर आधारित है।\n\nअन्य फ़्रेमवर्क के ",
+    "href": "/docs/hi/रूटिंग/मॉड्यूल-और-कंट्रोलर",
+    "lang": "hi"
+  },
+  {
+    "id": 53,
+    "title": "त्रुटि प्रबंधन और लेआउट",
+    "content": "त्रुटि प्रबंधन और लेआउट\n\nNexy त्रुटियों को संभालने और लेआउट के साथ आपके पृष्ठों को संरचित करने के लिए एक मजबूत प्रणाली प्रदान करता है।\n\n1. पदानुक्रमित लेआउट (Layouts)\n\nकिसी फोल्डर में layout.nexy फ़ाइ",
+    "href": "/docs/hi/रूटिंग/त्रुटि-प्रबंधन",
+    "lang": "hi"
+  },
+  {
+    "id": 54,
+    "title": "Routes Router: पृष्ठ, API और WebSockets",
+    "content": "Routes Router: पृष्ठ, API और WebSockets\n\nRoutes Router (फ़ाइल-आधारित रूटिंग) Nexy का डिफ़ॉल्ट इंजन है। यह आपके एप्लिकेशन के प्रवेश बिंदुओं को स्वचालित रूप से परिभाषित करने के लिए आपकी src/routes/ निर्",
+    "href": "/docs/hi/रूटिंग/routes-router/पृष्ठ-और-लेआउट",
+    "lang": "hi"
+  },
+  {
+    "id": 55,
+    "title": "मुख्य घटक: .nexy और .mdx",
+    "content": "मुख्य घटक: .nexy और .mdx\n\nNexy इंटरफेस बनाने के लिए दो मुख्य संरचना इकाइयाँ प्रदान करता है: .nexy फ़ाइलें और .mdx फ़ाइलें।\n\n.nexy फ़ाइल\n\nएक .nexy फ़ाइल एक सर्वर घटक है जो पायथन लॉजिक और HTML टेम्प्लेट",
+    "href": "/docs/hi/मुख्य-घटक/.nexy-फ़ाइल",
+    "lang": "hi"
+  },
+  {
+    "id": 56,
+    "title": "अंतर्राष्ट्रीयकरण (i18n)",
+    "content": "अंतर्राष्ट्रीयकरण (i18n)\n\nNexy आपके अनुप्रयोगों को वैश्विक दर्शकों के लिए सुलभ बनाने के लिए एक सरल और उच्च-प्रदर्शन अंतर्राष्ट्रीयकरण प्रणाली को एकीकृत करता है।\n\n1. फ़ाइल संरचना\n\nअनुवाद फ़ाइलें JSON फ",
+    "href": "/docs/hi/मुख्य-घटक/अंतर्राष्ट्रीयकरण",
+    "lang": "hi"
+  },
+  {
+    "id": 57,
+    "title": "एकीकरण: React, Vue, Svelte, Solid.js",
+    "content": "एकीकरण: React, Vue, Svelte, Solid.js\n\nNexy फ्रंटएंड फ़्रेमवर्क से स्वतंत्र है। आप अपने सर्वर-रेंडर किए गए पृष्ठों में किसी भी प्रमुख JavaScript फ़्रेमवर्क का उपयोग कर सकते हैं।\n\nयह कैसे काम करता है\n\nN",
+    "href": "/docs/hi/एकीकरण/react",
+    "lang": "hi"
+  },
+  {
+    "id": 58,
+    "title": "CLI संदर्भ",
+    "content": "CLI संदर्भ\n\nNexy CLI (nx) आपके विकास प्रवाह को प्रबंधित करने के लिए एक शक्तिशाली उपकरण है।\n\nकमांड\n\nnx init\n\nएक नया Nexy प्रोजेक्ट शुरू करता है। अपने फ्रंटएंड फ़्रेमवर्क को चुनने, Tailwind CSS को सक्रि",
+    "href": "/docs/hi/संदर्भ/cli",
+    "lang": "hi"
+  },
+  {
+    "id": 59,
+    "title": "कॉन्फ़िगरेशन (`nexyconfig.py`)",
+    "content": "कॉन्फ़िगरेशन (nexyconfig.py)\n\nNexy को न्यूनतम कॉन्फ़िगरेशन (कन्वेंशन ओवर कॉन्फ़िगरेशन) के साथ काम करने के लिए डिज़ाइन किया गया है। हालांकि, जटिल परियोजनाओं के लिए, आप अपने प्रोजेक्ट के रूट में nexycon",
+    "href": "/docs/hi/संदर्भ/कॉन्फ़िगरेशन",
+    "lang": "hi"
+  },
+  {
+    "id": 60,
+    "title": "API संदर्भ",
+    "content": "API संदर्भ\n\nयह पृष्ठ Nexy में उपलब्ध सभी सार्वजनिक API, डेकोरेटर्स और उपयोगिताओं को सूचीबद्ध करता है।\n\nडेकोरेटर्स (nexy.decorators)\n\nNexy आपके एप्लिकेशन को संरचित करने और निर्भरताओं को प्रबंधित करने क",
+    "href": "/docs/hi/संदर्भ/api",
+    "lang": "hi"
+  },
+  {
+    "id": 61,
+    "title": "介绍",
+    "content": "介绍\n\nNexy 是一个专为开发现代 Web 应用程序设计的 Python 全栈元框架。它将用于后端逻辑的 FastAPI 与用于交互式前端开发的 Vite 统一起来，为开发者提供了一个完整的生态系统。\n\n核心原则\n\n- 统一的类型安全 (Pydantic)：只需定义一次数据模型，即可在整个堆栈中确保类型验证和一致性。\n- 服务器优先 (SSR)：应用程序默认在服务器端渲染，以获得最佳的 SEO ",
+    "href": "/docs/zh/introduction",
+    "lang": "zh"
+  },
+  {
+    "id": 62,
+    "title": "安装",
+    "content": "安装\n\nNexy 易于安装和上手。\n\n快速入门\n\n最快的方法是使用 nx init 命令。\n\n1. 通过 pip 安装 Nexy\n\nbash\npip install nexy\n\n\n2. 初始化项目\n\nbash\nnx init my-app\n\n\n交互式助手将引导您完成：\n- 选择您喜欢的各种前端框架（React、Vue、Svelte 或 Solid.js）。\n- 激活或停用 Tailwind CSS",
+    "href": "/docs/zh/入门/安装",
+    "lang": "zh"
+  },
+  {
+    "id": 63,
+    "title": "快速开始：从 API 到全栈只需 5 分钟",
+    "content": "快速开始：从 API 到全栈只需 5 分钟\n\n本指南专为希望快速了解 Nexy 灵活性、从强大的后端开始并最终实现混合界面的开发者而设计。\n\n1. 安装\n\nbash\npip install nexy\n\n\n2. 初始化“纯后端”项目\n\n让我们暂时创建一个没有前端界面的项目。\n\nbash\nnx init my-project --no-frontend\ncd my-project\n\n\n3. 创建模块化",
+    "href": "/docs/zh/入门/快速开始",
+    "lang": "zh"
+  },
+  {
+    "id": 64,
+    "title": "思维模型：Nexy 的内部运作方式",
+    "content": "思维模型：Nexy 的内部运作方式\n\nNexy 是一个统一的抽象层，它同步了服务器（Python/FastAPI）和界面（HTML/JS）。为了高效地使用 Nexy，理解其编译过程和渲染循环至关重要。\n\n1. 编译阶段（Build Time）\n\n执行 nx dev 或 nx build 时，Nexy 会编译您的源文件（.nexy、.mdx），并将其转换为可执行的 Python 代码：\n- AST ",
+    "href": "/docs/zh/架构/思维模型",
+    "lang": "zh"
+  },
+  {
+    "id": 65,
+    "title": "服务端 vs 客户端组件",
+    "content": "服务端 vs 客户端组件\n\nNexy 使用混合组件模型。为了构建高性能应用程序，理解 服务端组件 和 客户端组件 之间的区别至关重要。\n\n服务端组件 (.nexy, .mdx)\n\n默认情况下，Nexy 中的每个文件都是 服务端组件。\n\n- 执行：它们仅在服务器上运行（Python）。\n- 无 Bundle：除非它们导入客户端组件，否则不会向浏览器发送 JavaScript。\n- SSR：它们生成直",
+    "href": "/docs/zh/架构/服务端-vs-客户端组件",
+    "lang": "zh"
+  },
+  {
+    "id": 66,
+    "title": "路由策略：Routes Router & Modular Router",
+    "content": "路由策略：Routes Router & Modular Router\n\nNexy 提供两种主要的路由策略：Routes Router（基于文件）和 Modular Router（基于模块）。\n\nRoutes Router（基于文件）\n\nRoutes Router 使用 src/routes/ 目录的物理结构来自动定义应用程序的 URL。\n\n- 拓扑驱动：文件夹和文件直接对应于 URL。\n- 支持",
+    "href": "/docs/zh/路由/概览",
+    "lang": "zh"
+  },
+  {
+    "id": 67,
+    "title": "错误处理与布局",
+    "content": "错误处理与布局\n\nNexy 提供了一个强大的系统来处理错误并使用布局结构化您的页面。\n\n1. 分层布局 (Layouts)\n\n文件夹中的 layout.nexy 文件会自动应用于该文件夹及其子文件夹中的所有路由。\n\n布局结构\n布局是一个标准的 .nexy 文件，必须使用特殊的 {{ children }} 块来注入页面内容。\n\nhtml\n---\n主布局\nfrom nexy import Vite\n",
+    "href": "/docs/zh/路由/错误处理",
+    "lang": "zh"
+  },
+  {
+    "id": 68,
+    "title": "Routes Router：页面、API 与 WebSocket",
+    "content": "Routes Router：页面、API 与 WebSocket\n\nRoutes Router（基于文件的路由）是 Nexy 的默认引擎。它使用 src/routes/ 目录的结构来自动定义应用程序的入口点，无论是 HTML 页面、REST API 还是 WebSocket 连接。\n\n1. 页面渲染 (UI)\n\n.nexy 和 .mdx 文件会自动转换为 HTML 路由。\n\n- src/route",
+    "href": "/docs/zh/路由/routes-router/页面与布局",
+    "lang": "zh"
+  },
+  {
+    "id": 69,
+    "title": "Modular Router (App Router)",
+    "content": "Modular Router (App Router)\n\nModular Router（位于 src/app/）专为企业级架构设计。它基于控制器、模块和依赖注入系统。\n\n与其他框架不同，Nexy 使用基于类方法的方法来定义路由，而不是像 @Get 这样的每种方法都要用的装饰器。\n\n1. 控制器 (Controllers)\n\n控制器是一个使用 @Controller() 装饰的类。路由由类中对应于 ",
+    "href": "/docs/zh/路由/modular-router/模块与控制器",
+    "lang": "zh"
+  },
+  {
+    "id": 70,
+    "title": "核心组件：.nexy 和 .mdx",
+    "content": "核心组件：.nexy 和 .mdx\n\nNexy 提供两个主要的组合单元来构建界面：.nexy 文件和 .mdx 文件。\n\n.nexy 文件\n\n.nexy 文件是一个服务端组件，它结合了 Python 逻辑和 HTML 模板 (Jinja2)。\n\n结构\n\n.nexy 文件分为两个部分：\n\n1.  逻辑块 (Python)：封装在 --- 标记之间。\n2.  展示块 (Template)：使用 Jin",
+    "href": "/docs/zh/核心组件/.nexy-文件",
+    "lang": "zh"
+  },
+  {
+    "id": 71,
+    "title": "国际化 (i18n)",
+    "content": "国际化 (i18n)\n\nNexy 集成了一个简单且高性能的国际化系统，使全球用户都能访问您的应用程序。\n\n1. 文件结构\n\n翻译文件以 JSON 格式存储在 locales/ 目录（或您配置中定义的目录）中。\n\ntext\nmy-project/\n├── locales/\n│   ├── fr.json\n│   └── en.json\n└── src/\n    └── routes/\n       ",
+    "href": "/docs/zh/核心组件/国际化",
+    "lang": "zh"
+  },
+  {
+    "id": 72,
+    "title": "集成：React, Vue, Svelte, Solid.js",
+    "content": "集成：React, Vue, Svelte, Solid.js\n\nNexy 与前端框架无关。您可以在服务器渲染的页面中使用任何主流的 JavaScript 框架。\n\n工作原理\n\nNexy 使用 Vite 作为编排器来编译和在客户端激活组件。\n\n- 通过 Vite 进行编排：要使用这些框架，您必须通过 nexyconfig.py 中的 useVite: True 激活 Vite 集成。\n- 激活 (",
+    "href": "/docs/zh/集成/react",
+    "lang": "zh"
+  },
+  {
+    "id": 73,
+    "title": "CLI 参考",
+    "content": "CLI 参考\n\nNexy CLI (nx) 是管理开发流程的强大工具。\n\n命令\n\nnx init\n\n初始化一个新的 Nexy 项目。按照交互式助手选择您的前端框架、激活 Tailwind CSS 并配置项目结构。\n\nbash\nnx init my-app\n\n\nnx dev\n\n启动 Nexy 开发服务器。该命令并行启动 FastAPI 后端和 Vite 编排器，并激活热模块替换 (HMR)。\n\nba",
+    "href": "/docs/zh/参考/cli",
+    "lang": "zh"
+  },
+  {
+    "id": 74,
+    "title": "配置 (`nexyconfig.py`)",
+    "content": "配置 (nexyconfig.py)\n\nNexy 旨在以最小的配置运行（约定优于配置）。但是，对于复杂的项目，您可以通过项目根目录下的 nexyconfig.py 文件自定义框架的行为。\n\n1. 基本结构\n\n该文件必须定义一个继承自 NexyConfigModel 的 NexyConfig 类。\n\npython\nfrom nexy.core.models import NexyConfigMode",
+    "href": "/docs/zh/参考/配置",
+    "lang": "zh"
+  },
+  {
+    "id": 75,
+    "title": "API 参考",
+    "content": "API 参考\n\n本页面列出了 Nexy 中可用的所有公共 API、装饰器和实用工具。\n\n装饰器 (nexy.decorators)\n\nNexy 使用类装饰器来构建您的应用程序并管理依赖关系。\n\n@Controller(prefix: str = \"\", tags: List[str] = None)\n定义一个路由控制器。类中以 HTTP 动词（get、post 等）命名的方法或用于 WebSock",
+    "href": "/docs/zh/参考/api",
+    "lang": "zh"
+  }
+]

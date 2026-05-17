@@ -21,7 +21,7 @@ def _detect_locale() -> str:
         v = os.environ.get(env)
         if v: return _normalize(v)
     try:
-        loc = _py_locale.getdefaultlocale()[0]  # type: ignore[call-arg]
+        loc = _py_locale.getdefaultlocale()[0]
         if loc: return _normalize(loc)
     except Exception:
         pass
@@ -36,7 +36,7 @@ def _deep_merge(base: dict[str, Any], other: dict[str, Any]) -> dict[str, Any]:
     out = dict(base)
     for k, v in other.items():
         if isinstance(v, dict) and isinstance(out.get(k), dict):
-            out[k] = _deep_merge(out[k], v)  # type: ignore[index]
+            out[k] = _deep_merge(out[k], v)
         else:
             out[k] = v
     return out

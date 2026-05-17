@@ -1,32 +1,22 @@
-import { defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 import tailwindcss from '@tailwindcss/vite'
-import { nexy, nexyLogger, nexyalias, nexybase, nexybuild } from "./__nexy__/vite"
+import nexy from "./__nexy__/vite"
 
-export default defineConfig(({ mode }) => {
-  return {
-    base: nexybase(mode),
-    plugins: [
-      preact(),
-      tailwindcss(),
-      nexy()
-    ],
-    esbuild: false,
-    customLogger: nexyLogger(),
-    logLevel: 'info',
-    server: {
-      strictPort: true,
-      cors: { 
-        origin: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
-      },
-      watch: {
-        ignored: ['**/node_modules/**', '**/__nexy__/client/**', '**/.git/**']
-      }
+export default defineConfig({
+  
+  plugins: [
+    nexy(), 
+    preact(),
+    tailwindcss(),
+  ],
+  customLogger: nexy.log(),
+  build :{
+    rollupOptions: {
+    output: {
+      format: 'esm',
     },
-    build: nexybuild,
-    resolve: {
-      alias: [...nexyalias]
-    }
+    external: [], 
+  }
   }
 })

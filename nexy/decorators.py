@@ -1,16 +1,19 @@
+from functools import wraps
 import inspect
 from typing import Any, Type, List, Dict, Set, Iterable, Callable, Optional, Mapping, AbstractSet
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from threading import RLock
 
+from nexy.routers.actions.store import ACTIONS_STORE
+
 HTTP_METHODS: Set[str] = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"}
 
 # --- 1. DÉCORATEUR INJECTABLE (Doit être défini avant le Container pour référence) ---
-def Injectable():
+def Injectable() -> Callable[[type[Any]], type[Any]]:
     """Marque une classe comme service injectable"""
-    def wrapper(cls):
-        cls.__injectable__ = True
+    def wrapper(cls: type[Any]) -> type[Any]:
+        setattr(cls, "__injectable__", True)
         return cls
     return wrapper
 
@@ -18,14 +21,13 @@ def Injectable():
 
 
 class Container:
-    _instances: Dict[Type, Any] = {}
+    _instances: Dict[type[Any], Any] = {}
     _lock = RLock()
-    # On suit les classes en cours de résolution pour détecter les boucles infinies
-    _resolving: Set[Type] = set()
+    _resolving: Set[type[Any]] = set()
 
     @classmethod
-    def resolve(cls, target_cls: Type):
-        # 1. Accès rapide (Fast path) sans verrou
+    def resolve(cls, target_cls: Type[Any]) -> Any:
+        """1. Accès rapide (Fast path) sans verrou"""
         if target_cls in cls._instances:
             return cls._instances[target_cls]
 
@@ -65,8 +67,8 @@ class Container:
 
 # --- 3. AUTRES DÉCORATEURS ---
 
-def Controller(prefix: str = "", tags: List[str] = None):
-    def wrapper(cls):
+def Controller(prefix: str = "", tags: list[str] | None = None) -> Callable[[type[Any]], type[Any]]:
+    def wrapper(cls: type[Any]) -> type[Any]:
         cls.__is_controller__ = True
         cls.__controller_prefix__ = prefix
         cls.__controller_tags__ = tags or [cls.__name__]
@@ -74,7 +76,7 @@ def Controller(prefix: str = "", tags: List[str] = None):
     return wrapper
 
 
-def UseGuard(*guards: Callable[..., Any]):
+def UseGuard(*guards: Callable[..., Any]) -> Callable[[Any], Any]:
     def wrapper(target: Any) -> Any:
         existing = getattr(target, "__nexy_guards__", ())
         target.__nexy_guards__ = tuple(existing) + tuple(guards)
@@ -82,7 +84,7 @@ def UseGuard(*guards: Callable[..., Any]):
     return wrapper
 
 
-def UseMiddleware(*middlewares: Callable[..., Any]):
+def UseMiddleware(*middlewares: Callable[..., Any]) -> Callable[[Any], Any]:
     def wrapper(target: Any) -> Any:
         existing = getattr(target, "__nexy_middlewares__", ())
         target.__nexy_middlewares__ = tuple(existing) + tuple(middlewares)
@@ -223,9 +225,8 @@ def UseResponse(
 
     return wrapper
 
-def Module(prefix: str = ""):
-
-    def wrapper(cls):
+def Module(prefix: str = "") -> Callable[[type[Any]], APIRouter]:
+    def wrapper(cls: type[Any]) -> APIRouter:
         controllers_list = getattr(cls, "controllers", [])
         providers_list = getattr(cls, "providers", [])
         imports_list = getattr(cls, "imports", [])
@@ -249,7 +250,7 @@ def Module(prefix: str = ""):
         return module_router
     return wrapper
 
-def _register_controller(ctrl_cls: Type, parent_router: APIRouter):
+def _register_controller(ctrl_cls: Type[Any], parent_router: APIRouter) -> None:
     ctrl_prefix = getattr(ctrl_cls, '__controller_prefix__', '')
     ctrl_tags = getattr(ctrl_cls, '__controller_tags__', [])
     ctrl_router = APIRouter(prefix=ctrl_prefix, tags=ctrl_tags)
@@ -325,6 +326,14 @@ def _register_controller(ctrl_cls: Type, parent_router: APIRouter):
 
 
 
+def Action(func: Optional[Callable] = None):
+    def decorator(f: Callable):
+        ACTIONS_STORE.register(f)
+        return f
+    if func is None:
+        return decorator
+    
+    return decorator(func)
 
-def UseAction():
-    pass
+def Task(func: Optional[Callable] = None): pass
+def Job(func: Optional[Callable] = None): pass

@@ -1,0 +1,18 @@
+<section class="border-t border-border border-dashed">
+    <aside class="w-container py-16 space-y-6">
+        <div>
+            <ul class="flex gap-4 items-center">
+                <li class="bg-foreground text-foreground-second px-4 py-1 rounded-full ">All</li>
+                <li>Marketing & Media</li>
+                <li>Platform Engineering</li>
+                <li>AI </li>
+                <li>Web App</li>
+            </ul>
+            <ul>
+
+            </ul>
+        </div>
+        <hr class="opacity-10">
+    </aside>
+</section>
+dhdjhdj

@@ -5,7 +5,7 @@ from nexy.core.config import Config
 
 
 class Builder:
-    def __init__(self):
+    def __init__(self) -> None:
         self.discovery = Discovery()
         self.compiler = Compiler()
         self.config = Config()

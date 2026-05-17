@@ -1,0 +1,116 @@
+---
+from "@/components/sections/otherHero.nexy" import OtherHero
+from "@/components/sections/showcaseCard.nexy" import ShowcaseCard
+from "@/components/sections/separator.nexy" import Separator
+
+title = "Real-world Web Applications built with Nexy"
+description = """ Explore inspiring websites, apps, and digital experiences made by developers and companies around the
+world."""
+
+---
+
+<OtherHero title={{title}} description={{description}} />
+<section class="border-t border-border border-dashed py-16 space-y-6">
+    <aside class="w-container">
+        <ul class="flex gap-4 items-center ">
+            <li class="bg-foreground text-foreground-second px-4 py-1 rounded-full ">All</li>
+            <li>Marketing & Media</li>
+            <li>Platform Engineering</li>
+            <li>AI </li>
+            <li>Web App</li>
+        </ul>
+        <ul>
+
+        </ul>
+    </aside>
+    <hr class="opacity-10">
+    <aside class="w-container p-6 space-y-4 md:space-y-2 ">
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+        <div class="w-full flex justify-between px-7 ">
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+        </div>
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+        <div class="w-full flex justify-between px-7 ">
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+        </div>
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+        <div class="w-full flex justify-between px-7 ">
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+        </div>
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+        <div class="w-full flex justify-between px-7 ">
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+        </div>
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+        <div class="w-full flex justify-between px-7 ">
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+            <Separator horizontal={{True}} />
+        </div>
+        <div class=" space-y-4 md:space-y-0 md:flex items-center gap-2 ">
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+            <Separator />
+            <ShowcaseCard />
+        </div>
+    </aside>
+    <hr class="opacity-10">
+    <aside class="w-container px-6 flex justify-between">
+        <ul class="flex items-center gap-1 *:border-border">
+            <li class="px-3 py-1 border grid place-content-center corner rounded-2xl">1</li>
+            <li class="font-mono opacity-50">/</li>
+            <li class="py-1 px-3 rounded-2xl corner border">
+                24 
+                <span class="opacity-60">Pages</span>
+            </li>
+        </ul>
+         <ul class="flex items-center gap-2 *:border-border">
+            <li class="size-9 border grid place-content-center corner rounded-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+            </li>
+            <li class="size-9 bg-black dark:bg-white text-white dark:text-black  border-0 grid place-content-center corner rounded-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+            </li>
+            
+        </ul>
+    </aside>
+</section>

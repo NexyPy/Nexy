@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import os
 import stat
+from typing import Any, Callable
 
 from nexy.cli.commands.utilities.console import console
 from nexy.i18n import t
@@ -10,7 +11,7 @@ from nexy.i18n import t
 
 class GitClone:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.repo = "https://github.com/NexyPy/nexy.git"
         self.branch = "master" # Templates are in the master branch of the nexy repo
         self.dest = Path(".")
@@ -146,8 +147,7 @@ class GitClone:
 
         """Removes the .git directory to cut any link with the remote repository."""
 
-        def on_rm_error(func, path, exc_info):
-            # Clear read-only bit and retry
+        def on_rm_error(func: Callable[[str], Any], path: str, exc_info: tuple[object, ...]) -> None:
             os.chmod(path, stat.S_IWRITE)
             func(path)
 
@@ -168,7 +168,7 @@ class GitClone:
         
         # If backup already exists, we must remove it first to avoid rename errors
         if backup.exists():
-            def on_rm_error(func, path, exc_info):
+            def on_rm_error(func: Callable[[str], Any], path: str, exc_info: tuple[object, ...]) -> None:
                 os.chmod(path, stat.S_IWRITE)
                 func(path)
             shutil.rmtree(backup, onerror=on_rm_error)
@@ -178,10 +178,9 @@ class GitClone:
                 gitdir.rename(backup)
                 return True
             except Exception:
-                # If rename fails, try copy and delete
                 try:
                     shutil.copytree(gitdir, backup, dirs_exist_ok=True)
-                    def on_rm_error(func, path, exc_info):
+                    def on_rm_error(func: Callable[[str], Any], path: str, exc_info: tuple[object, ...]) -> None:
                         os.chmod(path, stat.S_IWRITE)
                         func(path)
                     shutil.rmtree(gitdir, onerror=on_rm_error)
@@ -206,10 +205,10 @@ class GitClone:
                 backup.rename(gitdir)
             except Exception:
                 # Fallback to copy and delete
-                def on_rm_error(func, path, exc_info):
+                def on_rm_error(func: Callable[[str], Any], path: str, exc_info: tuple[object, ...]) -> None:
                     os.chmod(path, stat.S_IWRITE)
                     func(path)
-                
+
                 try:
                     shutil.copytree(backup, gitdir, dirs_exist_ok=True)
                     shutil.rmtree(backup, onerror=on_rm_error)

@@ -1,0 +1,15 @@
+---
+from "./frontcode.mdx" import Frontcode
+from "@/components/sections/separator.nexy" import Separator
+---
+<section class="w-full w-container text-white bg-background-second  md:border-x border-border border-dashed px-6 py-8 md:p-24 space-y-4">
+    <h2 class="text-3xl font-medium">Maximum Flexibility</h2>
+    <p class="text-base font-light max-w-xl leading-6">
+        Nexy upports every major UI framework. Bring your existing components and take advantage of Astro's optimized client build performance.
+    </p>
+    <aside class="mt-8 space-y-6 md:space-y-0 md:flex gap-2 items-center">
+        <Frontcode/>
+        <Separator className="" />
+        <Frontcode/>
+    </aside>
+</section>

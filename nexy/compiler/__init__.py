@@ -34,12 +34,16 @@ class Compiler:
             if self.output is None:
                 from nexy.core.string import StringTransform
                 mapped = StringTransform.normalize_route_path_for_namespace(self.input)
-                self.output = self.config.NAMESPACE + "/" + mapped.replace(".nexy", ".html")
+                # Avoid double slash by stripping and joining correctly
+                namespace = self.config.NAMESPACE.strip("/")
+                self.output = f"{namespace}/{mapped.replace('.nexy', '.html')}"
         elif is_mdx_file(self.input):
             if self.output is None:
                 from nexy.core.string import StringTransform
                 mapped = StringTransform.normalize_route_path_for_namespace(self.input)
-                self.output = self.config.NAMESPACE + "/" + mapped.replace(".mdx", ".md")
+                # Avoid double slash by stripping and joining correctly
+                namespace = self.config.NAMESPACE.strip("/")
+                self.output = f"{namespace}/{mapped.replace('.mdx', '.md')}"
         
         else:
             msg = f"File '{self.input}' is not a nexy or mdx component"
@@ -48,7 +52,7 @@ class Compiler:
         
         try:
             CODE_PARSED: PaserModel = self.parser.process(source_code=self.source_code, current_file=self.input)
-            self.generator.generate(self.output, CODE_PARSED)
+            self.generator.generate(self.output, CODE_PARSED, source_path=self.input)
         except NexyCompileError:
             raise
         except Exception as e:

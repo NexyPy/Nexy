@@ -123,8 +123,19 @@ async function generateEntries() {
     try {
       exportNames = await loadModuleExports(file, framework)
     } catch (err) {
-      console.error(` Failed to load exports from ${file}:`, err)
-      continue
+      const message = err instanceof Error ? err.message : String(err);
+
+      // Analyse simplifiée de la cause
+      let reason = "internal error";
+      if (message.includes("require")) reason = "CommonJS/AMD compatibility ";
+      if (message.includes("is not defined")) reason = "missing browser-only global (window/document)";
+
+      console.warn(`[Nexy SSG] Skipping "${file}": Nexy cannot render this component because of ${reason}.`);
+
+      // On peut ajouter une petite note pour le debug si besoin
+      // console.debug(`Full error: ${message.split('\n')[0]}`);
+
+      continue;
     }
 
     for (const exportName of exportNames) {
@@ -148,10 +159,10 @@ async function generateEntries() {
   }
 
   fs.rmSync(path.resolve(process.cwd(), 'node_modules/.nexy-temp'), { recursive: true, force: true })
-  // console.log(' Entries generated successfully')
+  console.log('Entries generated successfully')
 }
 
 generateEntries().then(() => process.exit(0)).catch(err => {
-  console.error(' Failed to generate entries:', err)
+  console.error('Failed to generate entries:', err)
   process.exit(1)
 })

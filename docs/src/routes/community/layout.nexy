@@ -1,0 +1,57 @@
+---
+from "@/components/sections/otherHero.nexy" import OtherHero
+
+title = "Real-world Web Applications built with Nexy"
+description = """Explore inspiring websites, apps, and digital experiences made by developers and companies around the
+world."""
+children:prop[str]
+
+
+---
+<OtherHero title={{title}} description={{description}} />
+<main class="border-t border-border border-dashed">
+    <section class="w-container mx-auto flex">
+        <aside class="w-72 py-12 px-6 border-r border-border border-dashed space-y-4">
+            <h2 class="text-xs uppercase font-mono opacity-80">GET STARTED</h2>
+            <ul class="space-y-1.5 *:px-3 text-sm border-l border-border border-dashed">
+                <li class=" ">
+                    <a href="/community">Get help</a>
+                </li>
+                 <li>
+                    <a href="/community/team">Support</a>
+                </li>
+                 <li>
+                    <a href="/community/governance">FAQ</a>
+                </li>
+            </ul>
+            <h2 class="text-xs uppercase font-mono opacity-80">CONTRIBUTE</h2>
+            <ul class="space-y-1.5 *:px-3 text-sm border-l border-border border-dashed">
+                <li class="bg-green-600/20 border-l-2 py-1 text-base border-green-600  ">
+                    <a href="/community">Guide</a>
+                </li>
+                 <li>
+                    <a href="/community/team">Report a Bug</a>
+                </li>
+                 <li>
+                    <a href="/community/governance">Feature Request</a>
+                </li>
+            </ul>
+            <h2 class="text-xs uppercase font-mono opacity-80 mt-8">Governance</h2>
+            <ul class="space-y-1.5 *:px-3 text-sm border-l border-border border-dashed">
+                <li class=" ">
+                    <a href="/community">Team</a>
+                </li>
+                 <li>
+                    <a href="/community/team">Roadmap</a>
+                </li>
+                 <li>
+                    <a href="/community/governance">Manifesto</a>
+                </li>
+            </ul>
+        </aside>
+        <aside class="p-12 flex-1">
+            {{children}}
+        </aside>
+        <aside class="w-24  border-border border-dashed "></aside>
+    </section>
+</main>

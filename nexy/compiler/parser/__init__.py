@@ -1,4 +1,7 @@
 import ast
+import re
+
+from nexy.core.config import Config
 from nexy.core.models import PaserModel
 from .template import TemplateParser
 from .scanner import Scanner
@@ -10,6 +13,14 @@ class Parser:
         self.scanner = Scanner()
         self.logic_parser = LogicParser()
         self.template_parser = TemplateParser()
+        self.config = Config()
+
+    def _clean_jinja_wrapping(self, html_content: str) -> str:
+        # Nettoie les {% ... %}
+        content = re.sub(r'<([a-zA-Z0-9]+)>\s*({%.*?%})\s*</\1>', r'\2', html_content)
+        # Nettoie les {{ ... }}
+        content = re.sub(r'<([a-zA-Z0-9]+)>\s*({{.*?}})\s*</\1>', r'\2', content)
+        return content
 
 
     def process(self, source_code: str, current_file: str) -> PaserModel:
@@ -44,8 +55,11 @@ class Parser:
             except SyntaxError:
                 pass
 
+        
         jinja_code = self.template_parser.parse(blocks.template_block, known_components=known_components)
-
+        if current_file.endswith(".mdx"):
+            jinja_code = self._clean_jinja_wrapping(jinja_code)
+            
         return PaserModel(
             frontmatter=logic_result.python_code,
             template=jinja_code,

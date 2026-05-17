@@ -34,11 +34,11 @@ async function run() {
 
   const usedFrameworks = getProjectFrameworks()
   if (usedFrameworks.size === 0) {
-    console.warn(`${c.yellow} No components found.${c.reset}`)
+    console.warn(`${c.yellow}No components found.${c.reset}`)
     return
   }
 
-  console.log(` Detected: ${[...usedFrameworks].join(', ')}`)
+  console.log(`Detected: ${[...usedFrameworks].join(', ')}`)
   const installedFrameworks = checkFrameworks(usedFrameworks)
 
   const hasTsx = glob.sync('**/*.{tsx,jsx}', {

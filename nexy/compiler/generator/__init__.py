@@ -16,13 +16,13 @@ class Generator:
         self.template = TemplateGenerator()
         self.logic = LogicGenerator()
 
-    def generate(self, output: str, source: PaserModel) -> bool:
+    def generate(self, output: str, source: PaserModel, source_path:str = None) -> bool:
         self.source = source
         try:
             directory = os.path.dirname(output)
             if directory:
                 os.makedirs(directory, exist_ok=True)
-            self.logic.generate(template_path=output, source=self.source)
+            self.logic.generate(template_path=output, source=self.source, source_path=source_path)
             self.template.generate(output=output, source=self.source.template)
             self._generate_init(directory)
             return True

@@ -1,0 +1,12 @@
+---
+from "@/components/docs/sidebar.nexy" import Sidebar
+from "@/components/docs/table_of_contents.nexy" import Table_of_contents
+children:prop[str]
+---
+<section class="flex gap-4 w-container">
+    <Sidebar />
+    <aside class="p-12 mdx-content flex-1">
+        {{children | safe}}
+    </aside>
+    <Table_of_contents/>
+</section>

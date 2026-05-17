@@ -1,0 +1,46 @@
+---
+from src.utils import resolve_url
+
+src = """https://cdn.dribbble.com/userupload/21654101/file/original-b78035e70995d79d73418a7a668076eb.jpg?resize=752x564&vertical=center"""
+#src = """https://cdn.dribbble.com/userupload/47594505/file/a5197266701f4116e5f60a7498d8bcfb.png?resize=2048x1536&vertical=center"""
+#src = """https://cdn.dribbble.com/userupload/47596559/file/daa4e447d47855799be55b27a314bffa.png?resize=2048x1537&vertical=center"""
+
+src, srcset = resolve_url("/public/nexy.png")
+
+
+
+---
+
+<article class=" w-full h-fit p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] corder ">
+    <div
+        style="background-image: url({{src}}); background-size: contain; background-position:center -1px; background-repeat: no-repeat;"
+        class="min-h-80 pt-50  border border-border overflow-hidden relative flex flex-col justify-end  bg-background text-black  rounded-4xl corder  backdrop-blur-xl ">
+
+        <div class="p-4 space-y-4  backdrop-blur-sm bg-background/76 text-foreground rounded-t-3xl corner ">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs  font-mono">January 03, 2026</h2>
+                <ul class="flex gap-1">
+                    <li class="size-8 border border-border grid place-content-center rounded-2xl corner">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"/><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h2"/><path d="M14 3h1"/><path d="M3 9v1"/><path d="M21 9v2"/><path d="M3 14v1"/></svg>
+                    </li>
+                    <li class="size-8 border border-border grid place-content-center rounded-2xl corner">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"/><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h2"/><path d="M14 3h1"/><path d="M3 9v1"/><path d="M21 9v2"/><path d="M3 14v1"/></svg>
+                    </li>
+                    <li class="size-8 border border-border grid place-content-center rounded-2xl corner">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"/><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h2"/><path d="M14 3h1"/><path d="M3 9v1"/><path d="M21 9v2"/><path d="M3 14v1"/></svg>
+                    </li>
+                </ul>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-xl font-medium">
+                    Nexy V2.0.0 - Introducing custom MDX components
+                </h3>
+                <p class="text-xs text-balance font-light tracking-wider leading-5  h-16 overflow-hidden ">
+                    Nous aidons les responsables marketing et produits à créer des marques percutantes, à engager les utilisateurs et à stimuler la croissance.
+                    Nous aidons les responsables marketing et produits à créer des marques percutantes, à engager les utilisateurs et à stimuler la croissance.
+                </p>
+            </div>
+            <a href="#" class="text-xs font-medium border border-border px-3 py-1.5 rounded-2xl corner">Read more</a>
+        </div>
+    </div>
+</article>

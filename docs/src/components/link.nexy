@@ -1,0 +1,14 @@
+---
+href : prop[str] = ""
+target : prop[str]= ""
+className : prop[str]
+---
+<a 
+    href="{{ href }}" 
+    prefetchlink 
+    {% if target %} target="{{ target }}" {%endif %}
+    {% if className %} class="{{className}}" {%endif %}
+ >
+    <Slot/>
+</a>
+

@@ -8,6 +8,6 @@ class UserController:
     def __init__(self, service: UserService):
         self.service = service
 
-    def get(self):
+    def GET(self):
         return self.service.get_users()
 

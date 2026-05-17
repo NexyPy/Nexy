@@ -1,3 +1,2 @@
-def Link():
-    
-    return 
+def Link() -> None:
+    return None

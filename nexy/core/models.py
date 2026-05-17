@@ -65,6 +65,7 @@ class ComponentType(Enum):
     SVELTE = "svelte"
     REACT = "react"
     JSON = "json"
+    MDX = "mdx"
     UNKNOWN = "unknown"
 
 
@@ -133,4 +134,6 @@ class NexyConfigModel:
     useFF: list[FFModel] = field(default_factory=list)
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
+    useMiddlewares: list[Any] = field(default_factory=list)
+
     

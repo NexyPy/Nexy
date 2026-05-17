@@ -1,4 +1,4 @@
 class __Version__:
-     version:str = "2.0.2"
-     def get(self):
-          return self.version
+    version: str = "2.0.7"
+    def get(self) -> str:
+        return self.version

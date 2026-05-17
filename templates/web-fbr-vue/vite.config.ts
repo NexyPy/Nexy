@@ -1,31 +1,24 @@
-import { defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
-import { nexy, nexyLogger, nexyalias, nexybase, nexybuild } from "./__nexy__/vite"
+import nexy from "./__nexy__/vite"
 
-export default defineConfig(({ mode }) => {
-  return {
-    base: nexybase(mode),
-    plugins: [
-      vue(),
-      tailwindcss(),
-      nexy()
-    ],
-    customLogger: nexyLogger(),
-    logLevel: 'info',
-    server: {
-      strictPort: true,
-      cors: { 
-        origin: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
-      },
-      watch: {
-        ignored: ['**/node_modules/**', '**/__nexy__/client/**', '**/.git/**']
-      }
+export default defineConfig({
+  
+  plugins: [
+    nexy(), 
+    tailwindcss(),
+    vue(),
+  ],
+  customLogger: nexy.log(),
+  build :{
+    rollupOptions: {
+    output: {
+      format: 'esm',
     },
-    build: nexybuild,
-    resolve: {
-      alias: [...nexyalias]
-    }
+    // Ne pas mettre 'vue' en external si tu veux que Vite 
+    // l'inclue proprement dans le bundle généré
+    external: [], 
+  }
   }
 })

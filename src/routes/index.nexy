@@ -5,7 +5,7 @@ import "./data.json" as data
 title:prop[str] = ""
 show_hero = True
 espoir : prop[str]= "hjdhj"
-print("data:",data)
+#print("data:",data)
 def user():
   return ""
 ---

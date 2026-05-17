@@ -1,0 +1,12 @@
+---
+---
+<section class="w-full w-container bg-background-second  md:border-x border-border border-dashed p-24 space-y-4">
+    <h2 class="text-3xl font-medium">What's in Nexy ?</h2>
+    <p class="text-base font-light max-w-xl leading-6">
+        Nexy is a Python web framework optimized for building fast, content-driven
+        websites, API services, and more.
+    </p>
+    <aside>
+
+    </aside>
+</section>

@@ -5,7 +5,7 @@ from nexy.core.config import Config
 from nexy.utils.ports import get_client_port
 
 
-def Vite():
+def Vite() -> str:
     # 1. Vérification config
     config = Config()
     if not os.path.exists("vite.config.ts"):

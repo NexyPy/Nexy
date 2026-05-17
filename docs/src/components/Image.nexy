@@ -1,0 +1,14 @@
+---
+from src.utils import is_vercel
+src:prop[str] 
+srcset:prop[str] 
+className:prop[str] 
+alt:prop[str] 
+
+if is_vercel and src.startswith("/public/"):
+    # On nettoie le chemin : on remplace "/public/" par "/"
+    src = src.replace("/public/", "/")
+    srcset = srcset.replace("/public/", "/") if srcset else None
+
+---
+<img src="{{src}}"  class="{{className}}" alt="{{alt}}"/>

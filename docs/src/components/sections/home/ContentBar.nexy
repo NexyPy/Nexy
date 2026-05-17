@@ -1,0 +1,22 @@
+---
+items = ["Websocket","HTTP", "Jinja2","Vitejs","Mdx", "Production"]
+
+---
+
+<div class="[&>div]:hidden w-fit md:w-full bg-background  lg:px-20  flex items-center gap-8 md:justify-between border-y border-dashed border-border py-6">
+    {% for item in items %}
+        <p class="text-xl font-medium">{{ item }}</p>
+        {% if not loop.last %}
+            <svg width="27" height="26" viewBox="0 0 27 26" fill="none" >
+                <path d="M17.3047 0.457275H17.5771V0.719971L21.3936 4.38696L25.4395 8.22974C25.7119 8.48855 25.8661 8.84812 25.8662 9.22388V24.0002C25.8661 24.7576 25.2515 25.3713 24.4941 25.3713H18.0342C17.277 25.3711 16.6632 24.7574 16.6631 24.0002V9.28931H9.66016V24.0002C9.66004 24.7576 9.04543 25.3713 8.28809 25.3713H1.82812C1.07088 25.3712 0.457152 24.7575 0.457031 24.0002V16.9309C0.457031 16.5505 0.615288 16.1864 0.893555 15.927L2.42676 14.4973L2.42773 14.4963L8.74512 8.63208V1.82837C8.74524 1.07105 9.35984 0.457275 10.1172 0.457275H16.6631V-0.158936L17.3047 0.457275Z" stroke="url(#paint0_linear_1914_4558)" stroke-width="0.914286"/>
+                <defs>
+                    <linearGradient id="paint0_linear_1914_4558" x1="23.2758" y1="19.4418" x2="8.87577" y2="5.89896" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#00D084"/>
+                        <stop offset="1" stop-color="#61ABED"/>
+                    </linearGradient>
+
+                </defs>
+            </svg>
+        {% endif %}
+    {% endfor %}
+</div>

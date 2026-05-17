@@ -9,18 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.2.0",
-    "@vitejs/plugin-react": "^5.1.1",
+    "@tailwindcss/vite": "^4.2.4",
+    "@vitejs/plugin-react": "^5.2.0",
     "esbuild": "^0.28.0",
     "glob": "^13.0.6",
-    "jsdom": "^29.0.2",
-    "tailwindcss": "^4.2.0",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
-    "vite": "^8.0.0-beta.13"
+    "vite": "^8.0.10"
   }
 }

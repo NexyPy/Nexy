@@ -1,2 +1,2 @@
-from nexy.server.routers.file_based_routing import FileBasedRouter as FileRouter
+from nexy.routers.fbrouter import FBRouter as FileRouter
 FileBasedRouter = FileRouter()

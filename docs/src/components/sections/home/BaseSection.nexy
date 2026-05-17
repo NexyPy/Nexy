@@ -1,0 +1,178 @@
+---
+from "@/components/background.nexy" import Background
+from "@/components/sections/home/viteLogo.nexy" import ViteLogo
+---
+<section class="overflow-hidden">
+    <aside class="relative w-full w-container px-6 md:px-16 py-24 space-y-4 ">
+        <Background className="-z-10 rotate-y-180 absolute -bottom-20 -right-50 opacity-20 scale-110" />
+        <Background className="-z-10 rotate-x-180 absolute -top-20 -left-50 opacity-20 scale-110" />
+
+        <h2 class="text-3xl font-medium">Built on a foundation of fast, production-grade tooling</h2>
+        <p class="text-base font-light max-w-xl leading-6">
+            Nous proposons une gamme complète de solutions numériques pour répondre à vos besoins spécifiques.
+        </p>
+        <div class=" space-y-4 md:flex items-center gap-2 mt-12 ">
+            <div class=" w-full p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] corder ">
+                <div
+                    class="min-h-114 border border-border relative flex flex-col justify-between  bg-linear-to-b from-white/56 to-white/96 text-black p-4 rounded-4xl corder  backdrop-blur-xl ">
+
+                    <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        <path d="M7 7h10v10" />
+                        <path d="M7 17 17 7" />
+                    </svg>
+
+
+                    <aside class="flex gap-4 items-center ">
+                        <div class="bg-gray-200/24 border border-border p-2 w-fit rounded-xl corner">
+                            <svg width="27" height="26" viewBox="0 0 27 26" fill="none">
+                                <path
+                                    d="M17.3047 0.457275H17.5771V0.719971L21.3936 4.38696L25.4395 8.22974C25.7119 8.48855 25.8661 8.84812 25.8662 9.22388V24.0002C25.8661 24.7576 25.2515 25.3713 24.4941 25.3713H18.0342C17.277 25.3711 16.6632 24.7574 16.6631 24.0002V9.28931H9.66016V24.0002C9.66004 24.7576 9.04543 25.3713 8.28809 25.3713H1.82812C1.07088 25.3712 0.457152 24.7575 0.457031 24.0002V16.9309C0.457031 16.5505 0.615288 16.1864 0.893555 15.927L2.42676 14.4973L2.42773 14.4963L8.74512 8.63208V1.82837C8.74524 1.07105 9.35984 0.457275 10.1172 0.457275H16.6631V-0.158936L17.3047 0.457275Z"
+                                    stroke="currentColor" stroke-width="0.914286" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col mt-1.5">
+                            <p class="uppercase text-xs">Nexy</p>
+                            <h2 class="text-base font-semibold">Router</h2>
+                        </div>
+                    </aside>
+                    <aside class="relative flex-1 flex items-center justify-center">
+                        <div class="w-55 absolute z-0 space-y-0.5 ">
+                            {% for _ in range(30) %}
+                            <div class="border border-dashed border-[#019486] "></div>
+                            {% endfor %}
+                        </div>
+                        <div
+                            class="z-10  size-40 bg-[#019486] border border-[#019486] rounded-2xl corner grid place-content-center">
+                            <svg width="76" height="76" viewBox="0 0 76 76" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M71.6602 0H41.2154C37.4443 0 35.5588 0 34.0708 0.96323C32.5828 1.92646 31.8109 3.64673 30.2671 7.08728L30.2671 7.0873L1.45451 71.2981C0.24354 73.9969 -0.361943 75.3462 0.22855 75.8312C0.819037 76.3162 2.02501 75.4601 4.43693 73.7478L4.43699 73.7477L58.8329 35.1308C60.9349 33.6385 61.9859 32.8924 61.7639 32.1962C61.5419 31.5 60.253 31.5 57.6751 31.5H39.7343C37.1511 31.5 35.8595 31.5 35.6378 30.8031C35.4162 30.1063 36.4704 29.3601 38.5788 27.8676L72.8158 3.63241C74.9242 2.13994 75.9784 1.39371 75.7567 0.696854C75.535 0 74.2434 0 71.6602 0Z"
+                                    fill="#FFFFFF" />
+                            </svg>
+
+                        </div>
+                    </aside>
+
+                    <div class="space-y-2 ">
+
+                        <h3 class="text-xl font-medium">FastAPI</h3>
+                        <p>
+                            Foundation for routers with HTTP, WebSocket, and async support.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class='gap-[.6px] mx-auto flex md:flex-col opacity-30 dark:opacity-100 w-[80%] md:w-fit   md:h-98 lg:max-h-112 overflow-hidden  '>
+                {% for x in range(380) %}
+                <div class='border-r md:border-r-0 md:border-b border-border  md:w-16 w-0 md:h-0 h-6'></div>
+                {% endfor %}
+            </div>
+            <div class=" w-full p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] corder ">
+                <div
+                    class="min-h-112 border border-border relative flex flex-col justify-between  bg-linear-to-b from-white/56 to-white/96 text-black p-4 rounded-4xl corder  backdrop-blur-xl ">
+
+                    <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        <path d="M7 7h10v10" />
+                        <path d="M7 17 17 7" />
+                    </svg>
+
+
+                    <aside class="flex gap-4 items-center ">
+                        <div class="bg-gray-200/24 border border-border p-2 w-fit rounded-xl corner">
+                            <svg width="27" height="26" viewBox="0 0 27 26" fill="none">
+                                <path
+                                    d="M17.3047 0.457275H17.5771V0.719971L21.3936 4.38696L25.4395 8.22974C25.7119 8.48855 25.8661 8.84812 25.8662 9.22388V24.0002C25.8661 24.7576 25.2515 25.3713 24.4941 25.3713H18.0342C17.277 25.3711 16.6632 24.7574 16.6631 24.0002V9.28931H9.66016V24.0002C9.66004 24.7576 9.04543 25.3713 8.28809 25.3713H1.82812C1.07088 25.3712 0.457152 24.7575 0.457031 24.0002V16.9309C0.457031 16.5505 0.615288 16.1864 0.893555 15.927L2.42676 14.4973L2.42773 14.4963L8.74512 8.63208V1.82837C8.74524 1.07105 9.35984 0.457275 10.1172 0.457275H16.6631V-0.158936L17.3047 0.457275Z"
+                                    stroke="currentColor" stroke-width="0.914286" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col mt-1.5">
+                            <p class="uppercase text-xs" >Nexy</p>
+                            <h2 class="text-base font-semibold">Template Engine</h2>
+                        </div>
+                    </aside>
+                    <aside class="relative flex-1 flex items-center justify-center">
+                        <div class="w-55 absolute z-0 space-y-0.5 ">
+                            {% for _ in range(30) %}
+                            <div class="border border-dashed border-[#a23b3b] "></div>
+                            {% endfor %}
+                        </div>
+                        <div
+                            class="z-10  size-40 bg-[#a23b3b] border border-[#a23b3b] rounded-2xl corner grid place-content-center">
+                            <svg width="80" height="80" viewBox="0 0 100 100" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M98.825 2.7832L98.4917 2.94987C98.4917 2.94987 79.4792 12.0082 64.1417 13.9957C56.4167 14.9957 45.1667 15.9999 35.125 16.579C30.6103 16.8539 26.0895 17.0165 21.5667 17.0665C17.7458 17.0874 14.775 16.9332 13.4417 16.6082C10.0483 15.7998 6.70854 14.7812 3.44167 13.5582L2.39167 13.1415L3.83333 18.0249L0 21.3999L1.03333 23.2165L2.86667 23.354L7.25 23.8999L7.925 26.0415L10.5708 26.279L11.8958 30.7707L12.2792 30.7957C12.2792 30.7957 17.8542 31.2749 19.6208 31.2749C21.1417 31.2749 23.4958 31.1082 24.0875 31.0665L24.1875 32.7165L25.3833 32.9415V34.254L22.05 37.2124L22.7042 37.329C22.1208 37.3707 21.7583 37.404 20.6208 37.454C18.8292 37.5249 16.7292 37.5374 15.6083 37.379C13.1667 37.0207 12.65 37.0207 12.65 37.0207H12.4167L11.9083 37.5624L11.7167 39.4207H12.35L12.5792 44.0499L24.8 43.579L23.9458 58.9207L23.8625 60.3665L14.5208 59.8374L14.4375 56.6665H16.6792L16.9167 54.9165L18.85 54.4749L19.7792 53.1749L10.9833 51.0499L3.87917 53.1582L5.81667 54.7749H6.50833L6.6125 56.1665L8.67083 56.2832V59.4624L6.125 60.1165L6.91667 61.7999L7.35417 62.0832V65.5207H8.78333V79.254L6.425 79.6124L6.83333 84.8082L8.225 85.0415L7.99583 94.7999L15.5083 94.9374L14.175 85.3415L22.4333 85.1415L21.85 89.6707L20.8083 93.9707L31.6792 94.1082L31.7917 84.6082L37.3 84.1082L37 89.4999L36.7375 93.6249H43.5417L43.3208 84.0415L44.0542 84.154L44.3333 78.354H43.3208L43.0792 76.9374L42.5333 71.5624L42.7375 65.879H43.9667V60.954L42.45 61.0665L42.6167 57.7082L44.4083 57.529L44.5042 56.0624L45.2208 55.9582L47.3458 54.3374L39.7333 52.7749L32.6083 54.354L33.8 56.3082L34.7958 56.2249L35.0208 56.2082L35.1625 58.0499L36.8708 57.9665L36.8875 60.7749L30.5292 60.629L30.75 56.9749L30.9958 53.1165V48.0624L31.1958 43.2624L45.7167 42.5207L63.0292 41.5207L63.1667 44.329L62.5333 52.4499L62.2708 59.504L56.7708 59.4082L56.7458 55.1665L59.1375 55.079L59.2542 53.5249L60.3792 53.354L60.3292 53.1165L60.9625 53.0749L62.1708 51.4582L53.7958 49.4957L45.5208 51.2707L46.5958 53.1457L47.1792 53.104V53.4749H48.2042V55.1499L50.3875 55.1832L50.3625 58.7499H48.1667L48.1083 60.854L48.8875 60.9457L48.8 65.0207L50.4375 65.104L50.2542 80.1665L48.075 80.6165L48.1417 82.379H48.875V86.4832H50.0792L49.7875 91.504L49.3208 96.979L58.3625 97.2165L58.0708 92.3332L57.4958 88.7999L57.4042 86.329L62.925 86.229L62.7583 90.404L62.7208 95.9457L67.025 96.2874L72.2417 96.079L74.4625 95.4249L73.4208 92.2582L73.2 88.0915L72.8667 85.6624L78.0042 85.4749L77.7667 88.5665L77.7417 94.879L80.8167 95.1665L83.4458 95.0999L85.1792 94.5582L84.4 88.6249L84.1958 85.0332L85.2375 84.9207L85.2625 81.1915L85.5958 81.1207L85.4833 79.329H84.2208L84.0167 77.1332L83.9208 65.9165L84.8458 65.8915V62.1332L85.2458 62.1915V60.2707L83.8542 60.1582L83.8792 56.6749L86.2542 56.4624L86.1167 54.954L87.2 54.8665L87.1 54.379L89.5167 53.1707L80.95 51.4499L73.1167 53.0332L74.0792 54.8332L75.0083 54.7499L75.0667 55.0707H75.9125L75.9583 56.8457L78.2375 56.8207L78.3833 60.0415L71.425 59.9915L70.5417 53.9207L69.8 50.479L69.1958 44.3582L69.5083 41.2499L85.5375 40.029L85.5875 34.5457L86.425 34.3374L86.3292 32.754L85.3333 32.179H85.1792L83.6917 32.3874L80.3875 32.8707C78.1346 33.2005 75.8775 33.5005 73.6167 33.7707L72.825 33.854L72.7625 33.1124L69.4917 31.404L69.5167 30.2582L70.6458 30.2249L70.7292 27.4249C71.1042 27.3999 72.1958 27.3249 73.9417 27.1665C75.9583 26.979 78.275 26.729 79.6125 26.4165C82.1 25.8332 85.6625 25.2499 85.6625 25.2499L85.9792 25.1957L87.6792 20.579L91.0333 19.604L91.3083 18.8374L98.725 16.7874L100 15.7374L97.0125 9.2207L97.2083 8.23737L98.6417 7.48737L99.8792 3.71237L98.825 2.7832ZM61.7708 28.0415L61.7292 30.2332L63.425 30.304L63.3583 31.6374L60.0708 33.7957L59.7125 34.8707L51.9625 35.2457L52.0042 34.479L52.4708 33.729L52.5125 33.0874L52.5167 32.1374L52.7958 31.4874L52.925 30.8207V30.4374L53.2583 29.0915L61.7708 28.0415ZM40.1875 29.9624L40.0083 31.0624L40.8375 32.0374L40.7792 33.6499L41.5125 34.7749L41.3167 36.1415L41.4208 36.2874L33.725 36.5957L33.8083 35.9624L31.0875 34.4874L30.9958 33.0499L32.2042 32.9915L32.325 30.4999L40.1875 29.9624ZM56.9125 65.379L62.1542 65.7207L61.9458 73.7957L62.7083 80.2124L57.125 80.0207L56.9125 65.379ZM14.3083 65.729L23.3083 66.1957L22.5 71.5415V76.6207L23.0708 78.7999L14.3625 79.2082L14.3083 65.729ZM78.375 65.7707V79.3374L73 79.729L72.7833 72.5499L72.125 65.9165L78.375 65.7707ZM30.4833 66.0874L36.8917 66.1124L36.9625 78.5957L31.0042 78.704L30.6875 74.8374L30.6625 70.4749L30.4833 66.0874Z"
+                                    fill="white" />
+                            </svg>
+                        </div>
+                    </aside>
+                    <div class="space-y-2 ">
+
+                        <h3 class="text-xl font-medium">Jinja2</h3>
+                        <p>
+                            Renders HTML templates on the server side securely and flexibly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class='gap-[.6px]  mx-auto flex md:flex-col opacity-30 dark:opacity-100 w-[80%] md:w-fit   md:h-98 lg:max-h-112 overflow-hidden  '>
+                {% for x in range(380) %}
+                <div class='border-r md:border-r-0 md:border-b border-border  md:w-16 w-0 md:h-0 h-6'></div>
+                {% endfor %}
+            </div>
+
+            <div class=" w-full p-1.5 bg-gray-50/5 border border-border border-dashed rounded-[42px] corder ">
+                <div
+                    class="min-h-112 border border-border relative flex flex-col justify-between  bg-linear-to-b from-white/56 to-white/96 text-black p-4 rounded-4xl corder  backdrop-blur-xl ">
+
+                    <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        <path d="M7 7h10v10" />
+                        <path d="M7 17 17 7" />
+                    </svg>
+
+
+                    <aside class="flex gap-4 items-center ">
+                        <div class="bg-gray-200/24 border border-border p-2 w-fit rounded-xl corner">
+                            <svg width="27" height="26" viewBox="0 0 27 26" fill="none">
+                                <path
+                                    d="M17.3047 0.457275H17.5771V0.719971L21.3936 4.38696L25.4395 8.22974C25.7119 8.48855 25.8661 8.84812 25.8662 9.22388V24.0002C25.8661 24.7576 25.2515 25.3713 24.4941 25.3713H18.0342C17.277 25.3711 16.6632 24.7574 16.6631 24.0002V9.28931H9.66016V24.0002C9.66004 24.7576 9.04543 25.3713 8.28809 25.3713H1.82812C1.07088 25.3712 0.457152 24.7575 0.457031 24.0002V16.9309C0.457031 16.5505 0.615288 16.1864 0.893555 15.927L2.42676 14.4973L2.42773 14.4963L8.74512 8.63208V1.82837C8.74524 1.07105 9.35984 0.457275 10.1172 0.457275H16.6631V-0.158936L17.3047 0.457275Z"
+                                    stroke="currentColor" stroke-width="0.914286" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col mt-1.5">
+                            <p class="uppercase text-xs">Nexy</p>
+                            <h2 class="text-base font-semibold">Assets Builder</h2>
+                        </div>
+                    </aside>
+                    <aside class="relative flex-1 flex items-center justify-center">
+                        <div class="w-55 absolute z-0 space-y-0.5 ">
+                            {% for _ in range(30) %}
+                            <div class="border border-dashed border-[#16171D] "></div>
+                            {% endfor %}
+                        </div>
+                        <div
+                            class="z-10  size-40 bg-[#16171D] border border-[#16171D] rounded-2xl corner grid place-content-center">
+                            <ViteLogo/>
+                        </div>
+                    </aside>
+
+                    <div class="space-y-2 ">
+
+                        <h3 class="text-xl font-medium">Vitejs</h3>
+                        <p>
+                            Handles bundling and hot reload of the frontend for fast development.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</section>

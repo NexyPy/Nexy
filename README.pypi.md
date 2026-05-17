@@ -1,81 +1,133 @@
 # Nexy
 
-Nexy is a modular fullstack meta-framework designed to simplify modern web development. By bridging the gap between FastAPI backends and Vite-powered frontend ecosystems (React, Vue, Svelte, Solid.js), Nexy 2 allows you to build rich, interactive applications within a unified Python environment.
+Nexy is a modular, full-stack meta-framework designed to bridge the gap between **FastAPI** backends and **Vite-powered** frontend ecosystems such as React, Vue, Svelte, and Solid.js. Built on Python 3.10+, it enables the development of rich, interactive applications within a unified environment.
 
-## The Nexy 2 Vision
-
-Nexy 2 transforms the development experience by masking complex architectural patterns behind an intuitive interface. The framework handles the orchestration between the Python server and the JavaScript client, allowing you to focus exclusively on business logic and UI.
-
-## Core Concepts
-
-Mastering Nexy involves three essential pillars:
-
-### 1. The .nexy Format (Polyglot Component)
-While Nexy is fully functional for pure backend development (FastAPI-based APIs), the `.nexy` file is its powerful optional unit for building fullstack interfaces. It allows for a fluid composition of multiple languages:
-- **Header (Python)**: Defined within `---` blocks, this is where you declare properties (`prop`) and import components (whether they are `.nexy`, `.vue`, `.tsx`, `.mdx`, or even Python functions).
-- **Template (HTML/Jinja2)**: The structure of your component, rendered server-side with the power of Jinja2.
-
-```html
 ---
-# Definition Logic (Python)
-title : prop[str] = "Nexy Component"
-from "@/components/Card.nexy" import Card
-from nexy import Vite  # Automatic asset injection
----
-<!-- Server Rendering (Jinja2) -->
-<div class="p-6 bg-white rounded-xl shadow-lg">
-    <h1 class="text-2xl font-bold">{{ title }}</h1>
-    <Card content="I can contain other components." />
-</div>
-```
-
-### 2. Intelligent Hybrid Routing
-Nexy scales with your project size:
-- **File-Based Routing**: Your `src/routes/` directory structure defines your URLs (e.g., `index.nexy` -> `/`).
-- **Module-Based Routing**: For enterprise architectures, use a modular approach inspired by NestJS.
-- **Hybrid Rendering**: Mix static pages and dynamic API routes within the same project.
-
-### 3. Unified Ecosystem via Vite
-Nexy is framework-agnostic. You can import and use React, Vue, Svelte, or Solid.js components directly within your Nexy templates. The Vite build pipeline handles everything, ensuring optimal performance and zero configuration.
-
-## Tooling and Development
-
-### Nexy CLI (nx)
-The `nx` command-line tool centralizes your development workflow:
-- `nx init` or `nexy init`: Initializes a Nexy project.
-- `nx dev` or `nexy dev`: Starts the Nexy server for development with Vite in parallel.
-- `nx build` or `nexy build`: Compiles your assets for optimized production deployment.
-- `nx start` or `nexy start`: Starts the Nexy server for production without Vite in parallel.
-
-### VS Code Extension (Alpha)
-A dedicated extension (LSP) is included in the repository (currently in **Alpha**) to provide a first-class development experience: real-time diagnostics, prop and import auto-completion, and contextual snippets.
 
 ## Getting Started
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
+Nexy leverages a streamlined workflow. The use of `uv` is recommended for optimal performance and dependency management.
 
-### Installation
+### 1. Initialize Project
 ```bash
-pip install nexy
+mkdir my_project && cd my_project
+uv init && uv venv
 ```
 
-### Project Initialization
+### 2. Install and Initialize Nexy
 ```bash
-nexy init
+uv add nexy && nexy init
+# Alternative: pip install nexy && nexy init
 ```
-The interactive assistant will help you choose your preferred frontend framework and enable Tailwind CSS.
 
-### Run
+### 3. Launch Development Server
 ```bash
 nexy dev
 ```
 
-## Security and Reliability
-- **Strict Typing**: Pydantic integration for robust data and prop validation.
-- **Native Protection**: Automatic Jinja2 character escaping against XSS vulnerabilities.
-- **Architectural Integrity**: Built on SOLID principles for long-term maintainability.
+---
+
+## The .nexy Format (Server Components)
+
+A `.nexy` or `.mdx` file serves as a **Server Component**. Internally, Nexy transforms these files into Python functions where the header contains the logic and the body defines the template.
+
+```html
+---
+# Python Logic Layer
+title : prop[str] = "Nexy Component"
+
+from "@/components/Card.nexy" import Card
+from "@/components/Chart.tsx" import Chart
+from "@/assets/data.json" as config
+---
+<!-- Jinja2 Template Layer (Server-Side Rendered) -->
+<div class="p-6 bg-white rounded-xl shadow-lg">
+    <h1>{{ title }}</h1>
+    
+    <!-- Nexy Server Component -->
+    <Card content="Server-side rendered content" />
+    
+    <!-- Frontend Island (React/Vue/Svelte) -->
+    <Chart data="{{ config }}" />
+</div>
+```
+
+### Core Features
+*   **Typed Props**: Properties are defined using the `name : prop[type]` syntax.
+*   **Polyglot Imports**: Direct import support for `.nexy`, `.vue`, `.tsx`, `.svelte`, `.mdx`, `.py`, `.json`, and image assets within the component header.
+*   **Function Mapping**: A file named `users.nexy` is automatically mapped to a Python function named `Users()`.
+
+---
+
+## Routing Systems
+
+Nexy provides two distinct routing strategies to accommodate different architectural requirements.
+
+### 1. File-Based Routing
+The directory structure within `src/routes/` automatically generates the application's URL schema. This system supports `.nexy`, `.mdx`, and `.py` files.
+
+| File Path | URL | Resource Type |
+| :--- | :--- | :--- |
+| `index.nexy` | `/` | HTML Page |
+| `about.mdx` | `/about` | Markdown Page |
+| `blog/[slug].nexy` | `/blog/:slug` | Dynamic Page |
+| `api/users.py` | `/api/users` | API Endpoint |
+
+#### API Route Definitions (.py)
+API routes are defined by standard Python functions corresponding to HTTP methods:
+```python
+def GET(slug: str):
+    return {"message": f"Hello, {slug}"}
+
+def POST():
+    return {"status": "success"}
+```
+
+#### Dynamic Patterns
+*   **[slug]**: Standard dynamic parameter.
+*   **[...slug]**: Catch-all segments for deep nesting.
+*   **name-[slug]**: Prefixed dynamic parameters.
+*   **(group)**: Organizational folders that do not affect the URL path.
+
+### 2. Module-Based Routing
+For enterprise-level architectures, Nexy offers a decorator-based approach inspired by modular frameworks like NestJS.
+
+```python
+from nexy.decorators import Module, Controller
+
+@Controller()
+class AppController:
+    def GET(self):
+        return "Hello from Controller"
+
+@Module()
+class AppModule:
+    controllers = [AppController]
+    providers = []
+    imports = []
+```
+
+---
+
+## Nexy CLI (nx)
+
+The `nexy` command-line interface (also accessible via the `nx` alias) manages the application lifecycle:
+
+*   **nexy init**: Initializes the project configuration, including framework selection and Tailwind CSS integration.
+*   **nexy dev**: Starts the development server with Hot Module Replacement (HMR) for both FastAPI and Vite.
+*   **nexy build**: Compiles and optimizes assets for production deployment.
+*   **nexy start**: Launches the production server.
+
+---
+
+## Technical Specifications
+
+*   **Requirement**: Python 3.10+ and Node.js environment.
+*   **Backend**: Built on FastAPI and Pydantic for high-performance data validation.
+*   **Frontend**: Powered by Vite for near-instant builds and modern ecosystem compatibility.
+*   **Security**: Automatic Jinja2 escaping and Pydantic-based prop validation to ensure architectural integrity.
+
+---
 
 ## License
 Distributed under the MIT License.
