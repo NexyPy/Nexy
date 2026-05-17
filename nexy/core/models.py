@@ -107,7 +107,7 @@ class ContextModel:
 
 
 @dataclass
-class PaserModel:
+class ParserModel:
     frontmatter: str
     template: str
     props: list[NexyProp]

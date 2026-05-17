@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 
 from nexy.core.config import Config
 from nexy.core.string import StringTransform, Pathname
-from nexy.error import InternalServerError
+from nexy.errors import InternalServerError
 from nexy.routers.fbrouter.discovery import RouteDiscovery
 
 # Specialized classes

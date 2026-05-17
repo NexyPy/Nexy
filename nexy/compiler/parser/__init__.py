@@ -2,7 +2,7 @@ import ast
 import re
 
 from nexy.core.config import Config
-from nexy.core.models import PaserModel
+from nexy.core.models import ScanResult, ParserModel
 from .template import TemplateParser
 from .scanner import Scanner
 from .logic import LogicParser
@@ -23,7 +23,7 @@ class Parser:
         return content
 
 
-    def process(self, source_code: str, current_file: str) -> PaserModel:
+    def process(self, source_code: str, current_file: str) -> ParserModel:
         # 1. Découpage
         blocks = self.scanner.scan(source_code)
 
@@ -60,7 +60,7 @@ class Parser:
         if current_file.endswith(".mdx"):
             jinja_code = self._clean_jinja_wrapping(jinja_code)
             
-        return PaserModel(
+        return ParserModel(
             frontmatter=logic_result.python_code,
             template=jinja_code,
             props=logic_result.props,

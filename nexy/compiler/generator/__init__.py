@@ -1,10 +1,10 @@
 
 import os
 from pathlib import Path
-from nexy.core.models import PaserModel
+from nexy.core.models import ParserModel
 from .logic import LogicGenerator
 from .template import TemplateGenerator
-from nexy.utils.console import console
+from nexy.utils.common.console import console
 from nexy.errors import NexyCompileError
 from nexy.core.config import Config
 
@@ -12,11 +12,11 @@ from nexy.core.config import Config
 class Generator:
     def __init__(self) -> None:
         self.output: str = ""
-        self.source: PaserModel | None = None
+        self.source: ParserModel | None = None
         self.template = TemplateGenerator()
         self.logic = LogicGenerator()
 
-    def generate(self, output: str, source: PaserModel, source_path:str = None) -> bool:
+    def generate(self, output: str, source: ParserModel, source_path:str = None) -> bool:
         self.source = source
         try:
             directory = os.path.dirname(output)

@@ -1,0 +1,5 @@
+{
+  "build": {
+    "vite_failed": "فشل بناء Vite. {error}"
+  }
+}

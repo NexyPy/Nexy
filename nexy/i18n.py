@@ -12,6 +12,8 @@ def _normalize(tag: str) -> str:
     if t.startswith("fr"): return "fr"
     if t.startswith("hi") or t.startswith("in"): return "hi"
     if t.startswith("zh"): return "zh"
+    if t.startswith("es"): return "es"
+    if t.startswith("ar"): return "ar"
     if t.startswith("en"): return "en"
     return FALLBACK_LOCALE
 

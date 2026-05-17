@@ -7,39 +7,39 @@ class Pathname:
         self.pathname = "/" + pathname.strip("/")
 
     def _dynamic_pathname(self, path: Optional[str] = None) -> str:
-        """Transforme [slug] en {slug}."""
+        """Convert [slug] to {slug}."""
         target = path or self.pathname
-        # Regex: cherche ce qui est entre crochets, sauf si ça commence par '...'
+        # Regex: find content inside brackets, unless it starts with '...'
         return re.sub(r'\[(?!(\.\.\.))([^\]]+)\]', r'{\2}', target)
 
     def _catch_all(self, path: Optional[str] = None) -> str:
-        """Transforme [...slug] en {slug:path}."""
+        """Convert [...slug] to {slug:path}."""
         target = path or self.pathname
         return re.sub(r'\[\.\.\.([^\]]+)\]', r'{\1:path}', target)
 
     def _group_pathname(self, path: Optional[str] = None) -> str:
-        """Supprime les segments entre parenthèses comme /(user)/."""
+        """Remove parenthesized segments like /(user)/."""
         target = path or self.pathname
-        # Supprime /(group) et gère les doubles slashes résultants
+        # Remove /(group) and handle resulting double slashes
         cleaned = re.sub(r'/\([^)]+\)', '', target)
         return cleaned if cleaned else "/"
 
     def _normalize_pathname(self, path: str | None = None) -> str:
         target = path or self.pathname
-        # Next.js : /docs/index -> /docs et /index -> /
+        # Next.js: /docs/index -> /docs and /index -> /
         if target.endswith("/index"):
-            target = target[:-6] # Retire "/index"
+            target = target[:-6] # Remove "/index"
         return target if target else "/"
 
 
     def process(self) -> str:
-        """Exécute toutes les transformations dans l'ordre logique."""
+        """Execute all transformations in logical order."""
         res = self._group_pathname()
         res = self._normalize_pathname(res)
         res = self._catch_all(res)
         res = self._dynamic_pathname(res)
         
-        # Nettoyage final des slashes doubles
+        # Final cleanup of double slashes
         res = re.sub(r'/+', '/', res)
         return res if (res == "/" or not res.endswith("/")) else res.rstrip("/")
 
@@ -52,19 +52,6 @@ class StringTransform:
     @staticmethod
     def resolve_pathname(pathname: str) -> str:
         return pathname.replace("/", "")
-
-    @staticmethod
-    def _normalize_dynamic_segment(segment: str) -> str:
-        if segment.startswith("[...") and segment.endswith("]"):
-            name = segment[4:-1]
-            return f"{name}_ndp"
-        if segment.startswith("[") and segment.endswith("]"):
-            name = segment[1:-1]
-            return f"{name}_ndp"
-        if segment.startswith("(") and segment.endswith(")"):
-            name = segment[1:-1]
-            return f"{name}_ngp"
-        return segment
 
     @staticmethod
     def _normalize_dynamic_segment(segment: str) -> str:
@@ -118,13 +105,3 @@ class StringTransform:
         return first_letter + segment[1:]
     
     
-
-class ComponentString :
-    def __init__(self ,pathname: str): 
-        self.pathname = pathname
-
-    def get_name(self) -> str:
-        component_name = self.pathname.split("/")[-1]
-        first_letter = component_name[0].capitalize()
-        component_name = first_letter + component_name[1:]
-        return component_name

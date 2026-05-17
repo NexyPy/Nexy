@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-from nexy.utils.console import console
+from nexy.utils.common.console import console
 from nexy.core.config import Config
 from .preact import preact
 from .react import react

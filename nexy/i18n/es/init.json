@@ -1,0 +1,53 @@
+{
+  "init": {
+    "title": "nexy@{version} init",
+    "ask": {
+      "router": "¿Te gustaría usar el enrutador basado en archivos?",
+      "project_type": "Elige el tipo de proyecto",
+      "client_component": "¿Te gustaría usar un componente de cliente?",
+      "framework": "Elige el framework cliente",
+      "tailwind": "¿Te gustaría usar Tailwind CSS?"
+    },
+    "choice": {
+      "web": "Web (aplicación web monolítica)",
+      "api": "API (API RESTful)"
+    },
+    "already": "El proyecto ya está inicializado aquí",
+    "no_template": "no se ha seleccionado ninguna plantilla",
+    "registry_failed": "falló la obtención del registro: {error}. Usando lista de respaldo.",
+    "template_done": "plantilla '{name}' inicializada en {dest}",
+    "merging": "El directorio no está vacío, fusionando archivos...",
+    "venv": {
+      "creating": "Creando entorno virtual...",
+      "created": "Entorno virtual creado.",
+      "error": "Error al crear el entorno virtual: {error}"
+    },
+    "deps": {
+      "installing_python": "Instalando dependencias de Python con uv...",
+      "python_installed": "Dependencias de Python instaladas con éxito.",
+      "uv_not_found": "uv no encontrado, recurriendo a pip...",
+      "installing_js": "Instalando dependencias de JS...",
+      "using_manager": "Usando {manager}...",
+      "js_installed": "Dependencias de JS instaladas con éxito.",
+      "js_error": "Error al instalar las dependencias de JS: {error}",
+      "error": "Error al instalar dependencias: {error}"
+    },
+    "success": "¡Proyecto inicializado con éxito!",
+    "next_steps": "Siguientes pasos:",
+    "failed": "La inicialización falló: {error}",
+    "template_not_found": "La plantilla o rama '{branch}' no se encontró en el repositorio remoto.",
+    "checkout_failed": "Error al extraer archivos de la plantilla '{path}'.",
+    "initializing": "Inicializando {name}...",
+    "success_title": "¡Proyecto inicializado con éxito!",
+    "happy_coding": "¡Feliz codificación con Nexy!",
+    "step_run_dev": "Inicia el servidor de desarrollo",
+    "step_help": "Explora los comandos disponibles",
+    "installing_node": "Instalando dependencias de Node.js...",
+    "node_installed": "Dependencias de Node.js instaladas.",
+    "node_install_failed": "Error al instalar dependencias de Node.js. Por favor, ejecuta '{cmd}' manualmente.",
+    "node_manager_not_found": "No se encontró ningún gestor de paquetes de Node.js (npm, pnpm, yarn). Por favor, instala las dependencias manualmente.",
+    "installing_python": "Instalando dependencias de Python...",
+    "python_installed": "Dependencias de Python instaladas.",
+    "python_install_failed": "Error al instalar dependencias de Python. Por favor, instálalas manualmente."
+  }
+}

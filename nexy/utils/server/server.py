@@ -8,59 +8,21 @@ from subprocess import Popen
 import uvicorn as _uvicorn
 
 from nexy.core.config import Config
-from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG
-from nexy.cli.commands.utilities.console import console as print_console
+from nexy.utils.server.ports import find_available_port
+from nexy.utils.server.uvicorn_config import NEXY_LOG_CONFIG
+from nexy.utils.common.console import console as print_console
 
 _NEXY_DIR = Path("__nexy__")
-
-# ── Port utilities ──────────────────────────────────────────────────────────
-
-def _is_port_available(host: str, port: int) -> bool:
-    """
-    Vérifie si un port est libre en combinant une tentative de connexion 
-    et un fallback par binding.
-    """
-    # Étape 1 : Tentative de connexion (détecte si un service écoute)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(0.2)
-        try:
-            sock.connect((host, port))
-            return False  # Si on peut se connecter, le port est occupé
-        except (ConnectionRefusedError, socket.timeout):
-            pass 
-        except OSError:
-            pass
-
-    # Étape 2 : Tentative de Binding (confirmation finale)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        # SO_REUSEADDR permet de réutiliser le port sans attendre le timeout kernel
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            sock.bind((host, port))
-            return True # Bind réussi, le port est libre
-        except OSError:
-            return False
-
-def find_available_port(
-    start_port: int,
-    host: str = "127.0.0.1",
-    max_attempts: int = 100,
-) -> int:
-    """Parcourt les ports jusqu'à en trouver un de libre."""
-    for port in range(start_port, start_port + max_attempts):
-        if _is_port_available(host, port):
-            return port
-    raise RuntimeError(f"Aucun port disponible trouvé sur {host} aux alentours de {start_port}")
 
 # ── Internal helpers ────────────────────────────────────────────────────────
 
 def _write_port_file(name: str, port: int) -> None:
-    """Enregistre le port utilisé pour la communication inter-processus."""
+    """Saves the port used for inter-process communication."""
     _NEXY_DIR.mkdir(exist_ok=True)
     (_NEXY_DIR / f"{name}.port").write_text(str(port), encoding="utf-8")
 
 def _detect_pm() -> Tuple[str, bool]:
-    """Détecte le gestionnaire de paquets (pnpm, bun, yarn, npm)."""
+    """Detects the package manager (pnpm, bun, yarn, npm)."""
     for candidate in ("pnpm", "bun", "yarn", "npm"):
         binary = shutil.which(candidate) or shutil.which(candidate + ".cmd")
         if binary:
@@ -86,18 +48,18 @@ class Server:
         port: Optional[int] = None,
     ) -> Tuple[int, int]:
         """
-        Calcule les ports du serveur et du client en cascade.
-        Retourne (server_port, client_port).
+        Calculates server and client ports in cascade.
+        Returns (server_port, client_port).
         """
         cfg = Config()
         run_host: str = host or getattr(cfg, "host", "127.0.0.1")
         base_port: int = port or getattr(cfg, "port", 3000)
 
-        # 1. On trouve un port pour le serveur (ex: 3000 ou 3001)
+        # 1. Find a port for the server (e.g. 3000 or 3001)
         server_port = find_available_port(base_port, run_host)
         
-        # 2. On trouve un port pour le client (doit être différent du serveur)
-        # On commence la recherche juste après le port serveur
+        # 2. Find a port for the client (must be different from the server)
+        # Search starts right after the server port
         client_port = find_available_port(server_port + 1, run_host)
 
         return server_port, client_port
@@ -108,19 +70,19 @@ class Server:
         port: int = 3000,
         as_process: bool = False,
     ) -> Optional[Popen[Any]]:
-        """Lance le serveur FastAPI/Uvicorn."""
+        """Starts the FastAPI/Uvicorn server."""
         run_host = host or "127.0.0.1"
         
         _write_port_file("server", port)
 
         try:
             if as_process:
-                # On écrit un petit script Python "à la volée"
+                # Writes a small Python script on the fly
                 launcher_code = (
                     "import uvicorn\n"
                     "import sys\n"
                     "try:\n"
-                    "    from nexy.cli.commands.utilities.uvicorn_config import NEXY_LOG_CONFIG\n"
+                    "    from nexy.utils.server.uvicorn_config import NEXY_LOG_CONFIG\n"
                     f"    uvicorn.run('nexy.routers.app:_server', host='{run_host}', port={port}, "
                     "log_config=NEXY_LOG_CONFIG, log_level='info')\n"
                     "except Exception as e:\n"
@@ -139,7 +101,7 @@ class Server:
             
                 
         except Exception as exc:
-            print_console.print(f"[red]✘ Échec du lancement du serveur :[/red] {exc}")
+            print_console.print(f"[red]✘ Server launch failed:[/red] {exc}")
             return None
 
     @staticmethod

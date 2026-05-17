@@ -5,7 +5,7 @@ import os
 import stat
 from typing import Any, Callable
 
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.i18n import t
 
 
@@ -22,11 +22,11 @@ class GitClone:
     
     def clone(self, repo: str, branch: str, dest: Path, subdir: str | None = None) -> None:
         """Clones the template. If subdir is provided, extracts only that directory's contents."""
-        # On sauvegarde le dépôt git de l'utilisateur s'il existe déjà
+        # Backup user's git repo if it already exists
         has_user_git = self._stash_git_repo()
         
         try:
-            # Si le dossier contient seulement .venv ou est vide, on peut cloner/extraire
+            # If the directory contains only .venv or is empty, we can clone/extract
             is_empty = self._is_empty_dir(dest)
             has_only_venv = False
             if not is_empty:

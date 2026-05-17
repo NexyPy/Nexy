@@ -2,12 +2,12 @@ from typing import Optional
 
 import uvicorn
 from nexy.__version__ import __Version__
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.core.config import Config
-from nexy.cli.commands.utilities.server import Server
+from nexy.utils.server.server import Server
 
 def start(port: Optional[int] = None, host: Optional[str] = None) -> None:
-    # 1. Initialisation et vérification
+    # 1. Initialization and verification
     version = __Version__().get()
     # Server.check_nexy_prod()
     

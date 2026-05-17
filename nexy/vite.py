@@ -2,17 +2,17 @@ import os
 import json
 from pathlib import Path
 from nexy.core.config import Config
-from nexy.utils.ports import get_client_port
+from nexy.utils.server.ports import get_client_port
 
 
 def Vite() -> str:
-    # 1. Vérification config
+    # 1. Config verification
     config = Config()
     if not os.path.exists("vite.config.ts"):
-        return "" # Pas de Vite si pas de config
+        return "" # No Vite if no config
     
     if not getattr(config, "useVite", False):
-        return "" # Pas de Vite si désactivé
+        return "" # No Vite if disabled
 
     manifest_path = Path("__nexy__/client/.vite/manifest.json")
     prod_server = Path("__nexy__/nexy.prod")
@@ -48,10 +48,10 @@ def Vite() -> str:
             pass
     if prod_server.is_file() is True and manifest_path.is_file() is False:
         raise FileNotFoundError("manifest.json not found")
-    # 3. Mode Développement (Dynamique via le navigateur)
+    # 3. Development Mode (Dynamic via browser)
     port = get_client_port(5173)
     
-    # On utilise un petit script JS pour injecter les balises avec le bon hostname
+    # Small JS script to inject tags with the correct hostname
     return f"""
     <script type="module">
         const host = window.location.hostname;

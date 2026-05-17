@@ -4,11 +4,11 @@ from typing import Optional
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
 from nexy.core.config import Config
-from nexy.cli.commands.utilities.server import Server
-from nexy.cli.commands.utilities.watcher import create_observer
+from nexy.utils.server.server import Server
+from nexy.utils.dev.watcher import create_observer
 from nexy.frontend import FrontendGenerator
-from nexy.utils.console import console
-from nexy.utils.ports import generate_port
+from nexy.utils.common.console import console
+from nexy.utils.server.ports import generate_port
 
 def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     config = Config()
@@ -23,7 +23,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     vite_proc = None
 
     def restart_api() -> None:
-        """Tue l'ancien Uvicorn et en lance un nouveau."""
+        """Kills the old Uvicorn and starts a new one."""
         nonlocal api_proc
         if api_proc:
             api_proc.terminate()
@@ -42,7 +42,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     except Exception as e:
         console.print(f"\n[red]✘ Error starting Vite:[/red] {e}")
         vite_proc = None
-    # Initialisation du Watcher avec le callback de restart
+    # Watcher initialization with restart callback
     observer = create_observer(
         path=".", 
         patterns=config.WATCH_EXTENSIONS_GLOB,
@@ -51,7 +51,7 @@ def dev(port: Optional[int] = None, host: Optional[str] = None) -> None:
     )
 
     try:
-        # Lancement initial des services
+        # Initial services launch
         console.print(f"nexy@{version} dev using : \n")
 
         restart_api()

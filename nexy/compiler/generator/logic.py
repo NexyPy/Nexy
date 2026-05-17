@@ -3,7 +3,7 @@ import textwrap
 import re
 from pathlib import Path
 from typing import *
-from nexy.core.models import PaserModel
+from nexy.core.models import ParserModel, NexyProp
 from nexy.core.string import StringTransform
 from nexy.routers.fbrouter.layout import RouteLayout
 
@@ -11,14 +11,14 @@ from nexy.routers.fbrouter.layout import RouteLayout
 class LogicGenerator:
     def __init__(self) -> None:
         self.func_name: str = ""
-        self.source: PaserModel | None = None
+        self.source: ParserModel | None = None
         self.output: str = ""
         self.template_path: str = ""
         self.FRONTMATTER: str = ""
         self._string_transform = StringTransform()
         self.source_path: str = None
     
-    def generate(self, template_path: str, source: PaserModel, source_path:str = None) -> None:
+    def generate(self, template_path: str, source: ParserModel, source_path:str = None) -> None:
         self.source = source
         self.source_path = source_path
         self.template_path = template_path

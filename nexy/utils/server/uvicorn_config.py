@@ -4,7 +4,7 @@ import os
 import traceback
 from typing import cast
 
-# Couleurs ANSI pour le terminal
+# ANSI colors for terminal
 C = {
     "reset": "\033[0m",
     "dim": "\033[2m",
@@ -16,7 +16,7 @@ C = {
     "magenta": "\033[35m",
 }
 
-# Messages systèmes d'Uvicorn à masquer pour épurer la console
+# Uvicorn system messages to hide for a cleaner console
 IGNORED_MESSAGES = [
     "Started server process",
     "Waiting for application startup",
@@ -27,26 +27,26 @@ IGNORED_MESSAGES = [
     "Will watch for changes"
 ]
 
-# Signes associés aux principaux codes de statut HTTP (sans emojis)
+# Signs associated with main HTTP status codes (no emojis)
 status_indicators = {
     200: "✓", 
-    201: "⊕", 
-    304: "⊛", 
-    307: "➜",
-    400: "△", 
-    404: "○", 
-    422: "🞫", 
-    500: "‼",
+    201: "+", 
+    304: "*", 
+    307: ">",
+    400: "!", 
+    404: "o", 
+    422: "x", 
+    500: "!!",
 }
 
 class NexyFilter(logging.Filter):
-    """Filtre de nettoyage pour bloquer les logs d'initialisation redondants."""
+    """Cleaning filter to block redundant initialization logs."""
     def filter(self, record: logging.LogRecord) -> bool:
         msg = record.getMessage()
         return not any(ignored in msg for ignored in IGNORED_MESSAGES)
 
 class NexyAccessFormatter(logging.Formatter):
-    """Formatter ultra-lisible pour les requêtes HTTP et connexions WebSockets."""
+    """Ultra-readable formatter for HTTP requests and WebSocket connections."""
     def format(self, record: logging.LogRecord) -> str:
         msg = record.getMessage()
         if not record.args or len(record.args) < 5:
@@ -86,12 +86,12 @@ class NexyAccessFormatter(logging.Formatter):
         is_socket = "ws" in path or "socket" in path or status_code == 101
         label = f"{C['magenta']}ws{C['reset']} »" if is_socket else f"{color}{method}{C['reset']} »"
 
-        indicator = status_indicators.get(status_code, "⚠️")
+        indicator = status_indicators.get(status_code, "!")
 
         return f"{label} {C['dim']}{host}{C['reset']}:{C['blue']}{port}{C['reset']} {color}{path}{C['reset']} , {color}{status_code}{C['reset']} © {indicator}"
 
 class NexyDefaultFormatter(logging.Formatter):
-    """Formatter universel gérant les erreurs en fonction, classe ou niveau module."""
+    """Universal formatter handling errors based on function, class, or module level."""
     def format(self, record: logging.LogRecord) -> str:
         msg = record.getMessage()
         level = record.levelname.capitalize()

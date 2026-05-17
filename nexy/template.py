@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from pathlib import Path
 import json
 from .core.config import Config
-from .utils.ports import get_vite_port
+from .utils.server.ports import get_vite_port
 
 extension_configs={
     "pymdownx.highlight": {
@@ -14,39 +14,40 @@ extension_configs={
 }
 
 class Template:
-    """Classe pour gérer le rendu des templates Jinja2 et Markdown."""
+    """Class to handle Jinja2 and Markdown template rendering."""
     
-    def __init__(self) -> None:
-        """Initialise le renderer avec la configuration Nexy."""
-        self.config =  Config()
+    def __init__(self, templates_dir: str = ".") -> None:
+        """Initialize the renderer with Nexy configuration."""
+        self.config = Config()
+        self.templates_dir = templates_dir
         
-        # Sécurité : autoescape activé pour éviter les failles XSS
+        # Security: autoescape prevents XSS
         self.env = Environment(
-            loader=FileSystemLoader("."),
+            loader=FileSystemLoader(templates_dir),
             auto_reload=True,
-        
+            # autoescape=select_autoescape(['html', 'xml'])
         )
     
     def _render_jinja2(self, path: str, context: Dict[str, Any]) -> str:
-        """Charge et rend un template Jinja2."""
+        """Loads and renders a Jinja2 template."""
         template = self.env.get_template(path)
         return template.render(context)
     
     def _render_markdown(self, content: str) -> str:
-        """Convertit le texte Markdown en HTML."""
-        # Utilisation de la librairie standard 'markdown' avec extensions communes
+        """Convert Markdown text to HTML."""
+        # Use the standard 'markdown' library with common extensions
         return markdown.markdown(content, extensions=self.config.MARKDOWN_EXTENSIONS, extension_configs=extension_configs)
     
     def render(self, path: str, context: Optional[Dict[str, Any]] = None) -> str:
         """
-        Rend un template selon l'extension (Jinja2 ou Markdown).
+        Renders a template according to the extension (Jinja2 or Markdown).
         
         Args:
-            path: Chemin du template
-            context: Contexte pour le rendu (dict clé-valeur)
+            path: Path to the template
+            context: Context for rendering (key-value dict)
         
         Returns:
-            Contenu rendu (HTML)
+            Rendered content (HTML)
         """
         if context is None:
             context = {}

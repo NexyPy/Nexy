@@ -1,5 +1,12 @@
 # Nexy — Agent Guide
 
+## Vision & Ambition
+L'objectif principal de Nexy est de **surpasser les solutions existantes** telles que Django, Next.js, Remix, Reflect et Astro, tant en matière d'expérience développeur (DX) que de performances en production.
+- **Sub-second startup** and **Sub-100ms HMR**.
+- **Browser error overlay** for compilation failures.
+- **Clean terminal output** (no emojis, structured timings).
+- **All code in English**: No French comments or variables.
+
 ## Philosophy (KISS · TDD · SOLID)
 
 - **KISS**: simplest working code wins. No premature abstraction, no clever one-liners. Functions < 20 lines, classes < 10 methods.

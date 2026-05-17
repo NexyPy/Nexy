@@ -1,8 +1,8 @@
 import sys
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
-from nexy.cli.commands.utilities.console import console
-from nexy.cli.commands.utilities.server import Server
+from nexy.utils.common.console import console
+from nexy.utils.server.server import Server
 from nexy.core.config import Config
 from nexy.frontend import FrontendGenerator
 from nexy.i18n import t

@@ -3,7 +3,7 @@ import time
 from typing import Any, Callable, Optional
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler
 from watchdog.observers import Observer
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 

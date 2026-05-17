@@ -2,7 +2,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 from nexy.__version__ import __Version__
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.i18n import t
 from .clone import GitClone
 from .prompts import ProjectPrompter

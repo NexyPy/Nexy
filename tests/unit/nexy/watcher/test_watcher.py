@@ -1,5 +1,5 @@
 import pytest
-from nexy.cli.commands.utilities.watcher import WatchHandler
+from nexy.utils.dev.watcher import WatchHandler
 
 
 class TestWatchHandlerNormalize:

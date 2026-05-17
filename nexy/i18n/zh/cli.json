@@ -1,0 +1,6 @@
+{
+  "cli": {
+    "help": "Nexy CLI - 模块化元框架",
+    "no_command": "使用 nx/nexy --help 查看可用命令。"
+  }
+}

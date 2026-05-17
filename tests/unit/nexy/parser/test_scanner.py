@@ -54,10 +54,11 @@ show_hero = True
 </div>
 """
 
-def test_scanner_invalid_1():
+def test_scanner_no_frontmatter():
     scanner = Scanner()
-    with pytest.raises(ValueError):
-        scanner.process(source_invalid_1)
+    result = scanner.process(source_invalid_1)
+    assert result.frontmatter == ""
+    assert '<div class="container">' in result.template
 
 source_invalid_2 = """
 ---
@@ -69,9 +70,9 @@ show_hero = True
 </div>
 """
 
-def test_scanner_invalid_2():
+def test_scanner_unclosed_frontmatter():
     scanner = Scanner()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unclosed '---' delimiter"):
         scanner.process(source_invalid_2)
 
 
@@ -85,10 +86,11 @@ show_hero = True
 </div>
 """
 
-def test_scanner_invalid_3():
+def test_scanner_no_frontmatter_with_dashes():
     scanner = Scanner()
-    with pytest.raises(ValueError):
-        scanner.process(source_invalid_3)
+    result = scanner.process(source_invalid_3)
+    assert result.frontmatter == ""
+    assert "----" in result.template
 
 
 source_invalid_4 = """
@@ -100,8 +102,9 @@ show_hero = True
 """
 
 
-def test_scanner_invalid_4():
+def test_scanner_frontmatter_not_at_start():
     scanner = Scanner()
-    with pytest.raises(ValueError):
-        scanner.process(source_invalid_4)
+    result = scanner.process(source_invalid_4)
+    assert result.frontmatter == ""
+    assert 'title = "Nexy"' in result.template
 

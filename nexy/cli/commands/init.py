@@ -1,8 +1,8 @@
 from typing import Optional
 from pathlib import Path
 import typer
-from nexy.cli.commands.utilities.init import InitProject
-from nexy.utils.console import console
+from nexy.utils.init import InitProject
+from nexy.utils.common.console import console
 from nexy.i18n import t
 
 

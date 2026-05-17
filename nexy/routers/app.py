@@ -7,12 +7,13 @@ from starlette.exceptions import HTTPException
 from scalar_fastapi import get_scalar_api_reference
 
 from nexy.__version__ import __Version__
-# from nexy.cli.commands.utilities.pycache import pycache
+# from nexy.utils.dev.pycache import pycache
 from nexy.core.config import Config
-from nexy.error import InternalServerError, NotFound
+from nexy.errors import InternalServerError, NotFound
 from nexy.routers.actions.engine import ACTION_ENGINE
 from nexy.routers.fbrouter import FBRouter
-from nexy.utils.console import console
+from nexy.utils.common.console import console
+from nexy.routers.context import current_request
 from nexy.routers.context import current_request
 
 
@@ -40,7 +41,7 @@ class AppServer:
         """KISS: Logic extracted to a single specialized method."""
         conf = self.config.nexy_config
         if not conf or not getattr(conf, "useDocs", True):
-            console.print("[yellow]API documentation is desactived[reset]")
+            console.print("[yellow]API documentation is disabled[/yellow]")
             return None, None
         
         d_url = getattr(conf, "useDocsUrl", "/docs")

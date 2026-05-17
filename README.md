@@ -4,7 +4,9 @@ Nexy is a modular fullstack meta-framework designed to simplify modern web devel
 
 ## The Nexy 2 Vision
 
-Nexy 2 transforms the development experience by masking complex architectural patterns behind an intuitive interface. The framework handles the orchestration between the Python server and the JavaScript client, allowing you to focus exclusively on business logic and UI.
+L'objectif principal de Nexy est de **surpasser les solutions existantes** telles que Django, Next.js, Remix, Reflect et Astro, tant en matière d'expérience développeur (DX) que de performances en production. 
+
+Nexy 2 transforms the development experience by masking complex architectural patterns behind an intuitive interface. The framework handles the orchestration between the Python server and the JavaScript client, allowing you to focus exclusively on business logic and UI, providing sub-second startup times and sub-100ms HMR.
 
 ## Core Concepts
 

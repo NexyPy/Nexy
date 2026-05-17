@@ -1,5 +1,5 @@
 from nexy.builder.discovery import Discovery
-from nexy.utils.console import console
+from nexy.utils.common.console import console
 from nexy.compiler import Compiler
 from nexy.core.config import Config
 

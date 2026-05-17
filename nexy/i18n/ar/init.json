@@ -1,0 +1,53 @@
+{
+  "init": {
+    "title": "nexy@{version} init",
+    "ask": {
+      "router": "هل ترغب في استخدام الموجه القائم على الملفات؟",
+      "project_type": "اختر نوع المشروع",
+      "client_component": "هل ترغب في استخدام مكون العميل؟",
+      "framework": "اختر إطار عمل العميل",
+      "tailwind": "هل ترغب في استخدام Tailwind CSS؟"
+    },
+    "choice": {
+      "web": "ويب (تطبيق ويب متكامل)",
+      "api": "واجهة برمجة تطبيقات (RESTful API)"
+    },
+    "already": "تم تهيئة المشروع بالفعل هنا",
+    "no_template": "لم يتم تحديد قالب",
+    "registry_failed": "فشل جلب السجل: {error}. جاري استخدام القائمة الاحتياطية.",
+    "template_done": "تم تهيئة القالب '{name}' في {dest}",
+    "merging": "الدليل ليس فارغاً، جاري دمج الملفات...",
+    "venv": {
+      "creating": "جاري إنشاء البيئة الافتراضية...",
+      "created": "تم إنشاء البيئة الافتراضية.",
+      "error": "خطأ في إنشاء البيئة الافتراضية: {error}"
+    },
+    "deps": {
+      "installing_python": "جاري تثبيت تبعيات Python باستخدام uv...",
+      "python_installed": "تم تثبيت تبعيات Python بنجاح.",
+      "uv_not_found": "لم يتم العثور على uv، جاري استخدام pip كبديل...",
+      "installing_js": "جاري تثبيت تبعيات JS...",
+      "using_manager": "استخدام {manager}...",
+      "js_installed": "تم تثبيت تبعيات JS بنجاح.",
+      "js_error": "خطأ في تثبيت تبعيات JS: {error}",
+      "error": "خطأ في تثبيت التبعيات: {error}"
+    },
+    "success": "تم تهيئة المشروع بنجاح!",
+    "next_steps": "الخطوات التالية:",
+    "failed": "فشلت التهيئة: {error}",
+    "template_not_found": "لم يتم العثور على القالب أو الفرع '{branch}' في المستودع البعيد.",
+    "checkout_failed": "فشل استخراج الملفات من القالب '{path}'.",
+    "initializing": "جاري تهيئة {name}...",
+    "success_title": "تم تهيئة المشروع بنجاح!",
+    "happy_coding": "برمجة سعيدة مع Nexy!",
+    "step_run_dev": "بدء خادم التطوير",
+    "step_help": "استكشاف الأوامر المتاحة",
+    "installing_node": "جاري تثبيت تبعيات Node.js...",
+    "node_installed": "تم تثبيت تبعيات Node.js.",
+    "node_install_failed": "فشل تثبيت تبعيات Node.js. يرجى تشغيل '{cmd}' يدوياً.",
+    "node_manager_not_found": "لم يتم العثور على مدير حزم Node.js (npm، pnpm، yarn). يرجى تثبيت التبعيات يدوياً.",
+    "installing_python": "جاري تثبيت تبعيات Python...",
+    "python_installed": "تم تثبيت تبعيات Python.",
+    "python_install_failed": "فشل تثبيت تبعيات Python. يرجى تثبيتها يدوياً."
+  }
+}

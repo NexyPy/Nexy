@@ -1,7 +1,7 @@
 from fastapi.responses import HTMLResponse
 from __nexy__.src.routes.index import Index
 from __nexy__.src.routes.layout import Layout
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.decorators import UseResponse
 
 

@@ -1,6 +1,7 @@
 import os
 import sys
 import traceback
+from typing import Optional
 
 from nexy.core.models import NexyConfigModel
 
@@ -13,6 +14,8 @@ if current_dir not in sys.path:
 
 
 class Config:
+    _instance: Optional['Config'] = None
+
     ALIASES: dict[str, str] = {}
     NAMESPACE: str = "__nexy__/"
     MARKDOWN_EXTENSIONS: list[str] = ["extra","tables","fenced_code","codehilite","toc","admonition","attr_list","pymdownx.highlight","pymdownx.superfences","pymdownx.inlinehilite","pymdownx.details","pymdownx.tabbed"]
@@ -44,8 +47,17 @@ class Config:
         ".css": "css",
     }
 
+    def __new__(cls) -> 'Config':
+        if cls._instance is None:
+            cls._instance = super(Config, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self) -> None:
+        if getattr(self, "_initialized", False):
+            return
         self._get_config()
+        self._initialized = True
 
     def _get_config(self) -> None:
         try:

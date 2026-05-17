@@ -2,7 +2,7 @@ import shutil
 import subprocess
 import os
 from pathlib import Path
-from nexy.cli.commands.utilities.console import console
+from nexy.utils.common.console import console
 from nexy.i18n import t
 
 class DependencyInstaller:

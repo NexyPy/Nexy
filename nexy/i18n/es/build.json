@@ -1,0 +1,5 @@
+{
+  "build": {
+    "vite_failed": "La compilación de Vite falló. {error}"
+  }
+}

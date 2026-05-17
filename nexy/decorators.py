@@ -9,15 +9,15 @@ from nexy.routers.actions.store import ACTIONS_STORE
 
 HTTP_METHODS: Set[str] = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"}
 
-# --- 1. DÉCORATEUR INJECTABLE (Doit être défini avant le Container pour référence) ---
+# --- 1. INJECTABLE DECORATOR ---
 def Injectable() -> Callable[[type[Any]], type[Any]]:
-    """Marque une classe comme service injectable"""
+    """Marks a class as an injectable service."""
     def wrapper(cls: type[Any]) -> type[Any]:
         setattr(cls, "__injectable__", True)
         return cls
     return wrapper
 
-# --- 2. SYSTEME D'INJECTION (CONTAINER INTELLIGENT) ---
+# --- 2. DI CONTAINER ---
 
 
 class Container:
@@ -27,7 +27,7 @@ class Container:
 
     @classmethod
     def resolve(cls, target_cls: Type[Any]) -> Any:
-        """1. Accès rapide (Fast path) sans verrou"""
+        """1. Fast path — no lock"""
         if target_cls in cls._instances:
             return cls._instances[target_cls]
 
@@ -36,13 +36,13 @@ class Container:
             if target_cls in cls._instances:
                 return cls._instances[target_cls]
 
-            # 3. Détection de cycle (Dépendances circulaires)
+            # 3. Cycle detection
             if target_cls in cls._resolving:
-                raise RecursionError(f"Cycle détecté pour {target_cls.__name__}")
+                raise RecursionError(f"Cycle detected for {target_cls.__name__}")
             
             cls._resolving.add(target_cls)
             try:
-                # 4. Résolution simplifiée
+                # 4. Simple resolution
                 init = target_cls.__init__
                 if init is object.__init__:
                     instance = target_cls()
@@ -56,7 +56,7 @@ class Container:
                         if hasattr(dep_type, "__injectable__"):
                             deps.append(cls.resolve(dep_type))
                         elif param.default is inspect.Parameter.empty:
-                            raise ValueError(f"Dépendance {name}: {dep_type} non injectable dans {target_cls.__name__}")
+                            raise ValueError(f"Dependency {name}: {dep_type} is not injectable in {target_cls.__name__}")
                     
                     instance = target_cls(*deps)
 
@@ -65,7 +65,7 @@ class Container:
             finally:
                 cls._resolving.remove(target_cls)
 
-# --- 3. AUTRES DÉCORATEURS ---
+# --- 3. OTHER DECORATORS ---
 
 def Controller(prefix: str = "", tags: list[str] | None = None) -> Callable[[type[Any]], type[Any]]:
     def wrapper(cls: type[Any]) -> type[Any]:
@@ -231,13 +231,13 @@ def Module(prefix: str = "") -> Callable[[type[Any]], APIRouter]:
         providers_list = getattr(cls, "providers", [])
         imports_list = getattr(cls, "imports", [])
         if not controllers_list:
-            raise ValueError(f"Module {cls.__name__} doit avoir au moins un controller")
+            raise ValueError(f"Module {cls.__name__} must have at least one controller")
         
         module_router = APIRouter(prefix=prefix)
         
         for provider_cls in providers_list:
             if not hasattr(provider_cls, "__injectable__"):
-                raise ValueError(f"{provider_cls.__name__} doit être @Injectable()")
+                raise ValueError(f"{provider_cls.__name__} must be @Injectable()")
             Container.resolve(provider_cls)
         
         if imports_list:
@@ -255,8 +255,7 @@ def _register_controller(ctrl_cls: Type[Any], parent_router: APIRouter) -> None:
     ctrl_tags = getattr(ctrl_cls, '__controller_tags__', [])
     ctrl_router = APIRouter(prefix=ctrl_prefix, tags=ctrl_tags)
     
-    # ICI : Container.resolve va analyser le Controller, voir qu'il a besoin d'un Service,
-    # vérifier si le Service est @Injectable, et le créer à la volée.
+    # Container.resolve analyzes the Controller, resolves its Service dependency
     ctrl_instance = Container.resolve(ctrl_cls)
     class_guards: Iterable[Callable[..., Any]] = getattr(ctrl_cls, "__nexy_guards__", ())
     class_middlewares: Iterable[Callable[..., Any]] = getattr(ctrl_cls, "__nexy_middlewares__", ())

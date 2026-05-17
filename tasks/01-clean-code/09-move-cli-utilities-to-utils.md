@@ -117,8 +117,8 @@ python -m pytest tests/ -v
 ```
 
 ## Definition of Done
-- [ ] All 6 files moved from `nexy/cli/commands/utilities/` to `nexy/utils/`
-- [ ] Zero imports reference `nexy.cli.commands.utilities`
+- [x] All 6 files moved from `nexy/cli/commands/utilities/` to `nexy/utils/`
+- [x] Zero imports reference `nexy.cli.commands.utilities`
 - [ ] `ruff check nexy/` — no lint errors
 - [ ] `python -m mypy nexy --strict` — no type errors
 - [ ] `python -m pytest tests/ -v` — no regressions

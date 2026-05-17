@@ -1,0 +1,53 @@
+{
+  "init": {
+    "title": "nexy@{version} init",
+    "ask": {
+      "router": "您想使用基于文件的路由器吗？",
+      "project_type": "选择项目类型",
+      "client_component": "您想使用客户端组件吗？",
+      "framework": "选择客户端框架",
+      "tailwind": "您想使用 Tailwind CSS 吗？"
+    },
+    "choice": {
+      "web": "Web (单体 Web 应用)",
+      "api": "API (RESTful API)"
+    },
+    "already": "项目已在此处初始化",
+    "no_template": "未选择模板",
+    "registry_failed": "注册表获取失败: {error}。使用后备列表。",
+    "template_done": "模板 '{name}' 已在 {dest} 初始化",
+    "merging": "目录非空，正在合并文件...",
+    "venv": {
+      "creating": "正在创建虚拟环境...",
+      "created": "虚拟环境已创建。",
+      "error": "创建虚拟环境时出错: {error}"
+    },
+    "deps": {
+      "installing_python": "正在使用 uv 安装 Python 依赖项...",
+      "python_installed": "Python 依赖项安装成功。",
+      "uv_not_found": "未找到 uv，回退到 pip...",
+      "installing_js": "正在安装 JS 依赖项...",
+      "using_manager": "正在使用 {manager}...",
+      "js_installed": "JS 依赖项安装成功。",
+      "js_error": "安装 JS 依赖项时出错: {error}",
+      "error": "安装依赖项时出错: {error}"
+    },
+    "success": "项目初始化成功！",
+    "next_steps": "后续步骤：",
+    "failed": "初始化失败: {error}",
+    "template_not_found": "在远程存储库上未找到模板或分支 '{branch}'。",
+    "checkout_failed": "无法从模板 '{path}' 提取文件。",
+    "initializing": "正在初始化 {name}...",
+    "success_title": "项目初始化成功！",
+    "happy_coding": "使用 Nexy 快乐编码！",
+    "step_run_dev": "启动开发服务器",
+    "step_help": "探索可用命令",
+    "installing_node": "正在安装 Node.js 依赖项...",
+    "node_installed": "Node.js 依赖项已安装。",
+    "node_install_failed": "无法安装 Node.js 依赖项。请手动运行 '{cmd}'。",
+    "node_manager_not_found": "未找到 Node.js 包管理器 (npm, pnpm, yarn)。请手动安装依赖项。",
+    "installing_python": "正在安装 Python 依赖项...",
+    "python_installed": "Python 依赖项已安装。",
+    "python_install_failed": "无法安装 Python 依赖项。请手动安装。"
+  }
+}

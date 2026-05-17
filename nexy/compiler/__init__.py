@@ -1,9 +1,9 @@
 from nexy.compiler.parser import Parser
 from nexy.compiler.generator import Generator
-from nexy.core.models import PaserModel
+from nexy.core.models import ParserModel
 from nexy.core.config import Config
 from nexy.errors import NexyCompileError
-from nexy.utils.console import console
+from nexy.utils.common.console import console
 
 def is_nexy_file(file_path: str) -> bool:
     return file_path.endswith(".nexy")
@@ -51,7 +51,7 @@ class Compiler:
             raise NexyCompileError(source_path=self.input, message=msg)
         
         try:
-            CODE_PARSED: PaserModel = self.parser.process(source_code=self.source_code, current_file=self.input)
+            CODE_PARSED: ParserModel = self.parser.process(source_code=self.source_code, current_file=self.input)
             self.generator.generate(self.output, CODE_PARSED, source_path=self.input)
         except NexyCompileError:
             raise

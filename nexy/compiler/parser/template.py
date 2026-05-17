@@ -32,8 +32,11 @@ class TemplateFormatter:
                 # Clean up empty string concatenations
                 expr = f'"{expr}"'.replace('"" ~ ', '').replace(' ~ ""', '')
                 pairs.append(f'{key}={expr}')
+            elif match[3]:
+                # Unquoted value: count=5 -> count=5
+                pairs.append(f'{key}={value}')
             else:
-                # Static string
+                # Quoted string
                 pairs.append(f'{key}="{value}"')
                 
         return ", ".join(pairs)
@@ -76,7 +79,7 @@ class TemplateParser:
         
         # STEP 3: PASCALCASE TRANSFORMATIONS
         
-        # Self-closing: <User name="Loém" /> -> {{ User(name="Loém") }}
+        # Self-closing: <User name="John" /> -> {{ User(name="John") }}
         content = self._SELF_CLOSING_RE.sub(self._replace_self_closing, content)
 
         # Blocks: <Layout>...</Layout> -> {% call Layout() %}...{% endcall %}
