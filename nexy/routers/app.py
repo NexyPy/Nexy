@@ -85,12 +85,10 @@ class AppServer:
         if isinstance(router_source, (APIRouter, type)) and (
             isinstance(router_source, APIRouter) or issubclass(router_source, APIRouter)
         ):
-            print(
-                f"[green]Custom router registered:[/green] {router_source.__name__ if isinstance(router_source, type) else 'APIRouter instance'}"
-            )
+            console.print("[dim]Nexy  use useRouter from nexyconfig.py[/dim]")
             self.server.include_router(router_source)
         elif Path("src/routes").exists():
-            print("Nexy use FB Router")
+            console.print("[dim]Nexy use FB Router[/dim]")
             FBRouter().register_on(self.server)
 
     async def PathMiddleware(self, request: Request, call_next: Callable) -> Response:

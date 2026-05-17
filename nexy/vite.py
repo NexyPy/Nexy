@@ -41,8 +41,7 @@ def Vite() -> str:
                 else:
                     src = f"/{file_rel}"
                     css_links = "".join(
-                        f'<link rel="stylesheet" href="/{c.lstrip("/")}" />'
-                        for c in css_files
+                        f'<link rel="stylesheet" href="/{c.lstrip("/")}" />' for c in css_files
                     )
                     return f'{css_links}<script type="module" src="{src}"></script>'
         except Exception:
@@ -100,12 +99,14 @@ def Vite() -> str:
     </script>
     """
 
+    vite_protocol = "https" if config.useSslKeyfile and config.useSslCertfile else "http"
+
     # Small JS script to inject tags with the correct hostname
     return f"""
     {hmr_script}
     <script type="module">
         const host = window.location.hostname;
-        const base = `http://${{host}}:{port}`;
+        const base = `{vite_protocol}://${{host}}:{port}`;
         
         const s1 = document.createElement('script');
         s1.type = 'module';

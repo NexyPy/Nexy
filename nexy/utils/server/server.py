@@ -1,4 +1,5 @@
 import shutil
+import socket
 import subprocess
 import sys
 import traceback
@@ -70,26 +71,51 @@ class Server:
         return server_port, client_port
 
     @staticmethod
+    def get_network_ip() -> str:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+        except Exception:
+            return "127.0.0.1"
+        finally:
+            s.close()
+
+    @staticmethod
+    def get_ssl_config(config: Config) -> tuple[str | None, str | None]:
+        if config.useSslKeyfile and config.useSslCertfile:
+            return config.useSslKeyfile, config.useSslCertfile
+        return None, None
+
+    @staticmethod
     def uvicorn(
         host: str | None = None,
         port: int = 3000,
         as_process: bool = False,
+        ssl_keyfile: str | None = None,
+        ssl_certfile: str | None = None,
     ) -> Popen[Any] | None:
         """Starts the FastAPI/Uvicorn server."""
         run_host = host or "127.0.0.1"
 
         _write_port_file("server", port)
 
+        ssl_args = {}
+        if ssl_keyfile and ssl_certfile:
+            ssl_args = {"ssl_keyfile": ssl_keyfile, "ssl_certfile": ssl_certfile}
+
         try:
             if as_process:
-                # Writes a small Python script on the fly
+                ssl_kw = ", ".join(f"{k}='{v}'" for k, v in ssl_args.items())
+                ssl_part = f", {ssl_kw}" if ssl_kw else ""
                 launcher_code = (
                     "import uvicorn\n"
                     "import sys\n"
                     "try:\n"
                     "    from nexy.utils.server.uvicorn_config import NEXY_LOG_CONFIG\n"
-                    f"    uvicorn.run('nexy.routers.app:_server', host='{run_host}', port={port}, "
-                    "log_config=NEXY_LOG_CONFIG, log_level='info')\n"
+                    f"    uvicorn.run('nexy.routers.app:_server', host='{run_host}',"
+                    f" port={port}, log_config=NEXY_LOG_CONFIG,"
+                    f" log_level='info'{ssl_part})\n"
                     "except Exception as e:\n"
                     "    print(f'Critical error in Nexy subprocess: {e}')\n"
                     "    sys.exit(1)\n"
@@ -107,6 +133,7 @@ class Server:
                     port=port,
                     log_config=NEXY_LOG_CONFIG,
                     log_level="info",
+                    **ssl_args,
                 )
                 return True
 
@@ -119,6 +146,7 @@ class Server:
     def vite(
         port: int = 5173,
         build: bool = False,
+        ssl: bool = False,
     ) -> Popen[Any]:
         """Lance le client Vite."""
         pm, is_npm = _detect_pm()
@@ -132,5 +160,7 @@ class Server:
             if is_npm:
                 args.append("--")
             args += ["--port", str(port), "--host"]
+            if ssl:
+                args.append("--https")
 
         return subprocess.Popen(args)

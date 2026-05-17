@@ -138,3 +138,5 @@ class NexyConfigModel:
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
     useMiddlewares: list[Any] = []
+    useSslKeyfile: str | None = None
+    useSslCertfile: str | None = None

@@ -1,4 +1,5 @@
 import sys
+import time
 
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
@@ -10,6 +11,7 @@ from nexy.utils.server.server import Server
 
 
 def build() -> None:
+    build_start = time.perf_counter()
     config = Config()
     version = __Version__().get()
     Server.check_nexy_prod()
@@ -28,3 +30,10 @@ def build() -> None:
         except Exception as e:
             console.print(t("build.vite_failed", f"Vite build failed. {e}").format(error=e))
             sys.exit(1)
+
+    build_elapsed = time.perf_counter() - build_start
+    build_timer = f"{build_elapsed:.2f}s"
+    console.print(
+        "\n[green]nsc[/green] » [green]build[/green]"
+        f" in [reset][dim]{build_timer}[/dim] [green]✓[/green]"
+    )
