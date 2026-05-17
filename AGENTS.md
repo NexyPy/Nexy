@@ -6,19 +6,24 @@
 - **TDD**: write the test first (red), minimal code to pass (green), then refactor. One assertion per test. Name: `test_<thing>_<scenario>`.
 - **SOLID**: one responsibility per class/file. `TemplateParser` parses, `Builder` builds, `Router` routes. Depend on abstractions (`Protocol`), inject via `nexy/runtime/injection.py`.
 
-## Commands (no Makefile exists)
+## Commands (Astral toolchain — no Makefile)
 
 ```bash
-# Quality gates (run in this order: lint → typecheck → test)
+# Quality gates (run in this order: lint → format → typecheck → test)
 ruff check nexy/
+ruff format nexy/ --check
 python -m mypy nexy --strict
 python -m pytest tests/ -v
+
+# Auto-fix
+ruff check nexy/ --fix
+ruff format nexy/
 
 # Single test
 python -m pytest tests/unit/nexy/parser/test_scanner.py -v
 
 # Install dev deps
-pip install -e ".[dev]"          # or: uv pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Architecture
@@ -43,7 +48,6 @@ pip install -e ".[dev]"          # or: uv pip install -e ".[dev]"
 
 ## Gotchas
 
-- Some test files are **empty** (`test_sanitizer.py`, `test_runtime.py`, `test_builder.py`) — they exist as placeholders.
 - `test_config.py` uses `hasattr` pattern — watch for config API changes.
 - Integration tests (`tests/integration/`) may require project scaffolding or a temp workspace.
 - `docs/` is a **separate Nexy app** with its own `.git` — do not treat as monorepo child.
