@@ -14,20 +14,20 @@ import {
   saveSnippets,
   writeComponent,
   getEntryId,
+  type SSGResult,
   c
 } from './utils'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function run(): Promise<number> {
+export async function run(): Promise<SSGResult> {
+  const result: SSGResult = { entries: [] }
   const manifest = getManifest()
   const files = glob.sync('**/*.{tsx,jsx}', {
     cwd: process.cwd(),
     ignore: ['node_modules/**', 'dist/**', '__nexy__/**', '.git/**', 'public/**']
   }).filter(f => detectTsxFramework(path.resolve(process.cwd(), f)) === 'react')
 
-  if (!files.length) return 0
+  if (!files.length) return result
 
-  // --- Batch SSR build: one Vite build for all components ---
   const tempDir = path.resolve(process.cwd(), 'node_modules/.nexy-temp-ssg')
   fs.mkdirSync(tempDir, { recursive: true })
   const timestamp = Date.now()
@@ -67,7 +67,6 @@ export async function run(): Promise<number> {
   }
 
   fs.rmSync(tempDir, { recursive: true, force: true })
-  // --- End batch SSR build ---
 
   const snippets: Record<string, string> = {}
 
@@ -81,31 +80,34 @@ export async function run(): Promise<number> {
 
     const mod = modules.get(file)
     if (!mod) {
-      console.error(`${c.red} Failed to load ${file}${c.reset}`)
+      result.entries.push({ file, component: '*', status: 'not_supported' })
       continue
     }
 
+    let hasComponent = false
     for (const [exportName, Component] of Object.entries(mod)) {
       if (!isComponent(exportName, Component, fileName)) continue
+      hasComponent = true
 
       const entryId = getEntryId(fileName, exportName, 'react')
 
-      let html = ''
       try {
         const { renderToString } = await import('react-dom/server')
         const { createElement } = await import('react')
-        html = renderToString(createElement(Component as any, jinjaProps))
-        html = restoreJinjaVars(html, propPaths)
+        const html = renderToString(createElement(Component as any, jinjaProps))
+        const out = restoreJinjaVars(html, propPaths)
+        const { css } = getAssetTags(manifest, fileName)
+        writeComponent(relativeDir, entryId, `${css}${out}`, snippets)
+        result.entries.push({ file, component: exportName === 'default' ? 'Default' : exportName, status: 'success' })
       } catch (e) {
-        console.error(`${c.red} Failed to render ${entryId}${c.reset} in server`)
-        continue
+        result.entries.push({ file, component: exportName === 'default' ? 'Default' : exportName, status: 'failed' })
       }
-
-      const { css } = getAssetTags(manifest, fileName)
-      writeComponent(relativeDir, entryId, `${css}${html}`, snippets)
+    }
+    if (!hasComponent) {
+      result.entries.push({ file, component: '*', status: 'not_supported' })
     }
   }
 
   saveSnippets(snippets)
-  return Object.keys(snippets).length
+  return result
 }

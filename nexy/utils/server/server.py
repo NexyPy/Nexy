@@ -147,6 +147,7 @@ class Server:
         port: int = 5173,
         build: bool = False,
         ssl: bool = False,
+        suppress_output: bool = False,
     ) -> Popen[Any]:
         """Lance le client Vite."""
         pm, is_npm = _detect_pm()
@@ -163,4 +164,7 @@ class Server:
             if ssl:
                 args.append("--https")
 
-        return subprocess.Popen(args)
+        stdout = subprocess.DEVNULL if suppress_output else None
+        stderr = subprocess.PIPE if suppress_output else None
+
+        return subprocess.Popen(args, stdout=stdout, stderr=stderr)

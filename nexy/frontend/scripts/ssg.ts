@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { glob } from 'glob'
 import { getProjectFrameworks, checkFrameworks, c } from './utils'
+import { type SSGResult, writeReport } from './utils'
 import { JSDOM } from 'jsdom'
 
 async function run() {
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
-  
+
   Object.defineProperty(global, 'window', { value: dom.window, writable: true })
   Object.defineProperty(global, 'document', { value: dom.window.document, writable: true })
 
@@ -31,15 +31,9 @@ async function run() {
     length: 0,
     key: () => null
   } as any
-
   const usedFrameworks = getProjectFrameworks()
-  if (usedFrameworks.size === 0) {
-    console.warn(`${c.yellow}No components found.${c.reset}`)
-    return
-  }
-
-  console.log(`Detected: ${[...usedFrameworks].join(', ')}`)
   const installedFrameworks = checkFrameworks(usedFrameworks)
+  const results: SSGResult[] = []
 
   const hasTsx = glob.sync('**/*.{tsx,jsx}', {
     cwd: process.cwd(),
@@ -48,36 +42,31 @@ async function run() {
 
   if (hasTsx) {
     if (installedFrameworks.has('react')) {
-      console.log(`React`)
       const { run } = await import('./ssg.react')
-      await run()
+      results.push(await run())
     }
     if (installedFrameworks.has('preact')) {
-      console.log(`Preact`)
       const { run } = await import('./ssg.preact')
-      await run()
+      results.push(await run())
     }
     if (installedFrameworks.has('solid')) {
-      console.log(`Solid`)
       const { run } = await import('./ssg.solid')
-      await run()
+      results.push(await run())
     }
     if (
       !installedFrameworks.has('react') &&
       !installedFrameworks.has('preact') &&
       !installedFrameworks.has('solid')
     ) {
-      console.log(`${c.yellow} No tsx framework — compiling to plain HTML${c.reset}`)
       const { run } = await import('./ssg.html')
-      await run()
+      results.push(await run())
     }
   }
 
   if (usedFrameworks.has('vue')) {
     if (installedFrameworks.has('vue')) {
-      console.log(` Vue`)
       const { run } = await import('./ssg.vue')
-      await run()
+      results.push(await run())
     } else {
       console.warn(`${c.yellow} *.vue files found but vue is not installed. Run: pnpm add vue${c.reset}`)
     }
@@ -85,12 +74,21 @@ async function run() {
 
   if (usedFrameworks.has('svelte')) {
     if (installedFrameworks.has('svelte')) {
-      console.log(`Svelte`)
       const { run } = await import('./ssg.svelte')
-      await run()
+      results.push(await run())
     } else {
       console.warn(`${c.yellow} *.svelte files found but svelte is not installed. Run: pnpm add svelte${c.reset}`)
     }
+  }
+
+  writeReport(results)
+
+  const all = results.flatMap(r => r.entries)
+  const success = all.filter(e => e.status === 'success').length
+  const failed = all.filter(e => e.status === 'failed').length
+  const notSupported = all.filter(e => e.status === 'not_supported').length
+  if (all.length) {
+    console.log(`  ssg       » [reset][dim]${success} ok, ${failed} failed, ${notSupported} skipped[/dim] [green]✓[/green]`)
   }
 }
 

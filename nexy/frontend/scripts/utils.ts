@@ -240,7 +240,6 @@ export function writeComponent(
   const snippetKey = path.join(relativeDir, `${entryId}.html`).replace(/\\/g, '/')
   snippets[snippetKey] = finalContent
 
-  console.log(`${c.dim} __nexy__/client/static/${snippetKey}${c.reset}`)
 }
 
 
@@ -255,6 +254,23 @@ export function getEntryId(
 
   // React, Preact, Solid → filename.Default.html / filename.MyComp.html
   return `${fileName}.${exportName === 'default' ? 'Default' : exportName}`
+}
+
+export interface SSGEntry {
+  file: string;
+  component: string;
+  status: 'success' | 'failed' | 'not_supported';
+}
+
+export interface SSGResult {
+  entries: SSGEntry[];
+}
+
+export function writeReport(results: SSGResult[]) {
+  const all: SSGEntry[] = results.flatMap(r => r.entries)
+  const reportPath = path.resolve(process.cwd(), '__nexy__/client/ssg-report.json')
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true })
+  fs.writeFileSync(reportPath, JSON.stringify(all, null, 2))
 }
 
 export function getTempDir(): string {

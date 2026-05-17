@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { glob } from 'glob'
 import fs from 'fs'
 import path from 'path'
@@ -10,6 +9,7 @@ import {
   saveSnippets,
   writeComponent,
   getEntryId,
+  type SSGResult,
   c
 } from './utils'
 
@@ -27,7 +27,6 @@ async function loadModule(file: string): Promise<Record<string, any>> {
   await build({
     logLevel: 'silent',
     configFile: false,
-    // ✅ root = dossier du fichier pour éviter "cannot be external"
     root: path.dirname(absoluteFile),
     plugins: [sveltePlugin()],
     build: {
@@ -55,14 +54,15 @@ async function loadModule(file: string): Promise<Record<string, any>> {
   return mod
 }
 
-export async function run(): Promise<number> {
+export async function run(): Promise<SSGResult> {
+  const result: SSGResult = { entries: [] }
   const manifest = getManifest()
   const files = glob.sync('**/*.svelte', {
     cwd: process.cwd(),
     ignore: ['node_modules/**', 'dist/**', '__nexy__/**', '.git/**', 'public/**']
   })
 
-  if (!files.length) return 0
+  if (!files.length) return result
 
   const snippets: Record<string, string> = {}
 
@@ -74,37 +74,38 @@ export async function run(): Promise<number> {
     try {
       mod = await loadModule(file)
     } catch (err) {
-      console.error(`${c.red} Failed to load ${file}:${c.reset}`, err)
+      result.entries.push({ file, component: '*', status: 'not_supported' })
       continue
     }
 
     const Component = mod.default
-    if (!Component) continue
+    if (!Component) {
+      result.entries.push({ file, component: '*', status: 'not_supported' })
+      continue
+    }
 
-    let html = ''
     try {
       const svelte = await import('svelte/server')
       const { createRawSnippet } = await import('svelte')
-
       const emptySnippet = createRawSnippet(() => ({
         render: () => '',
         setup: () => { }
       }))
 
-      html = svelte.render(Component, {
+      const { html } = svelte.render(Component, {
         props: { children: emptySnippet }
-      }).html
-    } catch (e) {
-      console.error(`${c.red} Failed to render ${fileName}:${c.reset}`, e)
-      continue
-    }
+      })
 
-    const entryId = getEntryId(fileName, "Default", 'svelte')
-    const { css } = getAssetTags(manifest, fileName)
-    writeComponent(relativeDir, entryId, `${css}${html}`, snippets)
+      const entryId = getEntryId(fileName, "Default", 'svelte')
+      const { css } = getAssetTags(manifest, fileName)
+      writeComponent(relativeDir, entryId, `${css}${html}`, snippets)
+      result.entries.push({ file, component: 'Default', status: 'success' })
+    } catch (e) {
+      result.entries.push({ file, component: 'Default', status: 'failed' })
+    }
   }
 
   fs.rmSync(path.resolve(process.cwd(), 'node_modules/.nexy-temp'), { recursive: true, force: true })
   saveSnippets(snippets)
-  return Object.keys(snippets).length
+  return result
 }

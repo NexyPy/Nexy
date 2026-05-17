@@ -97,7 +97,6 @@ function nexyPlugin(): Plugin {
       const isDev = process.env.NODE_ENV === 'development'
       if (!isDev) {
         const tsxPath = getTsxPath()
-        console.log(`${c.dim}Preparing Vite ...${c.reset}`)
         execSync(`node --import "${tsxPath}" __nexy__/scripts/entries.ts`, {
           stdio: 'inherit',
           cwd: process.cwd()
