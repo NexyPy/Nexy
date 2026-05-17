@@ -7,6 +7,7 @@ from .template import TemplateGenerator
 from nexy.utils.common.console import console
 from nexy.errors import NexyCompileError
 from nexy.core.config import Config
+from nexy.utils.fs.vfs import VFS
 
 
 class Generator:
@@ -15,13 +16,15 @@ class Generator:
         self.source: ParserModel | None = None
         self.template = TemplateGenerator()
         self.logic = LogicGenerator()
+        self.vfs = VFS()
 
     def generate(self, output: str, source: ParserModel, source_path:str = None) -> bool:
         self.source = source
         try:
             directory = os.path.dirname(output)
-            if directory:
-                os.makedirs(directory, exist_ok=True)
+            # No need to create physical directories in development
+            # unless we are in production build mode
+            # For now, we just write to VFS
             self.logic.generate(template_path=output, source=self.source, source_path=source_path)
             self.template.generate(output=output, source=self.source.template)
             self._generate_init(directory)
@@ -32,9 +35,8 @@ class Generator:
     
     def _generate_init(self, directory: str) -> None:
         init_file = os.path.join(directory, "__init__.py")
-        if not os.path.exists(init_file):
-            with open(init_file, "w") as f:
-                f.write("")
+        if not self.vfs.exists(init_file):
+            self.vfs.write(init_file, "")
 
 
 __all__ = ["Generator"]

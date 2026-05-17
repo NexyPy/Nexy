@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 from nexy.core.config import Config
-from nexy.utils.server.ports import get_client_port
+from nexy.utils.server.ports import get_vite_port
 
 
 def Vite() -> str:
@@ -49,10 +49,60 @@ def Vite() -> str:
     if prod_server.is_file() is True and manifest_path.is_file() is False:
         raise FileNotFoundError("manifest.json not found")
     # 3. Development Mode (Dynamic via browser)
-    port = get_client_port(5173)
+    port = get_vite_port(5173)
     
+    # HMR Client Script
+    hmr_script = """
+    <script type="module">
+        (function() {
+            const host = window.location.host;
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const ws = new WebSocket(`${protocol}//${host}/_nexy/hmr`);
+            
+            ws.onmessage = async (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'nexy:reload') {
+                    console.log(`[Nexy HMR] Reloading due to change in: ${data.path}`);
+                    
+                    try {
+                        // 1. Fetch new HTML for current route
+                        const res = await fetch(window.location.href, {
+                            headers: { 'X-Nexy-HMR': '1' }
+                        });
+                        const html = await res.text();
+                        
+                        // 2. Parse and Swap Body (KISS)
+                        const parser = new DOMParser();
+                        const newDoc = parser.parseFromString(html, 'text/html');
+                        
+                        // Preserve scripts that shouldn't be re-run or handle re-hydration
+                        document.body.innerHTML = newDoc.body.innerHTML;
+                        
+                        // 3. Re-run hydration scripts
+                        const scripts = document.body.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+
+                        console.log("[Nexy HMR] DOM updated successfully.");
+                    } catch (err) {
+                        console.warn("[Nexy HMR] Partial reload failed, falling back to full reload.", err);
+                        window.location.reload();
+                    }
+                }
+            };
+
+            ws.onclose = () => console.log("[Nexy HMR] Connection closed.");
+        })();
+    </script>
+    """
+
     # Small JS script to inject tags with the correct hostname
     return f"""
+    {hmr_script}
     <script type="module">
         const host = window.location.hostname;
         const base = `http://${{host}}:{port}`;

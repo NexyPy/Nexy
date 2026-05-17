@@ -1,10 +1,10 @@
 from nexy.core.models import ParserModel
+from nexy.utils.fs.vfs import VFS
 
 
 class TemplateGenerator:
     def __init__(self) -> None:
-        pass
+        self.vfs = VFS()
 
     def generate(self, output: str, source: str) -> None:
-        with open(output, "w", encoding="utf-8") as f:
-            f.write(source)
+        self.vfs.write(output, source)

@@ -1,5 +1,6 @@
 from contextvars import ContextVar
 import os
+from pathlib import Path
 from typing import Callable, Optional, Union, Type
 from fastapi import FastAPI, APIRouter, Request, Response, status
 from fastapi.staticfiles import StaticFiles
@@ -14,12 +15,14 @@ from nexy.routers.actions.engine import ACTION_ENGINE
 from nexy.routers.fbrouter import FBRouter
 from nexy.utils.common.console import console
 from nexy.routers.context import current_request
-from nexy.routers.context import current_request
+from nexy.runtime.importer import install_vfs_importer
+from nexy.runtime.hmr import HMR_MANAGER
 
 
 class AppServer:
-    def __init__(self, config: Config = Config()):
-        self.config = config
+    def __init__(self ):
+        install_vfs_importer()
+        self.config = Config()
         self.version = __Version__().get()
         self.server: Optional[FastAPI] = None
         
@@ -72,8 +75,8 @@ class AppServer:
 
     def _resolve_router(self):
         """SOLID: Decoupled router resolution logic."""
+
         router_source = self.config.nexy_config.useRouter if self.config.nexy_config else None
-        
         # 1. Direct APIRouter or Class
         
         if self._docs_url:
@@ -82,23 +85,10 @@ class AppServer:
         ACTION_ENGINE.include_router(self.server)
 
         if isinstance(router_source, (APIRouter, type)) and (isinstance(router_source, APIRouter) or issubclass(router_source, APIRouter)):
-            self.server.include_router(router_source if isinstance(router_source, APIRouter) else router_source())
-        
-        # 2. File-based detection via string
-        elif isinstance(router_source, str) and router_source.lower() in ("file", "file_based", "files"):
-            FBRouter().register_on(self.server)
-            
-        # 3. Callable resolution
-        elif callable(router_source):
-            res = router_source()
-            if isinstance(res, (APIRouter, FBRouter)):
-                res.register_on(self.server) if hasattr(res, 'register_on') else self.server.include_router(res)
-            elif isinstance(res, type):
-                instance = res()
-                instance.register_on(self.server) if hasattr(instance, 'register_on') else self.server.include_router(instance)
-        
-        # Default fallback
-        else:
+            print(f"[green]Custom router registered:[/green] {router_source.__name__ if isinstance(router_source, type) else 'APIRouter instance'}")
+            self.server.include_router(router_source)
+        elif router_source is not None and Path('src/routes').exists():
+            print(f"[green]File-based router registered:[/green] {router_source}")
             FBRouter().register_on(self.server)
 
     async def PathMiddleware(self, request: Request, call_next: Callable) -> Response:
@@ -111,18 +101,34 @@ class AppServer:
     
     def _register_error_handlers(self, request: Request, exc: HTTPException) -> Response:
         """Registers custom error handlers for 404 and 500 errors."""
-        print(f"Internal Server Error: {exc.detail}")
         if exc.status_code == status.HTTP_404_NOT_FOUND:
             # Handle 404 error
             return NotFound()
         elif exc.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
             # Handle 500 error
-
-            print(f"Internal Server Error: {exc.detail}")
             return InternalServerError()
         else:
             # For other HTTP exceptions, return the default response
             return Response(content=f"<h1>{exc.status_code} - {exc.detail}</h1>", status_code=exc.status_code)
+    def _setup_hmr(self):
+        """Setup WebSocket for Hot Module Replacement in development."""
+        # Only in dev mode
+        from fastapi import WebSocket, WebSocketDisconnect
+        import asyncio
+        
+        # Store the current loop for HMR access from other threads
+        HMR_MANAGER.loop = asyncio.get_event_loop()
+        
+        @self.server.websocket("/_nexy/hmr")
+        async def hmr_endpoint(websocket: WebSocket):
+            await HMR_MANAGER.connect(websocket)
+            try:
+                while True:
+                    # Keep connection alive
+                    await websocket.receive_text()
+            except (WebSocketDisconnect, Exception):
+                HMR_MANAGER.disconnect(websocket)
+
     def run(self) -> FastAPI:
         """Main entry point to assemble the application."""
         # pycache()
@@ -139,6 +145,7 @@ class AppServer:
         self._setup_favicon()
         self._setup_static_files()
         self._resolve_router()
+        self._setup_hmr()
         self.server.exception_handler(HTTPException)(self._register_error_handlers)
         return self.server
 

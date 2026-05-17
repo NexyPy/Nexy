@@ -3,6 +3,7 @@ import shutil
 import socket
 import sys
 from pathlib import Path
+import traceback
 from typing import Any, Optional, Tuple
 from subprocess import Popen
 import uvicorn as _uvicorn
@@ -12,14 +13,16 @@ from nexy.utils.server.ports import find_available_port
 from nexy.utils.server.uvicorn_config import NEXY_LOG_CONFIG
 from nexy.utils.common.console import console as print_console
 
+from nexy.utils.fs.vfs import VFS
+
 _NEXY_DIR = Path("__nexy__")
 
 # ── Internal helpers ────────────────────────────────────────────────────────
 
 def _write_port_file(name: str, port: int) -> None:
     """Saves the port used for inter-process communication."""
-    _NEXY_DIR.mkdir(exist_ok=True)
-    (_NEXY_DIR / f"{name}.port").write_text(str(port), encoding="utf-8")
+    vfs = VFS()
+    vfs.write(f"__nexy__/{name}.port", str(port))
 
 def _detect_pm() -> Tuple[str, bool]:
     """Detects the package manager (pnpm, bun, yarn, npm)."""
@@ -101,6 +104,7 @@ class Server:
             
                 
         except Exception as exc:
+            traceback.print_exc()
             print_console.print(f"[red]✘ Server launch failed:[/red] {exc}")
             return None
 

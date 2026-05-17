@@ -6,6 +6,7 @@ from typing import *
 from nexy.core.models import ParserModel, NexyProp
 from nexy.core.string import StringTransform
 from nexy.routers.fbrouter.layout import RouteLayout
+from nexy.utils.fs.vfs import VFS
 
 
 class LogicGenerator:
@@ -17,6 +18,7 @@ class LogicGenerator:
         self.FRONTMATTER: str = ""
         self._string_transform = StringTransform()
         self.source_path: str = None
+        self.vfs = VFS()
     
     def generate(self, template_path: str, source: ParserModel, source_path:str = None) -> None:
         self.source = source
@@ -34,8 +36,7 @@ class LogicGenerator:
             self.output = template_path.replace(".md", ".py")
 
         self.FRONTMATTER = self._component_model()
-        with open(self.output, "w", encoding="utf-8") as file:
-            file.write(self.FRONTMATTER)
+        self.vfs.write(self.output, self.FRONTMATTER)
 
     def _resolve_props(self) -> str:
         assert self.source is not None
@@ -86,11 +87,28 @@ class LogicGenerator:
         names = [n for n in sorted(idents) if not n.startswith('_')]
         
         context_items = ", ".join([f'"{n}": {n}' for n in names])
-        Slot = ""
-        if "src/routes/" not in self.source_path:
-            Slot = "Slot = caller if caller else lambda: ''"
-            context_items = context_items + ", 'Slot':Slot" if context_items != "" else "'Slot':Slot"   
-            props = props+ ", caller:Union[callable, None] = None" if props != "" else "caller:Union[callable, None] = None"
+        # All Nexy components should support children/slots
+        Slot = "Slot = caller if (locals().get('caller') and callable(caller)) else (lambda: children if locals().get('children') else '')"
+        
+        if context_items != "":
+            context_items += ", 'Slot': Slot"
+        else:
+            context_items = "'Slot': Slot"
+
+        # Safe props injection: check if they already exist in source.props
+        existing_props = [p.name for p in self.source.props]
+        
+        extra_props = []
+        if "caller" not in existing_props:
+            extra_props.append("caller: Any = None")
+        if "children" not in existing_props:
+            extra_props.append("children: str = ''")
+            
+        if extra_props:
+            if props != "":
+                props += ", " + ", ".join(extra_props)
+            else:
+                props = ", ".join(extra_props)
 
         # Gestion CSS
         css_blocks = []

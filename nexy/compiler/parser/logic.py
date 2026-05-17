@@ -170,6 +170,8 @@ class LogicParser:
             ".svelte": ComponentType.SVELTE,
             ".tsx": ComponentType.REACT,
             ".jsx": ComponentType.REACT,
+            ".solid": ComponentType.SOLID,
+            ".preact": ComponentType.PREACT,
             ".json": ComponentType.JSON,
             ".mdx": ComponentType.MDX
         }
@@ -184,6 +186,8 @@ class LogicParser:
             "vue": ComponentType.VUE,
             "react": ComponentType.REACT,
             "svelte": ComponentType.SVELTE,
+            "solid": ComponentType.SOLID,
+            "preact": ComponentType.PREACT,
             "json": ComponentType.JSON
         }
         if framework in fw_map:

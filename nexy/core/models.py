@@ -64,6 +64,8 @@ class ComponentType(Enum):
     VUE = "vue"
     SVELTE = "svelte"
     REACT = "react"
+    SOLID = "solid"
+    PREACT = "preact"
     JSON = "json"
     MDX = "mdx"
     UNKNOWN = "unknown"

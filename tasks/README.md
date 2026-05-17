@@ -10,33 +10,14 @@ Nexy must surpass Django, Next.js, and Astro in **DX** and **Performance**.
 
 ## Architecture Roadmap
 
-### [00. Foundation](./00-foundation/)
-Establishing an international, professional baseline.
-- **I18n**: Full English translation of code and comments.
-- **Clean Console**: Zero noise, zero emojis, structured timings.
+*(Phases 00 to 04 have been completed and cleaned up)*
 
-### [01. Clean Code](./01-clean-code/)
-Applying KISS and SOLID principles to the core codebase.
-- **Refactoring**: Deduplication of logic and consolidation of utilities.
-- **Bug Fixes**: Resolving existing test failures in Scanner and Template Parser.
-- **Typing**: Reaching 100% `mypy --strict` compliance.
+### [05. The Next.js Killer (Road to 10/10)](./05-nextjs-killer/)
+These are the advanced architectural changes required to bring Nexy from an 8.5/10 to a perfect 10/10, enabling true Serverless deployment and instant HMR.
 
-### [02. Performance](./02-performance/)
-Optimizing startup and development cycles.
-- **HMR**: Intelligent hot-reloading for `.nexy` files.
-- **Startup**: Target <100ms startup for small projects.
-- **Incremental Compilation**: Only rebuild what changed.
-
-### [03. Architecture](./03-architecture/)
-Advanced features and modular structure.
-- **Modular Router**: Improved organization for large-scale apps.
-- **Runtime Modules**: Extensible system for framework features.
-- **Built-in Components**: High-performance Link and Image components.
-
-### [04. Toolchain](./04-toolchain/)
-Final polish and strict quality gates.
-- **Astral Toolchain**: Global formatting and linting with Ruff.
-- **Test Infra**: Comprehensive conftest and integration test suite.
+1. **[AST Template Compiler](./05-nextjs-killer/01-ast-template-compiler.md)**: Replace regex parsing with a robust HTML AST to handle deeply nested components safely.
+2. **[In-Memory VFS](./05-nextjs-killer/02-in-memory-vfs.md)**: Eliminate physical disk writes (`__nexy__/`). Compile Python and HTML directly into RAM for Serverless compatibility.
+3. **[True Python HMR](./05-nextjs-killer/03-true-hmr-reload.md)**: Stop cold-killing Uvicorn. Invalidate `sys.modules` in real-time to preserve Vite WebSocket connections and achieve sub-100ms hot reloads.
 
 ## Quality Gates (Mandatory)
 Before completing any task, ensure:

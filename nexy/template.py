@@ -1,5 +1,7 @@
+import os
 import markdown
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, BaseLoader, TemplateNotFound
+from nexy.utils.fs.vfs import VFS
 from typing import Any, Dict, Optional
 from pathlib import Path
 import json
@@ -13,6 +15,24 @@ extension_configs={
     }
 }
 
+
+class NexyVFSLoader(BaseLoader):
+    """Jinja2 loader that reads from the VFS."""
+    def __init__(self) -> None:
+        self.vfs = VFS()
+
+    def get_source(self, environment, template):
+        if not self.vfs.exists(template):
+            # Fallback to filesystem if not in VFS (e.g. for user templates)
+            if os.path.exists(template):
+                with open(template, "r", encoding="utf-8") as f:
+                    return f.read(), template, lambda: True
+            raise TemplateNotFound(template)
+        
+        source = self.vfs.read(template)
+        return source, template, lambda: True
+
+
 class Template:
     """Class to handle Jinja2 and Markdown template rendering."""
     
@@ -23,9 +43,8 @@ class Template:
         
         # Security: autoescape prevents XSS
         self.env = Environment(
-            loader=FileSystemLoader(templates_dir),
+            loader=NexyVFSLoader(),
             auto_reload=True,
-            # autoescape=select_autoescape(['html', 'xml'])
         )
     
     def _render_jinja2(self, path: str, context: Dict[str, Any]) -> str:

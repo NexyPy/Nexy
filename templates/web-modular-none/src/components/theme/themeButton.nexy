@@ -1,0 +1,16 @@
+---
+mode :prop[str]
+active :prop[str]
+onclick :prop[str]
+caller : prop[callable]
+
+activeclass = 'text-white dark:text-slate-900' if active == mode else 'text-gray-500 dark:text-slate-400 hover:text-gray-900'
+---
+
+<button
+	data-mode="{{mode}}"
+	onclick="{{onclick}}"
+	class="relative z-10 grid size-7 cursor-pointer place-content-center rounded-full transition-colors duration-300 {{activeclass}}"
+>
+	{{caller() | safe}}
+</button>

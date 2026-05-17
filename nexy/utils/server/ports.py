@@ -1,6 +1,7 @@
 import socket
 from pathlib import Path
 from typing import Optional, Tuple, Union
+from nexy.utils.fs.vfs import VFS
 
 
 def _is_port_available(host: str, port: int) -> bool:
@@ -48,11 +49,12 @@ def find_available_port(
 
 
 def _read_port_file(path: Union[str, Path]) -> Optional[int]:
-    p = Path(path)
-    if not p.is_file():
+    vfs = VFS()
+    path_str = str(path).replace("\\", "/")
+    if not vfs.exists(path_str):
         return None
     try:
-        txt = p.read_text(encoding="utf-8").strip()
+        txt = vfs.read(path_str).strip()
         n = int(txt)
         return n if n > 0 else None
     except Exception:
@@ -69,9 +71,9 @@ def generate_port(host: str, base_port: Optional[int] = None, default_port: int 
     
     client_port = find_available_port(server_port + 1, run_host)
     
-    Path("__nexy__").mkdir(parents=True, exist_ok=True)
-    Path("__nexy__/server.port").write_text(str(server_port), encoding="utf-8")
-    Path("__nexy__/client.port").write_text(str(client_port), encoding="utf-8")
+    vfs = VFS()
+    vfs.write("__nexy__/server.port", str(server_port))
+    vfs.write("__nexy__/client.port", str(client_port))
     return server_port, client_port
 
 

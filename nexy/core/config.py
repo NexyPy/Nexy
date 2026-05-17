@@ -43,6 +43,8 @@ class Config:
         ".jsx": "react",
         ".vue": "vue",
         ".svelte": "svelte",
+        ".solid": "solid",
+        ".preact": "preact",
         ".json": "json",
         ".css": "css",
     }

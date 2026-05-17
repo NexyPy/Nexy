@@ -18,7 +18,7 @@ from "@/components/sections/home/viteLogo.nexy" import ViteLogo
 
                     <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        stroke-linejoin="round" >
                         <path d="M7 7h10v10" />
                         <path d="M7 17 17 7" />
                     </svg>
@@ -76,7 +76,7 @@ from "@/components/sections/home/viteLogo.nexy" import ViteLogo
 
                     <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        stroke-linejoin="round" >
                         <path d="M7 7h10v10" />
                         <path d="M7 17 17 7" />
                     </svg>
@@ -133,7 +133,7 @@ from "@/components/sections/home/viteLogo.nexy" import ViteLogo
 
                     <svg class="absolute top-2.5 right-2.5 text-white" width="24" height="24" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-arrow-up-right-icon lucide-arrow-up-right">
+                        stroke-linejoin="round" >
                         <path d="M7 7h10v10" />
                         <path d="M7 17 17 7" />
                     </svg>

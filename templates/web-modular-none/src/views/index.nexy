@@ -1,0 +1,34 @@
+---
+from "@/components/header.nexy" import Header
+from "@/components/footer.nexy" import Footer
+from "@/components/vanillaCard.nexy" import VanillaCard
+from "@/components/card.nexy" import Card
+from "@/components/background.nexy" import Background
+from nexy import Vite
+---
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexy | Modular App </title>
+    <Vite />
+</head>
+
+<body class=" antialiased min-h-dvh flex flex-col ">
+    <Header />
+    <main class="lg:px-20 ">
+        <section
+            class="relative w-container flex-1 md:min-h-157 max-h-full overflow-hidden  md:grid place-content-center border-x border-dashed border-x-border  py-6.5 px-6 md:px-16 lg:p-24 bg-background-second ">
+            <Background className="z-0 absolute bottom-20 -right-50 opacity-30 scale-90" />
+            <aside class=" w-full md:w-fit md:flex-1 flex flex-col md:flex-row gap-6 items-center justify-center ">
+                <VanillaCard />
+                <Card />
+            </aside>
+        </section>
+    </main>
+    <Footer />
+</body>
+
+</html>

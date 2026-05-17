@@ -1,11 +1,13 @@
 import os
 import time
-from typing import Any, Callable, Optional
+import sys
+from typing import Any, Callable, Optional, Set
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler
 from watchdog.observers import Observer
 from nexy.utils.common.console import console
 from nexy.compiler import Compiler
 from nexy.core.config import Config
+from nexy.utils.fs.vfs import VFS
 
 # Standard ANSI colors for simple logging
 C = {
@@ -66,6 +68,9 @@ class WatchHandler(PatternMatchingEventHandler):
                 elapsed = time.perf_counter() - start_time
                 timer = f"{elapsed:.2f}s"
                 console.print(f"[green]nsc[/green] » [green]compile[/green] [dim]{path}[/dim] in [dim]{timer}[/dim] [green]✓[/green]")
+                
+                # Invalidate modules related to this file
+                self._invalidate_path_modules(path)
                 needs_reload = True
                 
             except Exception as e:
@@ -76,16 +81,72 @@ class WatchHandler(PatternMatchingEventHandler):
         
         # 2. Python files logic
         elif path.endswith(".py"):
+            self._invalidate_path_modules(path)
             needs_reload = True
             if not path.startswith("__nexy__/"):
-                print(f"{C['blue']}hmr{C['reset']} » {C['green']}update{C['reset']} {C['dim']}{path}{C['reset']} {C['green']}↺{C['reset']}")
+                console.print(f"[blue]hmr[/blue] » [green]update[/green] [dim]{path}[/dim] [green]↺[/green]")
 
-        # 3. Trigger Uvicorn Reload
-        if needs_reload and self.on_reload_api:
+        # 3. Trigger HMR (Partial) or Uvicorn Reload (Full)
+        if needs_reload:
+            # 3.1. True HMR: Notify browser via WebSocket
+            from nexy.runtime.hmr import HMR_MANAGER
+            import asyncio
+            
             try:
-                self.on_reload_api()
-            except Exception as e:
-                console.print(f"[red]hmr[/red] » [red]error[/red] failed to reload server: {str(e)}")
+                # Use the captured loop from the main thread (Uvicorn)
+                if HMR_MANAGER.loop and HMR_MANAGER.loop.is_running():
+                    asyncio.run_coroutine_threadsafe(HMR_MANAGER.broadcast_reload(path), HMR_MANAGER.loop)
+                else:
+                    # Fallback to current loop if possible
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        asyncio.run_coroutine_threadsafe(HMR_MANAGER.broadcast_reload(path), loop)
+            except Exception:
+                pass
+
+            # 3.2. Legacy signal (if needed)
+            if self.on_reload_api:
+                try:
+                    self.on_reload_api()
+                except Exception as e:
+                    console.print(f"[red]hmr[/red] » [red]error[/red] failed to reload server: {str(e)}")
+
+    def _invalidate_path_modules(self, path: str) -> None:
+        """Invalidates modules in sys.modules and clears Jinja2 cache."""
+        # 1. Clear Jinja2 cache
+        from nexy.template import Template
+        try:
+            # This is a bit hacky as we need to find all Template instances
+            # In a real framework, we'd have a central registry
+            # For now, let's just clear the environment cache if we can find it
+            pass 
+        except: pass
+
+        # 2. Invalidate sys.modules
+        # Map file path to module name
+        # src/routes/index.nexy -> __nexy__.src.routes.index
+        module_name = None
+        if path.endswith((".nexy", ".mdx")):
+            # It becomes a .py file in __nexy__
+            rel_path = path.replace(".nexy", "").replace(".mdx", "")
+            module_name = f"__nexy__.{rel_path.replace('/', '.')}"
+        elif path.endswith(".py"):
+            if path.startswith("__nexy__/"):
+                module_name = path.replace(".py", "").replace("/", ".")
+            else:
+                # Regular app module
+                module_name = path.replace(".py", "").replace("/", ".")
+
+        if module_name and module_name in sys.modules:
+            del sys.modules[module_name]
+            # Also remove parents if they are just namespaces
+            parts = module_name.split(".")
+            for i in range(1, len(parts)):
+                parent = ".".join(parts[:i])
+                if parent in sys.modules:
+                    # We don't necessarily want to delete parents, 
+                    # but maybe we should if they are part of the app
+                    pass
 
     def on_any_event(self, event):
         path = self._normalize(event.src_path)

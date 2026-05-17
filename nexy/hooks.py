@@ -1,6 +1,8 @@
 
 import importlib
 import traceback
+import json
+from pathlib import Path
 from typing import Optional, Dict, Any
 
 from fastapi import Request
@@ -76,9 +78,22 @@ def useViews(path: str, context: Optional[Dict[str, Any]] = None) -> HTMLRespons
             raise ValueError(f"Failed to load module or function for path: {path}") from e
 
     elif any(ext in path for ext in FRONTEND_VIEWS): 
-        func_name = __Import(path=path, framework='react', symbol='default')()
-        # return HTMLResponse(Vite() + func_name)
-        raise NotImplementedError("Frontend view rendering is not implemented yet.")
+        # KISS: Map extension to framework and return an hydratable container
+        ext = f".{path.split('.')[-1]}"
+        framework = Config.FRONTEND_EXTENSIONS.get(ext, "react")
+        
+        # Prepare props for hydration
+        props_json = json.dumps(ctx)
+        
+        # Hydratable container that Nexy's frontend runtime will pick up
+        container = (
+            f'<div data-nexy-fw="{framework}" '
+            f'data-nexy-path="{path}" '
+            f'data-nexy-props=\'{props_json}\'>'
+            f'</div>'
+        )
+        
+        return HTMLResponse(Vite() + container)
 
     else:
         raise ValueError(f"Unsupported view type for path: {path}")

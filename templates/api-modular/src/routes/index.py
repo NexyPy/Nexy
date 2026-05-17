@@ -1,2 +1,2 @@
 def GET():
-    return [{"A":"a"},{"B"}]
+    return {"message": "Welcome to Nexy Modular API"}
