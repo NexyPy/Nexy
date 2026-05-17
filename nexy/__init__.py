@@ -4,6 +4,15 @@ from .form import Form
 from ._import import Import
 from .template import Template
 from .vite import Vite
+from .hooks import (
+    useViews,
+    usePathname, 
+    useSearchParams, 
+    useRouter, 
+    useQuery, 
+    useSession, 
+    useCookies
+)
 
 
 __all__ = [
@@ -13,5 +22,13 @@ __all__ = [
     "Import",
     "Template",
     "Vite",
-    "app"
+    "app",
+    "useViews",
+    "usePathname",
+    "useSearchParams",
+    "useRouter",
+    "useQuery",
+    "useSession",
+    "useCookies",
+
 ]

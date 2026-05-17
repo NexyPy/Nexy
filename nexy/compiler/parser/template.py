@@ -70,7 +70,8 @@ class TemplateParser:
         used_tags = set(re.findall(r'<([A-Z][a-zA-Z0-9_]*)', content))
         if self.known_components:
             unknowns = used_tags - self.known_components
-            if unknowns:
+            unknowns.remove("Slot") if "Slot" in unknowns else None  # Slot is a reserved component
+            if  unknowns :
                 raise NexyParserError(f"Missing Import: <{list(unknowns)[0]}> used but not declared.")
         
         # STEP 3: PASCALCASE TRANSFORMATIONS

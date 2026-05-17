@@ -1,15 +1,20 @@
+from contextvars import ContextVar
 import os
-from typing import Optional, Union, Type
-from fastapi import FastAPI, APIRouter, Response
+from typing import Callable, Optional, Union, Type
+from fastapi import FastAPI, APIRouter, Request, Response, status
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException
 from scalar_fastapi import get_scalar_api_reference
 
 from nexy.__version__ import __Version__
 # from nexy.cli.commands.utilities.pycache import pycache
 from nexy.core.config import Config
+from nexy.error import InternalServerError, NotFound
 from nexy.routers.actions.engine import ACTION_ENGINE
 from nexy.routers.fbrouter import FBRouter
 from nexy.utils.console import console
+from nexy.routers.context import current_request
+
 
 class AppServer:
     def __init__(self, config: Config = Config()):
@@ -95,6 +100,28 @@ class AppServer:
         else:
             FBRouter().register_on(self.server)
 
+    async def PathMiddleware(self, request: Request, call_next: Callable) -> Response:
+        token = current_request.set(request)
+        try:
+            response = await call_next(request)  
+            return response
+        finally:
+            current_request.reset(token)
+    
+    def _register_error_handlers(self, request: Request, exc: HTTPException) -> Response:
+        """Registers custom error handlers for 404 and 500 errors."""
+        print(f"Internal Server Error: {exc.detail}")
+        if exc.status_code == status.HTTP_404_NOT_FOUND:
+            # Handle 404 error
+            return NotFound()
+        elif exc.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
+            # Handle 500 error
+
+            print(f"Internal Server Error: {exc.detail}")
+            return InternalServerError()
+        else:
+            # For other HTTP exceptions, return the default response
+            return Response(content=f"<h1>{exc.status_code} - {exc.detail}</h1>", status_code=exc.status_code)
     def run(self) -> FastAPI:
         """Main entry point to assemble the application."""
         # pycache()
@@ -105,11 +132,13 @@ class AppServer:
             docs_url=None, 
             redoc_url=None
         )
-
         
+
+        self.server.middleware("http")(self.PathMiddleware)
         self._setup_favicon()
         self._setup_static_files()
         self._resolve_router()
+        self.server.exception_handler(HTTPException)(self._register_error_handlers)
         return self.server
 
 _server = AppServer().run()

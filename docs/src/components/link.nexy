@@ -1,15 +1,14 @@
 ---
 href : prop[str] = ""
-caller : prop[callable] = None
 target : prop[str]= ""
 className : prop[str]
 ---
 <a 
     href="{{ href }}" 
     prefetchlink 
-    {% if target %} target="{{ target }}" {%endif %}}
-    {% if className %} class="{{className}}" {%endif %}}
+    {% if target %} target="{{ target }}" {%endif %}
+    {% if className %} class="{{className}}" {%endif %}
  >
-    {{ caller()  }}
+    <Slot/>
 </a>
 

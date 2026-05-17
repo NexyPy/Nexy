@@ -84,7 +84,13 @@ class LogicGenerator:
 
         for p in self.source.props: idents.add(p.name)
         names = [n for n in sorted(idents) if not n.startswith('_')]
+        
         context_items = ", ".join([f'"{n}": {n}' for n in names])
+        Slot = ""
+        if "src/routes/" not in self.source_path:
+            Slot = "Slot = caller if caller else lambda: ''"
+            context_items = context_items + ", 'Slot':Slot" if context_items != "" else "'Slot':Slot"   
+            props = props+ ", caller:Union[callable, None] = None" if props != "" else "caller:Union[callable, None] = None"
 
         # Gestion CSS
         css_blocks = []
@@ -102,8 +108,8 @@ from jinja2 import Template as __JinjaTemplate
 NexyElement = Union[callable, __JinjaTemplate]
 {layout_header}
 def {self.func_name}({props}) -> str:
+    {Slot}
 {LOGIC}
-
     {layout_children}
     context = {{{context_items}}}
     rendered = str(__Template().render("{self.template_path}", context))

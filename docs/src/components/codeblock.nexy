@@ -1,20 +1,17 @@
 ---
-caller :prop[callable] = None
 tabs:prop[Union[str, list]]= ''
 is_str = isinstance(tabs, str)
+#print(Slot())
 ---
 <article class=" flex w-full max-w-142 border border-border/40 bg-white/6  backdrop-blur-xs rounded-4xl corner p-1">
     <aside class="bg-[#222c25]  dark:bg-[#060e09] rounded-3xl  corner w-full codeblock overflow-hidden relative">
         
-            <ul {{"hidden" if tabs=="" else ""}} class="px-4 pt-2  text-white *:p-2 flex">
+            <ul id="tabs" {{"hidden" if tabs=="" else ""}} class="px-4 pt-2  text-white *:p-2 flex">
                 {% if is_str %}
-                    <li class="w-fit  text-sm">
-                        {{tabs}}
-                    </li>
+                    <li class="w-fit  text-sm" >{{tabs}}</li>
                 {% else %}
                     {% for _tab in tabs %}
-                        <li class="w-fit  text-sm">{{_tab}}</li>
-                        <!-- <li class="w-fit border-b-2 border-[#ACE8AE] text-sm">{{_tab}}</li> -->
+                        <li class="w-fit  text-sm cursor-pointer {{loop.index == 1 and 'border-b-2 border-[#ACE8AE]' or ''}}" tabname="{{_tab}}">{{_tab}}</li>
                     {% endfor %}
                 {% endif %}
 
@@ -28,6 +25,6 @@ is_str = isinstance(tabs, str)
                 </svg>
 
             </button>
-        {{caller()}}
+        <Slot/>
     </aside>
 </article>

@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 
 from nexy.core.config import Config
 from nexy.core.string import StringTransform, Pathname
+from nexy.error import InternalServerError
 from nexy.routers.fbrouter.discovery import RouteDiscovery
 
 # Specialized classes
@@ -32,7 +33,7 @@ class FBRouter:
 
     def register_on(self, app: FastAPI) -> None:
         app.include_router(self.router)
-        app.add_exception_handler(Exception, self._handle_unexpected_error)
+
 
     def _load_and_register(self):
         self._scan_modules()
@@ -121,25 +122,10 @@ class FBRouter:
                         dependencies=folder_deps or None,
                         name=component.__name__,
                         description=component.__doc__ or "",
-                        tags=[path]
+                        tags=[path],
+                        
                     )(component)
+        
 
-        # Final catch-all for 404
-        # self.router.add_api_route("/{p:path}", self._handle_not_found, methods=["GET"])
 
-    async def _handle_not_found(self, request: Request):
-        return await self._render_scoped(request, self.notfound_handlers, 404)
-
-    async def _handle_unexpected_error(self, request: Request, exc: Exception):
-        return await self._render_scoped(request, self.error_handlers, 500)
-
-    async def _render_scoped(self, request: Request, entries: list, code: int):
-        path = request.url.path
-        best = None
-        for e in entries:
-            if path.startswith(e["scope"].rstrip("/")) or e["scope"] == "/":
-                if best is None or len(e["scope"]) > len(best["scope"]):
-                    best = e
-        if best and (comp := getattr(best["module"], best["comp"], None)):
-            return HTMLResponse(content=comp(), status_code=code)
-        raise HTTPException(status_code=code)
+   

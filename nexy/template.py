@@ -6,6 +6,12 @@ import json
 from .core.config import Config
 from .utils.ports import get_vite_port
 
+extension_configs={
+    "pymdownx.highlight": {
+    "pygments_lang_class": True,
+    "linenums": False, 
+    }
+}
 
 class Template:
     """Classe pour gérer le rendu des templates Jinja2 et Markdown."""
@@ -29,7 +35,7 @@ class Template:
     def _render_markdown(self, content: str) -> str:
         """Convertit le texte Markdown en HTML."""
         # Utilisation de la librairie standard 'markdown' avec extensions communes
-        return markdown.markdown(content, extensions=self.config.MARKDOWN_EXTENSIONS)
+        return markdown.markdown(content, extensions=self.config.MARKDOWN_EXTENSIONS, extension_configs=extension_configs)
     
     def render(self, path: str, context: Optional[Dict[str, Any]] = None) -> str:
         """

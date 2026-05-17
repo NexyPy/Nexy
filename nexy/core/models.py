@@ -134,4 +134,6 @@ class NexyConfigModel:
     useFF: list[FFModel] = field(default_factory=list)
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
+    useMiddlewares: list[Any] = field(default_factory=list)
+
     

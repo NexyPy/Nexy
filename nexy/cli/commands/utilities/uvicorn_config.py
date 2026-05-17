@@ -1,8 +1,10 @@
 import logging
+import linecache
 import os
 import traceback
 from typing import cast
 
+# Couleurs ANSI pour le terminal
 C = {
     "reset": "\033[0m",
     "dim": "\033[2m",
@@ -14,6 +16,7 @@ C = {
     "magenta": "\033[35m",
 }
 
+# Messages systèmes d'Uvicorn à masquer pour épurer la console
 IGNORED_MESSAGES = [
     "Started server process",
     "Waiting for application startup",
@@ -24,27 +27,30 @@ IGNORED_MESSAGES = [
     "Will watch for changes"
 ]
 
-# Dictionnaire étendu pour éviter les KeyError (Ajout de 422 et 307)
-status_emojis = {
+# Signes associés aux principaux codes de statut HTTP (sans emojis)
+status_indicators = {
     200: "✓", 
     201: "⊕", 
     304: "⊛", 
     307: "➜",
     400: "△", 
     404: "○", 
-    422: "🞫",
-    500: "‼", 
+    422: "🞫", 
+    500: "‼",
 }
 
 class NexyFilter(logging.Filter):
+    """Filtre de nettoyage pour bloquer les logs d'initialisation redondants."""
     def filter(self, record: logging.LogRecord) -> bool:
         msg = record.getMessage()
         return not any(ignored in msg for ignored in IGNORED_MESSAGES)
 
 class NexyAccessFormatter(logging.Formatter):
+    """Formatter ultra-lisible pour les requêtes HTTP et connexions WebSockets."""
     def format(self, record: logging.LogRecord) -> str:
+        msg = record.getMessage()
         if not record.args or len(record.args) < 5:
-            return f"  {C['blue']}ŋ{C['reset']} {C['dim']}[Info]{C['reset']} {record.getMessage()}"
+            return f"  {C['blue']}ŋ{C['reset']} {C['dim']}[Info]{C['reset']} {msg}"
 
         args = record.args
         if isinstance(args, tuple):
@@ -55,15 +61,19 @@ class NexyAccessFormatter(logging.Formatter):
             arg2 = args.get("c", "")
             arg_last = args.get("d", 0)
         else:
-            return f"  {C['blue']}ŋ{C['reset']} {record.getMessage()}"
+            return f"  {C['blue']}ŋ{C['reset']} {msg}"
 
-        addr = str(arg0)
+        addr = str(arg0) if arg0 else "unknown"
         host = addr.split(":")[0] if ":" in addr else addr
         port = addr.split(":")[-1] if ":" in addr else "3000"
 
         method = str(arg1)
         path = str(arg2)
-        status_code = int(cast(int, arg_last))
+        
+        try:
+            status_code = int(cast(int, arg_last))
+        except (ValueError, TypeError):
+            status_code = 200
 
         color = C["green"]
         if 300 <= status_code < 400:
@@ -76,61 +86,97 @@ class NexyAccessFormatter(logging.Formatter):
         is_socket = "ws" in path or "socket" in path or status_code == 101
         label = f"{C['magenta']}ws{C['reset']} »" if is_socket else f"{color}{method}{C['reset']} »"
 
-        emoji = status_emojis.get(status_code, "⚠️")
-        
+        indicator = status_indicators.get(status_code, "⚠️")
 
-        return f"{label} {C['dim']}{host}{C['reset']}:{C['blue']}{port}{C['reset']}{color}{path}{C['reset']} , {color}{status_code}{C['reset']} © {emoji}"
+        return f"{label} {C['dim']}{host}{C['reset']}:{C['blue']}{port}{C['reset']} {color}{path}{C['reset']} , {color}{status_code}{C['reset']} © {indicator}"
 
 class NexyDefaultFormatter(logging.Formatter):
+    """Formatter universel gérant les erreurs en fonction, classe ou niveau module."""
     def format(self, record: logging.LogRecord) -> str:
         msg = record.getMessage()
-        # Filtrer les messages système inutiles
-        if any(ignored in msg for ignored in IGNORED_MESSAGES):
-            return ""
-
         level = record.levelname.capitalize()
         
-        # On extrait le nom du fichier et la ligne
-        # record.pathname est le chemin complet, on ne garde que le nom du fichier
-        file_name = os.path.basename(record.pathname)
-        line_no = record.lineno
-        
-        # Choix de la couleur : rouge pour les erreurs, gris pour le reste
         color = C["red"] if record.levelno >= 40 else C["dim"]
-        
-        # Construction du préfixe : ŋ [Info] [app.py:12]
         prefix = f"{color}{level}{C['reset']} »"
+        result = f"{prefix} {msg}"
         
-        result = f"{prefix}"
         if record.exc_info:
-            # Seulement le dernier frame (fichier avec l'erreur)
             tb_frames = traceback.extract_tb(record.exc_info[2])
             if tb_frames:
                 frame = tb_frames[-1]
-                file_name = os.path.basename(frame.filename)
-                line_no = frame.lineno or 0
-                line_text = frame.line.rstrip("\n") if frame.line else ""
                 
-                # Construire l'affichage façon traceback Python, mais coloré en rouge
-                if frame.line:
-                    # Indentation originale
-                    original_line = line_text
-                    indent = len(original_line) - len(original_line.lstrip())
-                    code_part = original_line[indent:]
-                    
-                    caret_indent = " " * (indent + 4)  # 4 espaces pour aligner sous le code
-                    caret = "~" * max(1, len(code_part)) + "^~"
-                    result += (
-                        f"  File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
-                        f"\n    {color}{original_line}{C['reset']}"
-                        f"\n{caret_indent}{color}{caret}{C['reset']}"
-                    )
+                try:
+                    file_name = os.path.relpath(frame.filename, start=os.getcwd())
+                except Exception:
+                    file_name = os.path.basename(frame.filename)
+                
+                line_no = frame.lineno or 0
+                scope_name = frame.name or '<module>'
+                
+                result += f"\n  File \"{file_name}\", line {line_no}, in {scope_name}\n"
+
+                # --- STRATÉGIE DE DÉTECTION DU BLOC CONTEXTUEL ---
+                start_line = line_no
+                block_indent = None
+                is_global_scope = scope_name == '<module>'
+
+                if not is_global_scope:
+                    # On remonte pour chercher le début de la fonction ou de la classe
+                    while start_line > 1:
+                        prev_line = linecache.getline(frame.filename, start_line).rstrip("\n")
+                        stripped = prev_line.lstrip()
+                        if stripped.startswith(("def ", "class ")):
+                            block_indent = len(prev_line) - len(stripped)
+                            break
+                        start_line -= 1
+
+                # Si on est au niveau global du module ou qu'aucune structure n'a été trouvée
+                if block_indent is None:
+                    start_line = max(1, line_no - 4)
+                    end_line = line_no + 4
                 else:
-                    result += f"File \"{frame.filename}\", line {line_no}, in {frame.name or '<module>'}"
-        return result
+                    # On descend pour trouver la fin de la fonction ou de la classe basée sur l'indentation
+                    end_line = line_no
+                    while True:
+                        next_line = linecache.getline(frame.filename, end_line + 1)
+                        if not next_line:
+                            break
+                        
+                        next_stripped = next_line.rstrip("\n")
+                        if next_stripped.strip():  # Ignore les lignes vides pour le calcul
+                            current_indent = len(next_stripped) - len(next_stripped.lstrip())
+                            # Fin du bloc si l'indentation baisse ou revient au niveau de la fonction/classe
+                            if current_indent <= block_indent and end_line >= line_no:
+                                break
+                        end_line += 1
 
+                # Garde-fou visuel : Si le bloc (fonction/classe) est trop massif, on restreint la vue
+                if (end_line - start_line) > 16:
+                    start_line = max(1, line_no - 4)
+                    end_line = line_no + 4
 
+                # --- RENDU DE L'EXTRAIT DE CODE ---
+                for current_line in range(start_line, end_line + 1):
+                    raw_line = linecache.getline(frame.filename, current_line)
+                    if not raw_line:
+                        continue
+                    
+                    clean_line = raw_line.rstrip("\n")
+                    
+                    if current_line == line_no:
+                        indent = len(clean_line) - len(clean_line.lstrip())
+                        code_part = clean_line[indent:]
+                        caret_indent = " " * (indent + 6)
+                        caret = "~" * max(1, len(code_part)) + "^~"
+                        
+                        result += f"    {C['red']}➔{C['reset']}  {C['red']}{clean_line}{C['reset']}\n"
+                        result += f"{caret_indent}{C['red']}{caret}{C['reset']}\n"
+                    else:
+                        result += f"       {C['dim']}{clean_line}{C['reset']}\n"
+                        
+        return result.rstrip("\n")
 
+# Configuration prête pour uvicorn.run()
 NEXY_LOG_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,

@@ -1,4 +1,5 @@
 from pathlib import Path
+import traceback
 from typing import Generator, List, Union
 
 from nexy.core.config import Config
@@ -34,7 +35,7 @@ class Discovery:
                 elif item.suffix in self.TARGET_EXTENSIONS:
                     yield item
         except PermissionError:
-            pass
+            traceback.print_exc()
 
     def add_excluded_dir(self, dir_name: str) -> None:
         self.excluded_dirs.add(dir_name)

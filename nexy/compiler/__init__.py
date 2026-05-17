@@ -43,7 +43,7 @@ class Compiler:
                 mapped = StringTransform.normalize_route_path_for_namespace(self.input)
                 # Avoid double slash by stripping and joining correctly
                 namespace = self.config.NAMESPACE.strip("/")
-                self.output = f"{namespace}/{mapped.replace('.mdx', '.html')}"
+                self.output = f"{namespace}/{mapped.replace('.mdx', '.md')}"
         
         else:
             msg = f"File '{self.input}' is not a nexy or mdx component"

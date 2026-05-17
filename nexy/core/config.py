@@ -8,6 +8,9 @@ from nexy.core.models import NexyConfigModel
 current_dir = os.getcwd()
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
+# class Config(NexyConfigModel):
+
+
 
 class Config:
     ALIASES: dict[str, str] = {}
