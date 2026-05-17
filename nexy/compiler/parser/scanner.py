@@ -1,5 +1,7 @@
 import re
+
 from nexy.core.models import ScanResult
+
 
 class Scanner:
     """
@@ -15,7 +17,7 @@ class Scanner:
 
     def scan(self, source: str) -> ScanResult:
         source_content = (source or "").strip()
-        
+
         # 1. Empty file check
         if not source_content:
             return ScanResult(logic_block="", template_block="")
@@ -27,23 +29,23 @@ class Scanner:
                 logic_block="",
                 template_block=source_content,
             )
-            
+
         # 3. Handle delimiters
         parts = source_content.split("---")
-        
+
         # If there's only one "---", it's invalid (unclosed or just a separator)
         if len(parts) < 3:
-             # If "---" is present but not as a pair at the start, 
-             # check if it's just content. Nexy philosophy: frontmatter MUST be at the very top.
-             if source_content.startswith("---"):
+            # If "---" is present but not as a pair at the start,
+            # check if it's just content. Nexy philosophy: frontmatter MUST be at the very top.
+            if source_content.startswith("---"):
                 raise ValueError("Unclosed '---' delimiter")
-             else:
+            else:
                 # If "---" is in the middle but doesn't start with it, treat as template
                 return ScanResult(
                     logic_block="",
                     template_block=source_content,
                 )
-            
+
         match = self._PATTERN.match(source_content)
 
         if match:
@@ -56,8 +58,8 @@ class Scanner:
 
         # 4. If it starts with --- but doesn't match the pattern (content before ---)
         if source_content.startswith("---"):
-             raise ValueError("Malformed .nexy file: content found before opening '---' delimiter")
-        
+            raise ValueError("Malformed .nexy file: content found before opening '---' delimiter")
+
         # Default: treat as template
         return ScanResult(
             logic_block="",

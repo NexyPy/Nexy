@@ -1,15 +1,16 @@
 import asyncio
-from typing import List, Optional
-from fastapi import WebSocket, WebSocketDisconnect
+
+from fastapi import WebSocket
+
 
 class HMRManager:
     _instance = None
-    _connections: List[WebSocket] = []
-    loop: Optional[asyncio.AbstractEventLoop] = None
+    _connections: list[WebSocket] = []
+    loop: asyncio.AbstractEventLoop | None = None
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(HMRManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     async def connect(self, websocket: WebSocket):
@@ -25,14 +26,12 @@ class HMRManager:
         disconnected = []
         for connection in self._connections:
             try:
-                await connection.send_json({
-                    "type": "nexy:reload",
-                    "path": path
-                })
+                await connection.send_json({"type": "nexy:reload", "path": path})
             except Exception:
                 disconnected.append(connection)
-        
+
         for conn in disconnected:
             self.disconnect(conn)
+
 
 HMR_MANAGER = HMRManager()

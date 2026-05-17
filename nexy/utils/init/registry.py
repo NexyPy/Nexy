@@ -1,19 +1,18 @@
-from typing import Dict, List, Optional
-
 class ComponentEntry:
     def __init__(
-        self, 
-        name: str, 
-        framework_code: Dict[str, str], 
-        dependencies: Optional[List[str]] = None,
-        python_dependencies: Optional[List[str]] = None
+        self,
+        name: str,
+        framework_code: dict[str, str],
+        dependencies: list[str] | None = None,
+        python_dependencies: list[str] | None = None,
     ):
         self.name = name
         self.framework_code = framework_code
         self.dependencies = dependencies or []
         self.python_dependencies = python_dependencies or []
 
-COMPONENT_REGISTRY: Dict[str, ComponentEntry] = {
+
+COMPONENT_REGISTRY: dict[str, ComponentEntry] = {
     "button": ComponentEntry(
         name="Button",
         framework_code={
@@ -85,9 +84,9 @@ withDefaults(defineProps<Props>(), {
 >
   <slot />
 </button>
-"""
+""",
         },
-        dependencies=["clsx", "tailwind-merge"]
+        dependencies=["clsx", "tailwind-merge"],
     ),
     "input": ComponentEntry(
         name="Input",
@@ -105,7 +104,7 @@ export default function Input({ className = '', ...props }: InputProps) {
   );
 }
 """
-        }
+        },
     ),
     "card": ComponentEntry(
         name="Card",
@@ -132,6 +131,6 @@ export function CardContent({ children, className = '' }: { children: React.Reac
   return <div className={`p-6 pt-0 ${className}`}>{children}</div>;
 }
 """
-        }
-    )
+        },
+    ),
 }

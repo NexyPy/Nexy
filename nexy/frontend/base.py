@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+
 from nexy.core.models import FFModel
 
 
@@ -14,11 +15,9 @@ class BaseFrontendGenerator(ABC):
     def _get_ff_list(self) -> list[FFModel]:
         """Get the list of frontend frameworks from config."""
         from nexy.core.config import Config
+
         config = Config()
-        raw_ff = getattr(config, "useFF", [])
-        if isinstance(raw_ff, list):
-            return raw_ff
-        return []
+        return config.useFF or []
 
     def _get_frameworks(self) -> set[str]:
         """Extract framework names from FFModel list."""

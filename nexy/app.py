@@ -1,4 +1,5 @@
-from .routers.app import _server 
 from fastapi import FastAPI
 
-app : FastAPI = _server
+from .routers.app import _server
+
+app: FastAPI = _server

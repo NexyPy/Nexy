@@ -1,5 +1,6 @@
 from nexy.core.models import FFModel
 
+
 def react() -> FFModel:
     render_script = """
     (async function() {

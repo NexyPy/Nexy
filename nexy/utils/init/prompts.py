@@ -1,6 +1,9 @@
-import questionary
 from typing import Any
+
+import questionary
+
 from nexy.i18n import t
+
 
 class ProjectPrompter:
     """Handles all interactive questions for project initialization."""
@@ -15,11 +18,11 @@ class ProjectPrompter:
         return self.config
 
     def ask_router(self) -> None:
-        self.config['FBRouter'] = questionary.confirm(
+        self.config["FBRouter"] = questionary.confirm(
             t("init.ask.router", "Use file-based router?"),
             default=True,
             qmark="»",
-            instruction="(yes/no) "
+            instruction="(yes/no) ",
         ).ask()
 
     def ask_project_type(self) -> None:
@@ -34,19 +37,17 @@ class ProjectPrompter:
             show_description=True,
             show_selected=True,
         ).ask()
-        
-        self.config['project_type'] = choice
-        
+
+        self.config["project_type"] = choice
+
         if choice == "web":
             self.ask_client_component()
 
     def ask_client_component(self) -> None:
         use_client = questionary.confirm(
-            t("init.ask.client_component", "Use a client component?"), 
-            default=True, 
-            qmark="»"
+            t("init.ask.client_component", "Use a client component?"), default=True, qmark="»"
         ).ask()
-        
+
         if use_client:
             framework = questionary.select(
                 t("init.ask.framework", "Choose the client framework"),
@@ -54,15 +55,13 @@ class ProjectPrompter:
                 pointer="ʋ",
                 qmark="»",
             ).ask()
-            self.config['client_framework'] = framework
+            self.config["client_framework"] = framework
             if framework != "None":
                 self.ask_tailwindcss()
         else:
-            self.config['client_framework'] = "none"
+            self.config["client_framework"] = "none"
 
     def ask_tailwindcss(self) -> None:
-        self.config['tailwind'] = questionary.confirm(
-            t("init.ask.tailwind", "Use Tailwind CSS?"), 
-            default=True, 
-            qmark="»"
+        self.config["tailwind"] = questionary.confirm(
+            t("init.ask.tailwind", "Use Tailwind CSS?"), default=True, qmark="»"
         ).ask()

@@ -19,6 +19,7 @@ children:prop[NexyElement]
     <Header />
     <main class="lg:px-20 ">
         {{children | safe}}
+        
     </main>
     <Footer />
 </body>

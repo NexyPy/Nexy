@@ -1,13 +1,13 @@
-
 import os
 from pathlib import Path
+
 from nexy.core.models import ParserModel
+from nexy.errors import NexyCompileError
+from nexy.utils.common.console import console
+from nexy.utils.fs.vfs import VFS
+
 from .logic import LogicGenerator
 from .template import TemplateGenerator
-from nexy.utils.common.console import console
-from nexy.errors import NexyCompileError
-from nexy.core.config import Config
-from nexy.utils.fs.vfs import VFS
 
 
 class Generator:
@@ -18,7 +18,7 @@ class Generator:
         self.logic = LogicGenerator()
         self.vfs = VFS()
 
-    def generate(self, output: str, source: ParserModel, source_path:str = None) -> bool:
+    def generate(self, output: str, source: ParserModel, source_path: str = None) -> bool:
         self.source = source
         try:
             directory = os.path.dirname(output)
@@ -32,11 +32,14 @@ class Generator:
         except Exception as e:
             console.print(f"[red]nsc[/red] » Error writing to file '{output}': {e}")
             raise NexyCompileError(source_path=output, message=str(e))
-    
+
     def _generate_init(self, directory: str) -> None:
-        init_file = os.path.join(directory, "__init__.py")
-        if not self.vfs.exists(init_file):
-            self.vfs.write(init_file, "")
+        parts = directory.replace("\\", "/").split("/")
+        for i in range(1, len(parts) + 1):
+            sub = "/".join(parts[:i])
+            init_file = f"{sub}/__init__.py"
+            if not self.vfs.exists(init_file):
+                self.vfs.write(init_file, "")
 
 
 __all__ = ["Generator"]

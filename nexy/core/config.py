@@ -1,33 +1,41 @@
 import os
 import sys
-import traceback
 from typing import Optional
 
 from nexy.core.models import NexyConfigModel
 
-
-current_dir = os.getcwd()
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-# class Config(NexyConfigModel):
+_current_dir = os.getcwd()
+if _current_dir not in sys.path:
+    sys.path.insert(0, _current_dir)
 
 
-
-class Config:
-    _instance: Optional['Config'] = None
+class Config(NexyConfigModel):
+    _instance: Optional["Config"] = None
+    _load_error: str | None = None
 
     ALIASES: dict[str, str] = {}
     NAMESPACE: str = "__nexy__/"
-    MARKDOWN_EXTENSIONS: list[str] = ["extra","tables","fenced_code","codehilite","toc","admonition","attr_list","pymdownx.highlight","pymdownx.superfences","pymdownx.inlinehilite","pymdownx.details","pymdownx.tabbed"]
+    MARKDOWN_EXTENSIONS: list[str] = [
+        "extra",
+        "tables",
+        "fenced_code",
+        "codehilite",
+        "toc",
+        "admonition",
+        "attr_list",
+        "pymdownx.highlight",
+        "pymdownx.superfences",
+        "pymdownx.inlinehilite",
+        "pymdownx.details",
+        "pymdownx.tabbed",
+    ]
     TARGET_EXTENSIONS: list[str] = [".nexy", ".mdx"]
     FF_REGISTRY: dict[str, object] = {}
     ROUTE_FILE_EXTENSIONS: list[str] = [".nexy", ".mdx", ".py"]
-    ROUTE_FILE_EXCEPTIONS: list[str] = ["__init__.py", "layout.nexy","dependencies.py"]
+    ROUTE_FILE_EXCEPTIONS: list[str] = ["__init__.py", "layout.nexy", "dependencies.py"]
     ROUTE_FILE_DEFAULT: list[str] = ["index.py", "index.nexy", "index.mdx"]
     PROJECT_ROOT: str = "."
     ROUTER_PATH: str = "src/routes"
-    useRouter: object | None = None
-    nexy_config: NexyConfigModel | None = None
     WATCH_EXTENSIONS_GLOB: list[str] = ["*.py", "*.mdx", "*.nexy"]
     WATCH_EXCLUDE_PATTERNS: list[str] = [
         "*/.git/*",
@@ -49,83 +57,60 @@ class Config:
         ".css": "css",
     }
 
-    def __new__(cls) -> 'Config':
+    def __new__(cls) -> "Config":
         if cls._instance is None:
-            cls._instance = super(Config, cls).__new__(cls)
-            cls._instance._initialized = False
+            cls._instance = super().__new__(cls)
+            cls._instance._loaded = False
         return cls._instance
 
     def __init__(self) -> None:
-        if getattr(self, "_initialized", False):
+        if self._loaded:
             return
-        self._get_config()
-        self._initialized = True
+        self._loaded = True
+        self._load()
 
-    def _get_config(self) -> None:
+    def _load(self) -> None:
         try:
-            from nexyconfig import NexyConfig
+            import nexyconfig
+        except Exception:
+            Config._load_error = "nexyconfig.py not found or has errors"
+            return
 
-            nexy_config: NexyConfigModel = NexyConfig()
-            self.nexy_config = nexy_config
+        nc = nexyconfig.NexyConfig
 
-            for name in dir(nexy_config):
-                if name.startswith("_"):
-                    continue
-                value = getattr(nexy_config, name)
-                if callable(value):
-                    continue
-                setattr(self, name, value)
+        for attr in NexyConfigModel.__annotations__:
+            val = getattr(nc, attr, None)
+            if val is not None:
+                setattr(Config, attr, val)
 
-            aliases = getattr(nexy_config, "useAliases", None)
-            if aliases is not None:
-                self.ALIASES = aliases
-                Config.ALIASES = aliases
+        if Config.useAliases:
+            Config.ALIASES = Config.useAliases
 
-            router = getattr(nexy_config, "useRouter", None)
-            if router is not None:
-                self.useRouter = router
-                Config.useRouter = router
+        if Config.useMarkdownExtensions:
+            Config.MARKDOWN_EXTENSIONS = Config.useMarkdownExtensions
 
-            markdown_extensions = getattr(nexy_config, "useMarkdownExtensions", None)
-            if markdown_extensions:
-                self.MARKDOWN_EXTENSIONS = markdown_extensions
-                Config.MARKDOWN_EXTENSIONS = markdown_extensions
-            
-            watch_ext = getattr(nexy_config, "useWatchExtensions", None)
-            if watch_ext:
-                self.WATCH_EXTENSIONS_GLOB = watch_ext
-                Config.WATCH_EXTENSIONS_GLOB = watch_ext
-            
-            watch_exclude = getattr(nexy_config, "useWatchExcludePatterns", None)
-            if watch_exclude:
-                self.WATCH_EXCLUDE_PATTERNS = watch_exclude
-                Config.WATCH_EXCLUDE_PATTERNS = watch_exclude
-            
-            ff_list = getattr(nexy_config, "useFF", None)
-            if ff_list:
-                mapping: dict[str, str] = dict(Config.FRONTEND_EXTENSIONS)
-                registry: dict[str, object] = {}
-                for ff in ff_list:
-                    try:
-                        name = getattr(ff, "name", None)
-                        exts = getattr(ff, "extension", []) or []
-                        registry[name.lower()] = ff
-                        if not name:
-                            continue
-                        for ext in exts:
-                            e = ext if ext.startswith(".") else f".{ext}"
-                            mapping[e.lower()] = name.lower()
-                    except Exception:
-                        continue
-                self.FRONTEND_EXTENSIONS = mapping
-                Config.FRONTEND_EXTENSIONS = mapping
-                self.FF_REGISTRY = registry
-                Config.FF_REGISTRY = registry
-        except Exception as e:
-            self.nexy_config = None
-            # traceback.print_exc()
-            # print(f"Error loading nexyconfig: {e.with_traceback(traceback.format_exc())}")
+        watch_ext = getattr(nc, "useWatchExtensions", None)
+        if watch_ext:
+            Config.WATCH_EXTENSIONS_GLOB = watch_ext
 
-        # Aligne les extensions de watcher sur les extensions de routes
-        self.WATCH_EXTENSIONS_GLOB = [f"*{ext}" for ext in self.ROUTE_FILE_EXTENSIONS]
-        Config.WATCH_EXTENSIONS_GLOB = self.WATCH_EXTENSIONS_GLOB
+        watch_exclude = getattr(nc, "useWatchExcludePatterns", None)
+        if watch_exclude:
+            Config.WATCH_EXCLUDE_PATTERNS = watch_exclude
+
+        ff_list = Config.useFF
+        if ff_list:
+            mapping: dict[str, str] = dict(Config.FRONTEND_EXTENSIONS)
+            registry: dict[str, object] = {}
+            for ff in ff_list:
+                name = getattr(ff, "name", None)
+                exts = getattr(ff, "extension", []) or []
+                if name:
+                    registry[name.lower()] = ff
+                    for ext in exts:
+                        e = ext if ext.startswith(".") else f".{ext}"
+                        mapping[e.lower()] = name.lower()
+            Config.FRONTEND_EXTENSIONS = mapping
+            Config.FF_REGISTRY = registry
+
+        Config.WATCH_EXTENSIONS_GLOB = [f"*{ext}" for ext in Config.ROUTE_FILE_EXTENSIONS]
+        Config._load_error = None

@@ -1,34 +1,35 @@
-from contextvars import ContextVar
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional, Union, Type
-from fastapi import FastAPI, APIRouter, Request, Response, status
+
+from fastapi import APIRouter, FastAPI, Request, Response, status
 from fastapi.staticfiles import StaticFiles
-from starlette.exceptions import HTTPException
 from scalar_fastapi import get_scalar_api_reference
+from starlette.exceptions import HTTPException
 
 from nexy.__version__ import __Version__
+
 # from nexy.utils.dev.pycache import pycache
 from nexy.core.config import Config
 from nexy.errors import InternalServerError, NotFound
 from nexy.routers.actions.engine import ACTION_ENGINE
-from nexy.routers.fbrouter import FBRouter
-from nexy.utils.common.console import console
 from nexy.routers.context import current_request
-from nexy.runtime.importer import install_vfs_importer
+from nexy.routers.fbrouter import FBRouter
 from nexy.runtime.hmr import HMR_MANAGER
+from nexy.runtime.importer import install_vfs_importer
+from nexy.utils.common.console import console
 
 
 class AppServer:
-    def __init__(self ):
+    def __init__(self):
         install_vfs_importer()
         self.config = Config()
         self.version = __Version__().get()
-        self.server: Optional[FastAPI] = None
-        
+        self.server: FastAPI | None = None
+
         # Internal configuration state
         self._docs_url, self._redocs_url = self._resolve_docs_settings()
-  
+
     async def scalar_html(self):
         return get_scalar_api_reference(
             scalar_favicon_url="/favicon.ico",
@@ -38,25 +39,22 @@ class AppServer:
             dark_mode=True,
             hide_models=True,
             scalar_proxy_url="https://proxy.scalar.com",
-
         )
+
     def _resolve_docs_settings(self):
         """KISS: Logic extracted to a single specialized method."""
-        conf = self.config.nexy_config
-        if not conf or not getattr(conf, "useDocs", True):
+        conf = self.config
+        if not conf.useDocs:
             console.print("[yellow]API documentation is disabled[/yellow]")
             return None, None
-        
-        d_url = getattr(conf, "useDocsUrl", "/docs")
-        r_url = getattr(conf, "useRedocsUrl", "/redocs")
+
+        d_url = conf.useDocsUrl
+        r_url = conf.useRedocsUrl
         return d_url, r_url
 
     def _setup_static_files(self):
         """Mounts directories if they exist."""
-        mounts = {
-            "/public": "public",
-            "/assets": "__nexy__/client/assets"
-        }
+        mounts = {"/public": "public", "/assets": "__nexy__/client/assets"}
         for path, directory in mounts.items():
             if os.path.isdir(directory):
                 self.server.mount(path, StaticFiles(directory=directory), name=directory)
@@ -76,29 +74,33 @@ class AppServer:
     def _resolve_router(self):
         """SOLID: Decoupled router resolution logic."""
 
-        router_source = self.config.nexy_config.useRouter if self.config.nexy_config else None
+        router_source = self.config.useRouter
         # 1. Direct APIRouter or Class
-        
+
         if self._docs_url:
-            self.server.get(self._docs_url,include_in_schema=False)( self.scalar_html)
-        
+            self.server.get(self._docs_url, include_in_schema=False)(self.scalar_html)
+
         ACTION_ENGINE.include_router(self.server)
 
-        if isinstance(router_source, (APIRouter, type)) and (isinstance(router_source, APIRouter) or issubclass(router_source, APIRouter)):
-            print(f"[green]Custom router registered:[/green] {router_source.__name__ if isinstance(router_source, type) else 'APIRouter instance'}")
+        if isinstance(router_source, (APIRouter, type)) and (
+            isinstance(router_source, APIRouter) or issubclass(router_source, APIRouter)
+        ):
+            print(
+                f"[green]Custom router registered:[/green] {router_source.__name__ if isinstance(router_source, type) else 'APIRouter instance'}"
+            )
             self.server.include_router(router_source)
-        elif router_source is not None and Path('src/routes').exists():
-            print(f"[green]File-based router registered:[/green] {router_source}")
+        elif Path("src/routes").exists():
+            print("Nexy use FB Router")
             FBRouter().register_on(self.server)
 
     async def PathMiddleware(self, request: Request, call_next: Callable) -> Response:
         token = current_request.set(request)
         try:
-            response = await call_next(request)  
+            response = await call_next(request)
             return response
         finally:
             current_request.reset(token)
-    
+
     def _register_error_handlers(self, request: Request, exc: HTTPException) -> Response:
         """Registers custom error handlers for 404 and 500 errors."""
         if exc.status_code == status.HTTP_404_NOT_FOUND:
@@ -109,16 +111,20 @@ class AppServer:
             return InternalServerError()
         else:
             # For other HTTP exceptions, return the default response
-            return Response(content=f"<h1>{exc.status_code} - {exc.detail}</h1>", status_code=exc.status_code)
+            return Response(
+                content=f"<h1>{exc.status_code} - {exc.detail}</h1>", status_code=exc.status_code
+            )
+
     def _setup_hmr(self):
         """Setup WebSocket for Hot Module Replacement in development."""
         # Only in dev mode
-        from fastapi import WebSocket, WebSocketDisconnect
         import asyncio
-        
+
+        from fastapi import WebSocket, WebSocketDisconnect
+
         # Store the current loop for HMR access from other threads
         HMR_MANAGER.loop = asyncio.get_event_loop()
-        
+
         @self.server.websocket("/_nexy/hmr")
         async def hmr_endpoint(websocket: WebSocket):
             await HMR_MANAGER.connect(websocket)
@@ -132,14 +138,8 @@ class AppServer:
     def run(self) -> FastAPI:
         """Main entry point to assemble the application."""
         # pycache()
-        
-        self.server = FastAPI(
-            title="Nexy", 
-            version=self.version, 
-            docs_url=None, 
-            redoc_url=None
-        )
-        
+
+        self.server = FastAPI(title="Nexy", version=self.version, docs_url=None, redoc_url=None)
 
         self.server.middleware("http")(self.PathMiddleware)
         self._setup_favicon()
@@ -149,8 +149,5 @@ class AppServer:
         self.server.exception_handler(HTTPException)(self._register_error_handlers)
         return self.server
 
+
 _server = AppServer().run()
-
-
-
-

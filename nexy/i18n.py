@@ -1,38 +1,50 @@
 import json
-import os
 import locale as _py_locale
-from pathlib import Path
+import os
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 FALLBACK_LOCALE = "en"
 
+
 def _normalize(tag: str) -> str:
     t = (tag or "").lower().replace("_", "-")
-    if t.startswith("fr"): return "fr"
-    if t.startswith("hi") or t.startswith("in"): return "hi"
-    if t.startswith("zh"): return "zh"
-    if t.startswith("es"): return "es"
-    if t.startswith("ar"): return "ar"
-    if t.startswith("en"): return "en"
+    if t.startswith("fr"):
+        return "fr"
+    if t.startswith("hi") or t.startswith("in"):
+        return "hi"
+    if t.startswith("zh"):
+        return "zh"
+    if t.startswith("es"):
+        return "es"
+    if t.startswith("ar"):
+        return "ar"
+    if t.startswith("en"):
+        return "en"
     return FALLBACK_LOCALE
+
 
 @lru_cache(maxsize=1)
 def _detect_locale() -> str:
     for env in ("LC_ALL", "LC_MESSAGES", "LANG"):
         v = os.environ.get(env)
-        if v: return _normalize(v)
+        if v:
+            return _normalize(v)
     try:
         loc = _py_locale.getdefaultlocale()[0]
-        if loc: return _normalize(loc)
+        if loc:
+            return _normalize(loc)
     except Exception:
         pass
     try:
         loc = _py_locale.getlocale()[0]
-        if loc: return _normalize(loc)
+        if loc:
+            return _normalize(loc)
     except Exception:
         pass
     return FALLBACK_LOCALE
+
 
 def _deep_merge(base: dict[str, Any], other: dict[str, Any]) -> dict[str, Any]:
     out = dict(base)
@@ -42,6 +54,7 @@ def _deep_merge(base: dict[str, Any], other: dict[str, Any]) -> dict[str, Any]:
         else:
             out[k] = v
     return out
+
 
 @lru_cache(maxsize=8)
 def _load_locale(locale: str) -> dict[str, Any]:
@@ -60,6 +73,7 @@ def _load_locale(locale: str) -> dict[str, Any]:
             except Exception:
                 continue
     return data
+
 
 def t(key: str, default: str | None = None, *, locale: str | None = None) -> str:
     loc = locale or _detect_locale()

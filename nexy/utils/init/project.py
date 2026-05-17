@@ -1,13 +1,17 @@
 from __future__ import annotations
+
 import shutil
 from pathlib import Path
+
 from nexy.__version__ import __Version__
-from nexy.utils.common.console import console
 from nexy.i18n import t
+from nexy.utils.common.console import console
+
 from .clone import GitClone
+from .dependencies import DependencyInstaller
 from .prompts import ProjectPrompter
 from .resolver import TemplateResolver
-from .dependencies import DependencyInstaller
+
 
 class InitProject:
     """Orchestrates the project initialization process."""
@@ -34,22 +38,29 @@ class InitProject:
         """Clones and extracts the template into the current directory."""
         dest = Path(".")
         cloner = GitClone()
-        
+
         try:
             # Use spinner during initialization
-            with console.status(f"[yellow]nexy[/yellow] » " + t("init.initializing", "Initializing {name}...").format(name=template_name), spinner="dots"):
+            with console.status(
+                "[yellow]nexy[/yellow] » "
+                + t("init.initializing", "Initializing {name}...").format(name=template_name),
+                spinner="dots",
+            ):
                 cloner.clone(cloner.repo, cloner.branch, dest, subdir=subdir)
-            
+
             # Auto-install dependencies
             installer = DependencyInstaller(dest)
             installer.install_all()
-            
+
             # Final cleanup of unwanted folders
             self._cleanup_unwanted_folders(dest)
-            
+
             self._print_success_message()
         except Exception as e:
-            console.print(f"\n[red]nexy[/red] » " + t("init.error", "Initialization failed: {error}").format(error=str(e)))
+            console.print(
+                "\n[red]nexy[/red] » "
+                + t("init.error", "Initialization failed: {error}").format(error=str(e))
+            )
             raise
 
     def _cleanup_unwanted_folders(self, dest: Path) -> None:
@@ -59,7 +70,7 @@ class InitProject:
             folder_path = dest / folder_name
             if folder_path.exists() and folder_path.is_dir():
                 shutil.rmtree(folder_path, ignore_errors=True)
-        
+
         # Also clean up egg-info files for python
         for item in dest.glob("*.egg-info"):
             if item.is_dir():
@@ -67,10 +78,17 @@ class InitProject:
 
     def _print_success_message(self) -> None:
         """Prints a detailed success message with next steps."""
-        console.print(f"\n[green]nexy[/green] » " + t("init.success_title", "Project initialized successfully!"))
+        console.print(
+            "\n[green]nexy[/green] » "
+            + t("init.success_title", "Project initialized successfully!")
+        )
         console.print("\n" + t("init.next_steps", "Next steps:"))
-        
-        console.print(f"  1. [cyan]nexy dev[/cyan] - " + t("init.step_run_dev", "Start the development server"))
-        console.print(f"  2. [cyan]nexy --help[/cyan] - " + t("init.step_help", "Explore available commands"))
-        
+
+        console.print(
+            "  1. [cyan]nexy dev[/cyan] - " + t("init.step_run_dev", "Start the development server")
+        )
+        console.print(
+            "  2. [cyan]nexy --help[/cyan] - " + t("init.step_help", "Explore available commands")
+        )
+
         console.print("\n" + t("init.happy_coding", "Happy coding with Nexy!"))

@@ -1,11 +1,12 @@
 import sys
+
 from nexy.__version__ import __Version__
 from nexy.builder import Builder
-from nexy.utils.common.console import console
-from nexy.utils.server.server import Server
 from nexy.core.config import Config
 from nexy.frontend import FrontendGenerator
 from nexy.i18n import t
+from nexy.utils.common.console import console
+from nexy.utils.server.server import Server
 
 
 def build() -> None:
@@ -16,9 +17,12 @@ def build() -> None:
     with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):
         FrontendGenerator().generate(ssg=True)
         Builder().build(showlog=True)
-    
-    if getattr(config, "useVite", False):
-        try :
+        from nexy.utils.fs.vfs import VFS
+
+        VFS().flush_to_disk()
+
+    if config.useVite:
+        try:
             vite_proc = Server.vite(build=True)
             vite_proc.wait()
         except Exception as e:

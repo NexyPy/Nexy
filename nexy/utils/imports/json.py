@@ -1,7 +1,10 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
+
 from nexy.core.config import Config
+
 
 class Json:
     @staticmethod
@@ -10,7 +13,7 @@ class Json:
             p = Path(path)
             if not p.is_absolute():
                 p = Path(Config.PROJECT_ROOT).joinpath(path)
-                
+
             with p.open("r", encoding="utf-8") as f:
                 result = json.load(f)
                 return lambda: result

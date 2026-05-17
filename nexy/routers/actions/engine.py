@@ -1,26 +1,26 @@
-import os
+import importlib
 import inspect
 import pkgutil
-import importlib
-from pathlib import Path
 import sys
-from typing import Optional, Union, Any
-from fastapi import FastAPI, Request
-from fastapi.dependencies.utils import solve_dependencies
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI
 
 from nexy.routers.actions.store import ACTIONS_STORE
 
+
 class ActionEngine:
-    def __init__(self, output_dir: Optional[str] = None):
+    def __init__(self, output_dir: str | None = None):
         self.output_dir = output_dir
         self.ignore_folders = {
-            "__pycache__", 
-            ".venv", 
-            "venv", 
-            "node_modules", 
-            ".git", 
-            "dist", 
-            "build"
+            "__pycache__",
+            ".venv",
+            "venv",
+            "node_modules",
+            ".git",
+            "dist",
+            "build",
         }
 
     def discover(self, start_dir: str = "src"):
@@ -33,7 +33,7 @@ class ActionEngine:
 
         if str(base_path.parent) not in sys.path:
             sys.path.append(str(base_path.parent))
-        
+
         # walk_packages starts scanning
         for loader, name, is_pkg in pkgutil.walk_packages([str(base_path)]):
             # Optimization: check if any part of the module path is in ignore_folders
@@ -41,7 +41,7 @@ class ActionEngine:
             parts = name.split(".")
             if any(ignored in parts for ignored in self.ignore_folders):
                 continue
-                
+
             try:
                 importlib.import_module(name)
             except Exception:
@@ -56,15 +56,15 @@ class ActionEngine:
         for func_id, handler in ACTIONS_STORE.registry.items():
             path_hash = ACTIONS_STORE._generate_hash(func_id)
             encrypted_path = f"/_nx_{path_hash}"
-            
+
             ACTIONS_STORE.path_map[func_id] = encrypted_path
-            
+
             router.add_api_route(
                 path=encrypted_path,
                 endpoint=handler,
                 methods=["POST"],
-                name=handler.__name__, 
-                tags=["All Actions"]
+                name=handler.__name__,
+                tags=["All Actions"],
             )
         return router
 
@@ -76,14 +76,14 @@ class ActionEngine:
             return "string"
         if py_type is bool:
             return "boolean"
-        
+
         # Handle typing generics (List, Dict, etc.)
         origin = getattr(py_type, "__origin__", None)
         if origin is list or py_type is list:
             return "any[]"
         if origin is dict or py_type is dict:
             return "{ [key: string]: any }"
-        
+
         return "any"
 
     def generate_client(self):
@@ -99,19 +99,19 @@ class ActionEngine:
 
             parts = func_id.split(".")
             func_name = parts.pop()
-            
+
             sub_dir = out_path.joinpath(*parts)
             sub_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Extract signature for type safety
             sig = inspect.signature(handler)
             params = []
             for name, param in sig.parameters.items():
-                if name in ("request", "response"): # Skip FastAPI internals
+                if name in ("request", "response"):  # Skip FastAPI internals
                     continue
                 ts_type = self._map_py_type_to_ts(param.annotation)
                 params.append(f"{name}: {ts_type}")
-            
+
             arg_line = ", ".join(params)
             ret_type = self._map_py_type_to_ts(sig.return_annotation)
 
@@ -124,13 +124,12 @@ class ActionEngine:
                 "",
                 f"export const {func_name} = async ({arg_line}): Promise<{ret_type}> => {{",
                 f"  return await transport.call('{final_url}', {{ {', '.join(p.split(':')[0] for p in params)} }});",
-                "};"
+                "};",
             ]
-            
+
             file_path = sub_dir / f"{func_name}.ts"
             file_path.write_text("\n".join(ts_code), encoding="utf-8")
 
 
 ACTION_ENGINE = ActionEngine(output_dir="./actions")
 ACTION_ENGINE.discover("./")
-

@@ -1,22 +1,23 @@
 import os
-from typing import Dict, Optional, Union
+from pathlib import Path
+
 
 class VFS:
     """
     In-memory Virtual File System.
     Singleton class to store compiled files during runtime.
     """
+
     _instance = None
-    _files: Dict[str, str] = {}
+    _files: dict[str, str] = {}
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(VFS, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     def write(self, path: str, content: str) -> None:
         """Writes content to a virtual file path."""
-        # Normalize path to use forward slashes for consistency
         path = path.replace("\\", "/")
         self._files[path] = content
 
@@ -39,9 +40,18 @@ class VFS:
     def clear(self) -> None:
         """Clears all files from the VFS."""
         self._files.clear()
-        
+
     def delete(self, path: str) -> None:
         """Deletes a file from the VFS."""
         path = path.replace("\\", "/")
         if path in self._files:
             del self._files[path]
+
+    def flush_to_disk(self, prefix: str = "__nexy__") -> None:
+        """Writes all VFS files under prefix to the physical filesystem."""
+        for path, content in self._files.items():
+            if not path.startswith(prefix):
+                continue
+            disk_path = Path(path)
+            disk_path.parent.mkdir(parents=True, exist_ok=True)
+            disk_path.write_text(content, encoding="utf-8")

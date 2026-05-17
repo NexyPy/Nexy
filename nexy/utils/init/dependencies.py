@@ -1,9 +1,11 @@
+import os
 import shutil
 import subprocess
-import os
 from pathlib import Path
-from nexy.utils.common.console import console
+
 from nexy.i18n import t
+from nexy.utils.common.console import console
+
 
 class DependencyInstaller:
     """Handles automatic installation of dependencies for different project types."""
@@ -33,36 +35,68 @@ class DependencyInstaller:
             elif shutil.which("npm"):
                 cmd = ["npm", "install"]
             else:
-                console.print(f"[yellow]nexy[/yellow] » " + t("init.node_manager_not_found", "No Node.js package manager found (npm, pnpm, yarn). Please install dependencies manually."))
+                console.print(
+                    "[yellow]nexy[/yellow] » "
+                    + t(
+                        "init.node_manager_not_found",
+                        "No Node.js package manager found (npm, pnpm, yarn). Please install dependencies manually.",
+                    )
+                )
                 return
 
-            with console.status("[yellow]nexy[/yellow] » " + t("init.installing_node", "Installing Node.js dependencies..."), spinner="dots"):
+            with console.status(
+                "[yellow]nexy[/yellow] » "
+                + t("init.installing_node", "Installing Node.js dependencies..."),
+                spinner="dots",
+            ):
                 try:
                     subprocess.run(
-                        cmd, 
-                        cwd=self.directory, 
-                        check=True, 
+                        cmd,
+                        cwd=self.directory,
+                        check=True,
                         capture_output=True,
-                        shell=self.is_windows
+                        shell=self.is_windows,
                     )
-                    console.print(f"[green]nexy[/green] » " + t("init.node_installed", "Node.js dependencies installed."))
+                    console.print(
+                        "[green]nexy[/green] » "
+                        + t("init.node_installed", "Node.js dependencies installed.")
+                    )
                 except subprocess.CalledProcessError:
-                    console.print(f"[red]nexy[/red] » " + t("init.node_install_failed", "Failed to install Node.js dependencies. Please run '{cmd}' manually.").format(cmd=" ".join(cmd)))
+                    console.print(
+                        "[red]nexy[/red] » "
+                        + t(
+                            "init.node_install_failed",
+                            "Failed to install Node.js dependencies. Please run '{cmd}' manually.",
+                        ).format(cmd=" ".join(cmd))
+                    )
 
     def install_python_dependencies(self) -> None:
         """Installs Python dependencies if pyproject.toml is present."""
         pyproject = self.directory / "pyproject.toml"
 
         if pyproject.exists():
-            with console.status("[yellow]nexy[/yellow] » " + t("init.installing_python", "Installing Python dependencies..."), spinner="dots"):
+            with console.status(
+                "[yellow]nexy[/yellow] » "
+                + t("init.installing_python", "Installing Python dependencies..."),
+                spinner="dots",
+            ):
                 try:
                     subprocess.run(
-                        ["pip", "install", "."], 
-                        cwd=self.directory, 
-                        check=True, 
+                        ["pip", "install", "."],
+                        cwd=self.directory,
+                        check=True,
                         capture_output=True,
-                        shell=self.is_windows
+                        shell=self.is_windows,
                     )
-                    console.print(f"[green]nexy[/green] » " + t("init.python_installed", "Python dependencies installed."))
+                    console.print(
+                        "[green]nexy[/green] » "
+                        + t("init.python_installed", "Python dependencies installed.")
+                    )
                 except subprocess.CalledProcessError:
-                    console.print(f"[red]nexy[/red] » " + t("init.python_install_failed", "Failed to install Python dependencies. Please install them manually."))
+                    console.print(
+                        "[red]nexy[/red] » "
+                        + t(
+                            "init.python_install_failed",
+                            "Failed to install Python dependencies. Please install them manually.",
+                        )
+                    )

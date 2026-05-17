@@ -1,4 +1,3 @@
-from nexy.core.models import ParserModel
 from nexy.utils.fs.vfs import VFS
 
 

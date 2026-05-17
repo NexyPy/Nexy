@@ -1,7 +1,7 @@
 import pathlib
-from typing import List
-from nexy.core.models import NexyImport
+
 from nexy.core.config import Config
+from nexy.core.models import NexyImport
 
 
 class ImportValidationError(Exception):
@@ -10,6 +10,7 @@ class ImportValidationError(Exception):
     The message includes the original import, the resolved path and
     optional suggestions (files with same stem) to help the user fix it.
     """
+
     pass
 
 
@@ -19,7 +20,7 @@ class ImportValidator:
     """
 
     @staticmethod
-    def _find_suggestions(path: pathlib.Path) -> List[str]:
+    def _find_suggestions(path: pathlib.Path) -> list[str]:
         """Return filenames in the same directory that share the same stem."""
         parent = path.parent
         if not parent.exists():
@@ -32,7 +33,7 @@ class ImportValidator:
         return candidates
 
     @staticmethod
-    def validate_imports(imports: List[NexyImport], current_file: str) -> None:
+    def validate_imports(imports: list[NexyImport], current_file: str) -> None:
         """
         Check that all imported files exist.
 
@@ -45,7 +46,7 @@ class ImportValidator:
         """
         # Work with absolute paths to avoid duplicate segments
         current_dir = pathlib.Path(current_file).resolve().parent
-        project_root = pathlib.Path(getattr(Config, "PROJECT_ROOT", ".")).resolve()
+        project_root = pathlib.Path(Config.PROJECT_ROOT).resolve()
 
         for imp in imports:
             raw = imp.path.replace("\\", "/")

@@ -1,39 +1,45 @@
-from pathlib import Path
 import shutil
-from nexy.utils.common.console import console
+from pathlib import Path
+
 from nexy.core.config import Config
+from nexy.utils.common.console import console
+
 from .preact import preact
 from .react import react
+from .solid import solid
 from .svelte import svelte
 from .vue import vue
-from .solid import solid
+
 
 class FrontendGenerator:
     def __init__(self) -> None:
         self.config = Config()
+
     def generate(self, ssg: bool = False) -> None:
         self._generate_vite_entry()
         self._generate_vite_config()
         if ssg:
             self._generate_ssg()
 
-
     def _generate_ssg(self) -> None:
         try:
             import nexy.frontend as frontend
+
             source = Path(frontend.__file__).parent / "scripts"
             dest = Path("__nexy__") / "scripts"
             shutil.copytree(source, dest, dirs_exist_ok=True)
         except Exception as e:
             print(f"[nexy] Error copying scripts: {e}")
+
     def _generate_vite_config(self) -> None:
         """Copies the frontend vite config from nexy/frontend/vite.ts to __nexy__/vite.ts."""
         try:
             # On récupère le chemin du fichier source dans le package nexy
             import nexy.frontend as frontend
+
             source = Path(frontend.__file__).parent / "vite.ts"
             dest = Path("__nexy__") / "vite.ts"
-            
+
             if source.is_file():
                 content = source.read_text(encoding="utf-8")
                 if not dest.exists() or dest.read_text(encoding="utf-8") != content:
@@ -42,12 +48,11 @@ class FrontendGenerator:
             console.print(f"[red]nsc[/red] » error generating vite.ts: {e}")
 
     def _generate_vite_entry(self) -> None:
-        ff_list = []
-        raw_ff = getattr(self.config, "useFF", [])
-        if isinstance(raw_ff, list):
-            ff_list = raw_ff
-        
-        frameworks: set[str] = {getattr(ff, "name", "").lower() for ff in ff_list if hasattr(ff, "name")}
+        ff_list = self.config.useFF or []
+
+        frameworks: set[str] = {
+            getattr(ff, "name", "").lower() for ff in ff_list if hasattr(ff, "name")
+        }
         dest_dir = Path("__nexy__")
         src_dir = dest_dir / "src"
         dest_dir.mkdir(parents=True, exist_ok=True)
@@ -63,12 +68,7 @@ class FrontendGenerator:
             if not name or not render:
                 continue
             target = src_dir / f"{name}.nexy.ts"
-            content = (
-                "const run = () => {\n"
-                f"{render}\n"
-                "};\n"
-                "export default run;\n"
-            )
+            content = f"const run = () => {{\n{render}\n}};\nexport default run;\n"
             if not target.exists() or target.read_text(encoding="utf-8") != content:
                 target.write_text(content, encoding="utf-8")
             imports.append(f"import init_{name} from './{target.name}';")
@@ -91,6 +91,7 @@ class FrontendGenerator:
                 if p.is_file() and p.suffix.lower() in exts:
                     rel = "/" + p.as_posix().lstrip("/")
                     import hashlib as _h
+
                     mapping[_h.md5(rel.encode("utf-8")).hexdigest()] = rel
         lines = ["export const __NEXY_KEYS: Record<string,string> = {"]
         for k, v in mapping.items():
@@ -150,7 +151,6 @@ class FrontendGenerator:
 
         if not dest.exists() or dest.read_text(encoding="utf-8") != minimal:
             dest.write_text(minimal, encoding="utf-8")
-
 
 
 __all__ = [

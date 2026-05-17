@@ -1,5 +1,6 @@
 from nexy.core.models import FFModel
 
+
 def vue() -> FFModel:
     render_script = """
     (async function() {

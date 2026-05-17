@@ -5,4 +5,4 @@ from nexy.hooks import useViews
 class AppController:
     async def GET(self):
         """Renders the main page using a layout and home view."""
-        return "dhjdhj"
+        return useViews('src/apps/home/app_view.nexy')

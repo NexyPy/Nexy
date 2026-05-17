@@ -1,12 +1,12 @@
 import socket
 from pathlib import Path
-from typing import Optional, Tuple, Union
+
 from nexy.utils.fs.vfs import VFS
 
 
 def _is_port_available(host: str, port: int) -> bool:
     """
-    Checks if a port is free by combining a connection attempt 
+    Checks if a port is free by combining a connection attempt
     and a binding fallback.
     """
     # On Windows, connecting to 0.0.0.0 is not supported. Use 127.0.0.1 for the check.
@@ -18,8 +18,8 @@ def _is_port_available(host: str, port: int) -> bool:
         try:
             sock.connect((check_host, port))
             return False  # If we can connect, the port is occupied
-        except (ConnectionRefusedError, socket.timeout):
-            pass 
+        except (TimeoutError, ConnectionRefusedError):
+            pass
         except OSError:
             pass
 
@@ -30,7 +30,7 @@ def _is_port_available(host: str, port: int) -> bool:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind((host, port))
-            return True # Bind successful, the port is free
+            return True  # Bind successful, the port is free
         except OSError:
             return False
 
@@ -48,7 +48,7 @@ def find_available_port(
     raise RuntimeError(f"No available port found on {host} around {start_port}")
 
 
-def _read_port_file(path: Union[str, Path]) -> Optional[int]:
+def _read_port_file(path: str | Path) -> int | None:
     vfs = VFS()
     path_str = str(path).replace("\\", "/")
     if not vfs.exists(path_str):
@@ -61,16 +61,18 @@ def _read_port_file(path: Union[str, Path]) -> Optional[int]:
         return None
 
 
-def generate_port(host: str, base_port: Optional[int] = None, default_port: int = 3000) -> Tuple[int, int]:
+def generate_port(
+    host: str, base_port: int | None = None, default_port: int = 3000
+) -> tuple[int, int]:
     """Generates server and client ports and saves them to files."""
     run_host = host or "127.0.0.1"
     if base_port is not None and base_port > 0:
         server_port = base_port
     else:
         server_port = find_available_port(default_port, run_host)
-    
+
     client_port = find_available_port(server_port + 1, run_host)
-    
+
     vfs = VFS()
     vfs.write("__nexy__/server.port", str(server_port))
     vfs.write("__nexy__/client.port", str(client_port))
