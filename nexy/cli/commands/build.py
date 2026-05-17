@@ -96,10 +96,7 @@ def _print_section(
     groups: list[tuple[str, list[str], str, str]] = [
         ("Build success", success, ok_style, "\u2713"),
         ("Build Failed", failed, fail_style, "\u2717"),
-        ("SSR not supported", skipped or [], "yellow", "\u2014"),
     ]
-    groups = [(n, f, s, m) for n, f, s, m in groups if f]
-
     for gi, (gname, gfiles, gstyle, mark) in enumerate(groups):
         is_last_group = gi == len(groups) - 1
         gprefix = "\u2514\u2500\u2500" if is_last_group else "\u251c\u2500\u2500"
