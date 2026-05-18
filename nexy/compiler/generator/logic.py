@@ -53,7 +53,11 @@ class LogicGenerator:
 
         use_layout = Config.useRouter is None
         is_layout_file = self.source_path.endswith("layout.nexy") if use_layout else False
-        layout_import = RouteLayout.get_closest_import(self.source_path, is_layout=is_layout_file) if use_layout else None
+        layout_import = (
+            RouteLayout.get_closest_import(self.source_path, is_layout=is_layout_file)
+            if use_layout
+            else None
+        )
 
         layout_header = ""
         render_wrapper = "rendered"

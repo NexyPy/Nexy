@@ -95,7 +95,7 @@ class Container:
 
         cls._resolving.add(target_cls)
         try:
-            if '__init__' not in target_cls.__dict__:
+            if "__init__" not in target_cls.__dict__:
                 return target_cls()
 
             deps: list[Any] = []

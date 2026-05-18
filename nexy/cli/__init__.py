@@ -1,7 +1,7 @@
 import typer
 
 from nexy.__version__ import __Version__
-from nexy.cli.commands import add, build, dev, init, start
+from nexy.cli.commands import add, build, dev, init, start, migrate
 from nexy.i18n import t
 from nexy.utils.common.console import console
 
@@ -50,6 +50,7 @@ CLI.command()(dev)
 CLI.command()(start)
 CLI.command()(build)
 CLI.command()(init)
+CLI.command()(migrate)
 # CLI.command()(add)
 
 
