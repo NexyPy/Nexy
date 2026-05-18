@@ -278,8 +278,8 @@ def Module(
 
 def _register_controller(ctrl_cls: type[Any], parent_router: APIRouter) -> None:
     ctrl_prefix = getattr(ctrl_cls, "__controller_prefix__", "")
-    ctrl_tags = getattr(ctrl_cls, "__controller_tags__", [])
-    ctrl_router = APIRouter(prefix=ctrl_prefix, tags=ctrl_tags)
+    path_tag = parent_router.prefix + ctrl_prefix if (parent_router.prefix or ctrl_prefix) else "/"
+    ctrl_router = APIRouter(prefix=ctrl_prefix, tags=[path_tag])
 
     # Container.resolve analyzes the Controller, resolves its Service dependency
     ctrl_instance = Container.resolve(ctrl_cls)
@@ -317,17 +317,15 @@ def _register_controller(ctrl_cls: type[Any], parent_router: APIRouter) -> None:
             route_name = f"{ctrl_cls.__name__}.{method_name}"
             if route_meta is not None and route_meta.name:
                 route_name = route_meta.name
-            route_tags = ctrl_tags
-            if route_meta is not None and route_meta.tags is not None:
-                route_tags = route_meta.tags
             route_kwargs: dict[str, Any] = {
                 "path": "/",
                 "endpoint": method_func,
                 "methods": [method_upper],
                 "name": route_name,
                 "dependencies": dependencies or None,
-                "tags": route_tags,
             }
+            if route_meta is not None and route_meta.tags is not None:
+                route_kwargs["tags"] = route_meta.tags
             if response_meta is not None:
                 if response_meta.status_code is not None:
                     route_kwargs["status_code"] = response_meta.status_code

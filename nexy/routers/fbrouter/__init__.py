@@ -1,13 +1,12 @@
 import importlib
 import traceback
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.responses import HTMLResponse
 
 from nexy.core.config import Config
 from nexy.core.string import Pathname, StringTransform
-from nexy.errors import InternalServerError
 from nexy.routers.fbrouter.discovery import RouteDiscovery
 
 # Specialized classes
@@ -113,7 +112,6 @@ class FBRouter:
                         deps = RouteMiddleware.resolve(handler) + folder_deps
 
                         # Metadata extraction
-                        r_meta = getattr(handler, "__nexy_route_meta__", None)
                         resp_meta = getattr(handler, "__nexy_response_meta__", None)
                         self.router.add_api_route(
                             path=path,
@@ -131,10 +129,11 @@ class FBRouter:
 
             else:  # Component (UI)
                 if component := getattr(module, meta["comp_name"], None):
+                    deps = RouteMiddleware.resolve(component) + folder_deps
                     self.router.get(
                         path,
                         response_class=HTMLResponse,
-                        dependencies=folder_deps or None,
+                        dependencies=deps or None,
                         name=component.__name__,
                         description=component.__doc__ or "",
                         tags=[path],
