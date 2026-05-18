@@ -15,6 +15,7 @@ from nexy.__version__ import __Version__
 
 # from nexy.utils.dev.pycache import pycache
 from nexy.core.config import Config
+from nexy.decorators import Container
 from nexy.errors import InternalServerError, NotFound
 from nexy.routers.actions.engine import ACTION_ENGINE
 from nexy.routers.context import current_request
@@ -102,6 +103,7 @@ class AppServer:
             return response
         finally:
             current_request.reset(token)
+            Container.clear_request_scope()
 
     def _register_error_handlers(self, request: Request, exc: HTTPException) -> Response:
         """Registers custom error handlers for 404 and 500 errors."""

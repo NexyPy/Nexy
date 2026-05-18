@@ -1,5 +1,8 @@
+import functools
 import inspect
 from collections.abc import Callable, Iterable, Mapping
+from contextvars import ContextVar
+from enum import Enum
 from threading import RLock
 from typing import AbstractSet, Any
 
@@ -11,66 +14,111 @@ from nexy.routers.actions.store import ACTIONS_STORE
 HTTP_METHODS: set[str] = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"}
 
 
-# --- 1. INJECTABLE DECORATOR ---
-def Injectable() -> Callable[[type[Any]], type[Any]]:
-    """Marks a class as an injectable service."""
+class Scope(Enum):
+    SINGLETON = "singleton"
+    REQUEST = "request"
+    TRANSIENT = "transient"
 
+
+def Injectable(scope: Scope = Scope.SINGLETON) -> Callable[[type[Any]], type[Any]]:
     def wrapper(cls: type[Any]) -> type[Any]:
         cls.__injectable__ = True
+        cls.__injectable_scope__ = scope
+
+        if cls.__init__ is not object.__init__:
+            original_init = cls.__init__
+
+            @functools.wraps(original_init)
+            def _guarded_init(self, *args: Any, **kwargs: Any) -> None:
+                if not Container._di_context.get():
+                    raise TypeError(
+                        f"{cls.__name__} is managed by Nexy. "
+                        f"Use Container.resolve() or inject it via another service/controller."
+                    )
+                original_init(self, *args, **kwargs)
+
+            cls.__init__ = _guarded_init
+
         return cls
 
     return wrapper
-
-
-# --- 2. DI CONTAINER ---
 
 
 class Container:
     _instances: dict[type[Any], Any] = {}
     _lock = RLock()
     _resolving: set[type[Any]] = set()
+    _request_store: ContextVar = ContextVar("_request_store", default=None)
+    _di_context: ContextVar[bool] = ContextVar("_di_context", default=False)
 
     @classmethod
     def resolve(cls, target_cls: type[Any]) -> Any:
-        """1. Fast path — no lock"""
+        scope = getattr(target_cls, "__injectable_scope__", Scope.SINGLETON)
+
+        if scope == Scope.REQUEST:
+            return cls._resolve_request(target_cls)
+        if scope == Scope.TRANSIENT:
+            return cls._create(target_cls)
+
+        return cls._resolve_singleton(target_cls)
+
+    @classmethod
+    def _resolve_singleton(cls, target_cls: type[Any]) -> Any:
         if target_cls in cls._instances:
             return cls._instances[target_cls]
 
         with cls._lock:
-            # 2. Double-check locking
             if target_cls in cls._instances:
                 return cls._instances[target_cls]
+            instance = cls._create(target_cls)
+            cls._instances[target_cls] = instance
+            return instance
 
-            # 3. Cycle detection
-            if target_cls in cls._resolving:
-                raise RecursionError(f"Cycle detected for {target_cls.__name__}")
+    @classmethod
+    def _resolve_request(cls, target_cls: type[Any]) -> Any:
+        store = cls._request_store.get()
+        if store is None:
+            store = {}
+        if target_cls not in store:
+            store[target_cls] = cls._create(target_cls)
+            cls._request_store.set(store)
+        return store[target_cls]
 
-            cls._resolving.add(target_cls)
+    @classmethod
+    def clear_request_scope(cls) -> None:
+        cls._request_store.set(None)
+
+    @classmethod
+    def _create(cls, target_cls: type[Any]) -> Any:
+        if target_cls in cls._resolving:
+            raise RecursionError(f"Cycle detected for {target_cls.__name__}")
+
+        cls._resolving.add(target_cls)
+        try:
+            if '__init__' not in target_cls.__dict__:
+                return target_cls()
+
+            deps: list[Any] = []
+            init = target_cls.__init__
+            for name, param in inspect.signature(init).parameters.items():
+                if name == "self":
+                    continue
+                dep_type = param.annotation
+                if hasattr(dep_type, "__injectable__"):
+                    deps.append(cls.resolve(dep_type))
+                elif param.default is inspect.Parameter.empty:
+                    raise ValueError(
+                        f"Dependency {name}: {dep_type} is not injectable in {target_cls.__name__}"
+                    )
+
+            token = cls._di_context.set(True)
             try:
-                # 4. Simple resolution
-                init = target_cls.__init__
-                if init is object.__init__:
-                    instance = target_cls()
-                else:
-                    deps = []
-                    params = inspect.signature(init).parameters
-                    for name, param in params.items():
-                        if name == "self":
-                            continue
-                        dep_type = param.annotation
-                        if hasattr(dep_type, "__injectable__"):
-                            deps.append(cls.resolve(dep_type))
-                        elif param.default is inspect.Parameter.empty:
-                            raise ValueError(
-                                f"Dependency {name}: {dep_type} is not injectable in {target_cls.__name__}"
-                            )
-
-                    instance = target_cls(*deps)
-
-                cls._instances[target_cls] = instance
-                return instance
+                instance = target_cls(*deps)
             finally:
-                cls._resolving.remove(target_cls)
+                cls._di_context.reset(token)
+            return instance
+        finally:
+            cls._resolving.discard(target_cls)
 
 
 # --- 3. OTHER DECORATORS ---
@@ -240,24 +288,22 @@ def UseResponse(
 
 def Module(
     prefix: str = "",
-    controllers: list | None = None,
-    providers: list | None = None,
-    imports: list | None = None,
 ) -> Callable[[type[Any]], APIRouter]:
     def wrapper(cls: type[Any]) -> APIRouter:
-        if controllers is not None:
-            cls.controllers = controllers
-        if providers is not None:
-            cls.providers = providers
-        if imports is not None:
-            cls.imports = imports
         controllers_list = getattr(cls, "controllers", [])
         providers_list = getattr(cls, "providers", [])
         imports_list = getattr(cls, "imports", [])
+        exports_list = getattr(cls, "exports", [])
         if not controllers_list:
             raise ValueError(f"Module {cls.__name__} must have at least one controller")
 
         module_router = APIRouter(prefix=prefix)
+        module_router.__module_exports__ = exports_list
+
+        for sub_router in imports_list:
+            for exported_cls in getattr(sub_router, "__module_exports__", []):
+                if hasattr(exported_cls, "__injectable__"):
+                    Container.resolve(exported_cls)
 
         for provider_cls in providers_list:
             if not hasattr(provider_cls, "__injectable__"):

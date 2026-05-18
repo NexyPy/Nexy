@@ -9,3 +9,4 @@ class AppController:
     async def get(self):
         """Renders the main page using a layout and home view."""
         return useViews('src/apps/home/app_view.nexy')
+

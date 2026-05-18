@@ -1,10 +1,6 @@
 from nexy.decorators import Module
 from .app_controller import AppController
 
-@Module(
-    controllers=[AppController],
-    providers=[],
-    imports=[],
-)
+@Module()
 class AppModule:
-    pass
+    controllers = [AppController]
