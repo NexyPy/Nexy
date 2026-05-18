@@ -3,6 +3,10 @@ from collections.abc import Callable
 from pathlib import Path
 
 from fastapi import APIRouter, FastAPI, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
 from starlette.exceptions import HTTPException
@@ -133,6 +137,40 @@ class AppServer:
             except (WebSocketDisconnect, Exception):
                 HMR_MANAGER.disconnect(websocket)
 
+    def _setup_middlewares(self) -> None:
+        config = self.config
+        middlewares: list = []
+
+        if config.useCORS:
+            middlewares.append((CORSMiddleware, config.useCORS))
+        if config.useGZip:
+            middlewares.append((GZipMiddleware, config.useGZip))
+        if config.useTrustedHost:
+            middlewares.append((TrustedHostMiddleware, config.useTrustedHost))
+        if config.useSession:
+            try:
+                from starlette.middleware.sessions import SessionMiddleware
+
+                middlewares.append((SessionMiddleware, config.useSession))
+            except ImportError:
+                console.print("[yellow]  install 'itsdangerous' for SessionMiddleware[/yellow]")
+        if config.useAuth:
+            try:
+                from starlette.middleware.authentication import AuthenticationMiddleware
+
+                middlewares.append((AuthenticationMiddleware, config.useAuth))
+            except ImportError:
+                console.print("[yellow]  install 'httpx' for AuthenticationMiddleware[/yellow]")
+        for entry in config.useMiddlewares:
+            if isinstance(entry, tuple) and len(entry) == 2:
+                middlewares.append(entry)
+
+        for cls, kwargs in middlewares:
+            self.server.add_middleware(cls, **kwargs)
+
+        if config.useHTTPSRedirect:
+            self.server.add_middleware(HTTPSRedirectMiddleware)
+
     def run(self) -> FastAPI:
         """Main entry point to assemble the application."""
         # pycache()
@@ -142,6 +180,7 @@ class AppServer:
         self.server.middleware("http")(self.PathMiddleware)
         self._setup_favicon()
         self._setup_static_files()
+        self._setup_middlewares()
         self._resolve_router()
         self._setup_hmr()
         self.server.exception_handler(HTTPException)(self._register_error_handlers)

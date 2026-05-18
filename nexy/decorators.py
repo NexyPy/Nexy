@@ -95,7 +95,7 @@ def UseGuard(*guards: Callable[..., Any]) -> Callable[[Any], Any]:
     return wrapper
 
 
-def UseMiddleware(*middlewares: Callable[..., Any]) -> Callable[[Any], Any]:
+def Middleware(*middlewares: Callable[..., Any]) -> Callable[[Any], Any]:
     def wrapper(target: Any) -> Any:
         existing = getattr(target, "__nexy_middlewares__", ())
         target.__nexy_middlewares__ = tuple(existing) + tuple(middlewares)

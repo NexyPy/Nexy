@@ -138,5 +138,11 @@ class NexyConfigModel:
     useMarkdownExtensions: list[str] = []
     excludeDirs: list[str] = []
     useMiddlewares: list[Any] = []
+    useCORS: dict | None = None
+    useGZip: dict | None = None
+    useTrustedHost: dict | None = None
+    useHTTPSRedirect: bool = False
+    useSession: dict | None = None
+    useAuth: dict | None = None
     useSslKeyfile: str | None = None
     useSslCertfile: str | None = None
