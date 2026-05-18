@@ -34,10 +34,10 @@ dist-ssr
 .coverage.*
 .cache
 __nexy__/
-**/__nexy__/
-**/bun.lock
-**/pnpm-lock.yaml
-**/node_modules/
+**/__nexy__/**
+**/bun.lock/**
+.**/pnpm-lock.yaml/**
+**/node_modules/**
 
 
 .vercel

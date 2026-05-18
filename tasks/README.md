@@ -19,6 +19,14 @@ These are the advanced architectural changes required to bring Nexy from an 8.5/
 2. **[In-Memory VFS](./05-nextjs-killer/02-in-memory-vfs.md)**: Eliminate physical disk writes (`__nexy__/`). Compile Python and HTML directly into RAM for Serverless compatibility.
 3. **[True Python HMR](./05-nextjs-killer/03-true-hmr-reload.md)**: Stop cold-killing Uvicorn. Invalidate `sys.modules` in real-time to preserve Vite WebSocket connections and achieve sub-100ms hot reloads.
 
+### [06. CLI Quality Commands](./06-cli-quality-commands/)
+Unified CLI commands for type checking, formatting, and testing across Python and frontend files.
+
+1. **[`nexy check`](./06-cli-quality-commands/01-check.md)**: Run mypy, tsc, and compile+check for .nexy/.mdx
+2. **[`nexy format`](./06-cli-quality-commands/02-format.md)**: Format .py, .ts, .vue, .svelte, .nexy/.mdx
+3. **[`nexy test`](./06-cli-quality-commands/03-test.md)**: Run pytest (--server) and/or vitest (--client)
+4. **[Register in CLI](./06-cli-quality-commands/04-register.md)**: Wire up commands + update welcome banner
+
 ## Quality Gates (Mandatory)
 Before completing any task, ensure:
 ```bash

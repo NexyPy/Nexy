@@ -1,6 +1,6 @@
 {
   "init": {
-    "title": "nexy@{version} init",
+    "title": "nexy@{version} {command}",
     "ask": {
       "router": "Souhaitez‑vous utiliser le routeur basé sur les fichiers ?",
       "project_type": "Choisissez le type de projet",

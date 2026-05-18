@@ -1,6 +1,6 @@
 {
   "init": {
-    "title": "nexy@{version} init",
+    "title": "nexy@{version} {command}",
     "ask": {
       "router": "क्या आप फ़ाइल-आधारित राउटर का उपयोग करना चाहेंगे?",
       "project_type": "प्रोजेक्ट का प्रकार चुनें",

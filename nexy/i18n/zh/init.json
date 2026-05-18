@@ -1,6 +1,6 @@
 {
   "init": {
-    "title": "nexy@{version} init",
+    "title": "nexy@{version} {command}",
     "ask": {
       "router": "您想使用基于文件的路由器吗？",
       "project_type": "选择项目类型",

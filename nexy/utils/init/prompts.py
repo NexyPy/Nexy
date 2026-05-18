@@ -15,6 +15,7 @@ class ProjectPrompter:
         """Runs the full questionnaire and returns the configuration dictionary."""
         self.ask_router()
         self.ask_project_type()
+        self.ask_orm()
         return self.config
 
     def ask_router(self) -> None:
@@ -43,6 +44,17 @@ class ProjectPrompter:
         if choice == "web":
             self.ask_client_component()
 
+    def ask_orm(self) -> None:
+        self.config["orm"] = questionary.select(
+            t("init.ask.orm", "Choose an ORM"),
+            choices=["None", "SQLModel", "SQLAlchemy", "Tortoise-ORM"],
+            pointer="ʋ",
+            qmark="»",
+            default="None",
+        ).ask()
+        if self.config["orm"] != "None":
+            self.ask_db_url()
+
     def ask_client_component(self) -> None:
         use_client = questionary.confirm(
             t("init.ask.client_component", "Use a client component?"), default=True, qmark="»"
@@ -65,3 +77,24 @@ class ProjectPrompter:
         self.config["tailwind"] = questionary.confirm(
             t("init.ask.tailwind", "Use Tailwind CSS?"), default=True, qmark="»"
         ).ask()
+
+    def ask_db_url(self) -> None:
+        db_type = questionary.select(
+            t("init.ask.db_type", "Choose database"),
+            choices=["SQLite", "PostgreSQL", "MySQL"],
+            pointer="ʋ",
+            qmark="»",
+            default="SQLite",
+        ).ask()
+
+        defaults = {
+            "SQLite": "sqlite:///dev.db",
+            "PostgreSQL": "postgresql://user:password@localhost:5432/mydb",
+            "MySQL": "mysql://user:password@localhost:3306/mydb",
+        }
+        url = questionary.text(
+            t("init.ask.db_url", "Database URL"),
+            default=defaults[db_type],
+            qmark="»",
+        ).ask()
+        self.config["db_url"] = url
