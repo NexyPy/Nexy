@@ -1,0 +1,22 @@
+{% if orm == "None" %}
+def GET():
+    return [{"A":"a"},{"B"}]
+{% elif orm == "SQLModel" %}
+from src.services.user_service import UserService
+
+
+def GET():
+    return UserService.get_all()
+{% elif orm == "SQLAlchemy" %}
+from src.services.user_service import UserService
+
+
+def GET():
+    return UserService.get_all()
+{% elif orm == "Tortoise-ORM" %}
+from src.services.user_service import UserService
+
+
+async def GET():
+    return await UserService.get_all()
+{% endif %}

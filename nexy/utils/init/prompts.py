@@ -67,16 +67,14 @@ class ProjectPrompter:
                 pointer="ʋ",
                 qmark="»",
             ).ask()
-            self.config["client_framework"] = framework
-            if framework != "None":
+            self.config["client_framework"] = framework.lower()
+            if framework.lower() != "none":
                 self.ask_tailwindcss()
         else:
             self.config["client_framework"] = "none"
 
     def ask_tailwindcss(self) -> None:
-        self.config["tailwind"] = questionary.confirm(
-            t("init.ask.tailwind", "Use Tailwind CSS?"), default=True, qmark="»"
-        ).ask()
+        self.config["tailwind"] = True
 
     def ask_db_url(self) -> None:
         db_type = questionary.select(

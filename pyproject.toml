@@ -1,6 +1,6 @@
 [project]
 name = "nexy"
-version = "2.0.7"
+version = "2.0.8"
 description = "The Modern Fullstack Python Meta-Framework: Build high-performance web apps ."
 readme = "README.pypi.md"
 requires-python = ">=3.12"
@@ -46,6 +46,7 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["nexy"]
+exclude = ["nexy/templates/tests"]
 
 [tool.mypy]
 strict = true

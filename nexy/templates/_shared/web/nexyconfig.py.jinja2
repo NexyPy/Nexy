@@ -1,0 +1,16 @@
+from nexy.core.models import NexyConfigModel
+{% if client_framework != "none" %}from nexy.frontend import {{ client_framework }}{% endif %}
+{% if not FBRouter %}from src.apps.app_module import AppModule{% endif %}
+
+class NexyConfig(NexyConfigModel):
+{%- if client_framework != "none" %}
+    useFF = [{{ client_framework }}()]
+    useAliases = {"@": "src"}
+{%- endif %}
+    useTitle = "Nexy Web ({{ 'FBR' if FBRouter else 'Modular' }}{{ ' + ' + client_framework.capitalize() if client_framework != 'none' else '' }})"
+{%- if client_framework != "none" %}
+    useVite = True
+{%- endif %}
+{%- if not FBRouter %}
+    useRouter = AppModule
+{%- endif %}

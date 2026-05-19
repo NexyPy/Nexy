@@ -1,0 +1,42 @@
+import { defineConfig } from 'vite'
+{%- if client_framework == "react" %}
+import react from '@vitejs/plugin-react'
+{%- elif client_framework == "vue" %}
+import vue from '@vitejs/plugin-vue'
+{%- elif client_framework == "svelte" %}
+import {svelte} from '@sveltejs/vite-plugin-svelte'
+{%- elif client_framework == "solid" %}
+import solid from 'vite-plugin-solid'
+{%- elif client_framework == "preact" %}
+import preact from '@preact/preset-vite'
+{%- endif %}
+import tailwindcss from '@tailwindcss/vite'
+import nexy from "./__nexy__/vite"
+
+export default defineConfig({
+  
+  plugins: [
+    nexy(),
+    tailwindcss(),
+    {%- if client_framework == "react" %}
+    react(),
+    {%- elif client_framework == "vue" %}
+    vue(),
+    {%- elif client_framework == "svelte" %}
+    svelte(),
+    {%- elif client_framework == "solid" %}
+    solid(),
+    {%- elif client_framework == "preact" %}
+    preact(),
+    {%- endif %}
+  ],
+  customLogger: nexy.log(),
+  build :{
+    rollupOptions: {
+    output: {
+      format: 'esm',
+    },
+    external: [],
+  }
+  }
+})

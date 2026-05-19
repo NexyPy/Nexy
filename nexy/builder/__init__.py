@@ -32,15 +32,15 @@ class Builder:
                 result.success.append(input_path)
                 if showlog:
                     console.print(
-                        f"[green]nsc[/green] » compiled [reset][dim]{input_path}[/dim] [green]✓[/green]"
+                        f"[green]nsc[/green] » compiled [reset][dim]{input_path}[/dim]"
                     )
             except Exception as e:
                 result.failed.append(input_path)
+                msg = f"error compiling {input_path}: {e}"
+                console.print(f"[red]nsc[/red] » {msg}")
                 if showlog:
-                    console.print(
-                        f"[red]nsc[/red] » error compiling [reset][dim]{input_path}[/dim] [red]✗[/red]"
-                    )
-                    console.print(f"[red]nsc[/red] » {e}")
+                    import traceback as _tb
+                    _tb.print_exc()
         return result
 
 

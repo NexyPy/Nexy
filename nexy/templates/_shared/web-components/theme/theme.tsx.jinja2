@@ -1,0 +1,203 @@
+{% if client_framework == "solid" %}
+{% raw %}
+import { createSignal, createEffect } from "solid-js";
+
+type ThemeMode = "light" | "dark" | "system";
+
+export default function Theme() {
+  const [active, setActive] = createSignal<ThemeMode>(
+    (localStorage.getItem("nexy-theme") as ThemeMode) || "system"
+  );
+
+  const updateSlider = () => {
+    const container = document.getElementById("theme-container");
+    if (!container) return;
+    const el = container.querySelector(`[data-mode="${active()}"]`) as HTMLElement;
+    if (el) {
+      const root = document.documentElement;
+      root.style.setProperty("--spacing-slider-left", `${el.offsetLeft}px`);
+      root.style.setProperty("--spacing-slider-width", `${el.offsetWidth}px`);
+    }
+  };
+
+  createEffect(() => {
+    const root = document.documentElement;
+    localStorage.setItem("nexy-theme", active());
+    const isDark =
+      active() === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        : active() === "dark";
+    root.classList.toggle("dark", isDark);
+    updateSlider();
+  });
+
+  const btn = (mode: ThemeMode, label: string, icon: string) => (
+    <button
+      data-mode={mode}
+      onClick={() => setActive(mode)}
+      class={`z-10 cursor-pointer size-7 flex items-center justify-center rounded-full transition-colors ${
+        active() === mode ? "text-background" : "text-foreground"
+      }`}
+      innerHTML={icon}
+    />
+  );
+
+  const sun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+  const monitor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>`;
+
+  return (
+    <div
+      id="theme-container"
+      class="relative flex size-fit items-center justify-center gap-0.5 rounded-full border border-border p-1 transition-colors"
+    >
+      <div
+        class="bg-foreground absolute left-0 size-7 rounded-full transition-all duration-300 ease-in-out"
+        style={{
+          transform: "translateX(var(--spacing-slider-left))",
+          width: "var(--spacing-slider-width)",
+        }}
+      />
+      {btn("light", "Light", sun)}
+      {btn("dark", "Dark", moon)}
+      {btn("system", "System", monitor)}
+    </div>
+  );
+}
+{% endraw %}
+{% elif client_framework == "preact" %}
+{% raw %}
+import { useSignal, useSignalEffect } from "@preact/signals";
+
+type ThemeMode = "light" | "dark" | "system";
+
+export default function Theme() {
+  const active = useSignal<ThemeMode>(
+    (localStorage.getItem("nexy-theme") as ThemeMode) || "system"
+  );
+
+  const updateSlider = () => {
+    const container = document.getElementById("theme-container");
+    if (!container) return;
+    const el = container.querySelector(`[data-mode="${active.value}"]`) as HTMLElement;
+    if (el) {
+      const root = document.documentElement;
+      root.style.setProperty("--spacing-slider-left", `${el.offsetLeft}px`);
+      root.style.setProperty("--spacing-slider-width", `${el.offsetWidth}px`);
+    }
+  };
+
+  useSignalEffect(() => {
+    const root = document.documentElement;
+    localStorage.setItem("nexy-theme", active.value);
+    const isDark =
+      active.value === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        : active.value === "dark";
+    root.classList.toggle("dark", isDark);
+    updateSlider();
+  });
+
+  const btn = (mode: ThemeMode, icon: string) => (
+    <button
+      data-mode={mode}
+      onClick={() => { active.value = mode; }}
+      class={`z-10 cursor-pointer size-7 flex items-center justify-center rounded-full transition-colors ${
+        active.value === mode ? "text-background" : "text-foreground"
+      }`}
+      dangerouslySetInnerHTML={{ __html: icon }}
+    />
+  );
+
+  const sun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+  const monitor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>`;
+
+  return (
+    <div
+      id="theme-container"
+      class="relative flex size-fit items-center justify-center gap-0.5 rounded-full border border-border p-1 transition-colors"
+    >
+      <div
+        class="bg-foreground absolute left-0 size-7 rounded-full transition-all duration-300 ease-in-out"
+        style={{
+          transform: "translateX(var(--spacing-slider-left))",
+          width: "var(--spacing-slider-width)",
+        }}
+      />
+      {btn("light", sun)}
+      {btn("dark", moon)}
+      {btn("system", monitor)}
+    </div>
+  );
+}
+{% endraw %}
+{% else %}
+{% raw %}
+import { useState, useEffect } from "react";
+
+type ThemeMode = "light" | "dark" | "system";
+
+export default function Theme() {
+  const [active, setActive] = useState<ThemeMode>(
+    (localStorage.getItem("nexy-theme") as ThemeMode) || "system"
+  );
+
+  const updateSlider = () => {
+    const container = document.getElementById("theme-container");
+    if (!container) return;
+    const el = container.querySelector(`[data-mode="${active}"]`) as HTMLElement;
+    if (el) {
+      const root = document.documentElement;
+      root.style.setProperty("--spacing-slider-left", `${el.offsetLeft}px`);
+      root.style.setProperty("--spacing-slider-width", `${el.offsetWidth}px`);
+    }
+  };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    localStorage.setItem("nexy-theme", active);
+    const isDark =
+      active === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        : active === "dark";
+    root.classList.toggle("dark", isDark);
+    updateSlider();
+  }, [active]);
+
+  const btn = (mode: ThemeMode, icon: string) => (
+    <button
+      key={mode}
+      data-mode={mode}
+      onClick={() => setActive(mode)}
+      className={`z-10 cursor-pointer size-7 flex items-center justify-center rounded-full transition-colors ${
+        active === mode ? "text-background" : "text-foreground"
+      }`}
+      dangerouslySetInnerHTML={{ __html: icon }}
+    />
+  );
+
+  const sun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+  const monitor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>`;
+
+  return (
+    <div
+      id="theme-container"
+      className="relative flex size-fit items-center justify-center gap-0.5 rounded-full border border-border p-1 transition-colors"
+    >
+      <div
+        className="bg-foreground absolute left-0 size-7 rounded-full transition-all duration-300 ease-in-out"
+        style={{
+          transform: "translateX(var(--spacing-slider-left))",
+          width: "var(--spacing-slider-width)",
+        }}
+      />
+      {btn("light", sun)}
+      {btn("dark", moon)}
+      {btn("system", monitor)}
+    </div>
+  );
+}
+{% endraw %}
+{% endif %}

@@ -1,0 +1,36 @@
+{% if orm == "None" %}
+{% elif orm in ("SQLModel", "SQLAlchemy") %}
+from nexy.decorators import Controller
+from nexy.hooks import useViews
+from src.apps.users.user_service import UserService
+
+
+@Controller()
+class UserController:
+    def __init__(self, svc: UserService):
+        self.svc = svc
+
+    async def get(self):
+        users = self.svc.get_all()
+        return useViews("src/apps/layout.nexy", context={
+            "children": useViews("src/apps/users/user_view.nexy"),
+            "users": users,
+        })
+{% elif orm == "Tortoise-ORM" %}
+from nexy.decorators import Controller
+from nexy.hooks import useViews
+from src.apps.users.user_service import UserService
+
+
+@Controller()
+class UserController:
+    def __init__(self, svc: UserService):
+        self.svc = svc
+
+    async def get(self):
+        users = await self.svc.get_all()
+        return useViews("src/apps/layout.nexy", context={
+            "children": useViews("src/apps/users/user_view.nexy"),
+            "users": users,
+        })
+{% endif %}

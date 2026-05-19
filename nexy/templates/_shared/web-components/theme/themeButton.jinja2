@@ -1,0 +1,30 @@
+{% if client_framework == "vue" %}
+<script setup lang="ts">
+defineProps<{ mode: string; active: string }>()
+defineEmits(['click'])
+</script>
+<template>
+  <button :data-mode="mode" @click="$emit('click')" class="relative z-10 cursor-pointer size-7 grid place-content-center rounded-full transition-colors duration-300" :class="active === mode ? 'text-white dark:text-slate-900' : 'text-gray-500 dark:text-slate-400 hover:text-gray-900'">
+    <slot />
+  </button>
+</template>
+{% elif client_framework == "svelte" %}
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  interface Props { mode: string; active: string; onclick: () => void; children: Snippet }
+  let { mode, active, onclick, children }: Props = $props();
+</script>
+<button data-mode={mode} {onclick} class="relative z-10 grid size-7 cursor-pointer place-content-center rounded-full transition-colors duration-300 {active === mode ? 'text-white dark:text-slate-900' : 'text-gray-500 hover:text-gray-900 dark:text-slate-400'}">
+  {@render children()}
+</button>
+{% elif client_framework == "none" %}
+---
+mode :prop[str]
+active :prop[str]
+onclick :prop[str]
+activeclass = 'text-white dark:text-slate-900' if active == mode else 'text-gray-500 dark:text-slate-400 hover:text-gray-900'
+---
+<button data-mode="{{mode}}" onclick="{{onclick}}" class="relative z-10 grid size-7 cursor-pointer place-content-center rounded-full transition-colors duration-300 {{activeclass}}">
+  <Slot/>
+</button>
+{% endif %}

@@ -1,0 +1,116 @@
+{% if client_framework == "vue" %}
+<script setup lang="ts">
+import { ref, onMounted, watch, nextTick } from 'vue';
+import ThemeButton from './themeButton.vue';
+import SunIcon from './sunIcon.vue';
+import MoonIcon from './moonIcon.vue';
+import MonitorIcon from './monitorIcon.vue';
+
+type ThemeMode = 'light' | 'dark' | 'system';
+const active = ref<ThemeMode>((localStorage.getItem('nexy-theme') as ThemeMode) || 'system');
+const containerRef = ref<HTMLDivElement | null>(null);
+const applyTheme = (isDark: boolean) => { document.documentElement.classList.toggle('dark', isDark); };
+const updateThemeLogic = () => {
+  localStorage.setItem('nexy-theme', active.value);
+  if (active.value === 'system') { applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches); }
+  else { applyTheme(active.value === 'dark'); }
+};
+const updateSlider = async () => {
+  await nextTick();
+  const el = containerRef.value?.querySelector(`[data-mode="${active.value}"]`) as HTMLElement;
+  if (el) {
+    const root = document.documentElement;
+    root.style.setProperty('--slider-left', `${el.offsetLeft}px`);
+    root.style.setProperty('--slider-width', `${el.offsetWidth}px`);
+  }
+};
+watch(active, () => { updateThemeLogic(); updateSlider(); }, { immediate: true });
+onMounted(() => {
+  updateSlider();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (active.value === 'system') updateThemeLogic();
+  });
+});
+</script>
+<template>
+  <div ref="containerRef" class="relative flex justify-center items-center p-1 gap-0.5 border border-border rounded-full size-fit transition-colors">
+    <div class="absolute left-0 size-7 bg-foreground rounded-full transition-all duration-300 ease-in-out" :style="{ transform: `translateX(var(--slider-left))`, width: `var(--slider-width)` }" />
+    <ThemeButton mode="light" :active="active" @click="active = 'light'"><SunIcon /></ThemeButton>
+    <ThemeButton mode="dark" :active="active" @click="active = 'dark'"><MoonIcon /></ThemeButton>
+    <ThemeButton mode="system" :active="active" @click="active = 'system'"><MonitorIcon /></ThemeButton>
+  </div>
+</template>
+{% elif client_framework == "svelte" %}
+<script lang="ts">
+  import SunIcon from './sunIcon.svelte';
+  import MoonIcon from './moonIcon.svelte';
+  import MonitorIcon from './monitorIcon.svelte';
+  import ThemeButton from './themeButton.svelte';
+
+  type ThemeMode = 'light' | 'dark' | 'system';
+  let active = $state<ThemeMode>((localStorage.getItem('nexy-theme') as ThemeMode) || 'system');
+  let containerRef = $state<HTMLDivElement>();
+
+  $effect(() => {
+    const root = document.documentElement;
+    localStorage.setItem('nexy-theme', active);
+    const isDark = active === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : active === 'dark';
+    root.classList.toggle('dark', isDark);
+  });
+  $effect(() => {
+    if (containerRef && active) {
+      const el = containerRef.querySelector(`[data-mode="${active}"]`) as HTMLElement;
+      if (el) {
+        const root = document.documentElement;
+        root.style.setProperty('--slider-left', `${el.offsetLeft}px`);
+        root.style.setProperty('--slider-width', `${el.offsetWidth}px`);
+      }
+    }
+  });
+</script>
+<div bind:this={containerRef} class="relative flex size-fit items-center justify-center gap-0.5 rounded-full border border-border p-1 transition-colors">
+  <div class="bg-foreground absolute left-0 size-7 rounded-full transition-all duration-300 ease-in-out" style:transform="translateX(var(--slider-left))" style:width="var(--slider-width)"></div>
+  <ThemeButton mode="light" {active} onclick={() => (active = 'light')}><SunIcon /></ThemeButton>
+  <ThemeButton mode="dark" {active} onclick={() => (active = 'dark')}><MoonIcon /></ThemeButton>
+  <ThemeButton mode="system" {active} onclick={() => (active = 'system')}><MonitorIcon /></ThemeButton>
+</div>
+{% elif client_framework == "none" %}
+---
+from "./themeButton.nexy" import ThemeButton
+from "./monitorIcon.nexy" import MonitorIcon
+from "./sunIcon.nexy" import SunIcon
+from "./moonIcon.nexy" import MoonIcon
+---
+<div id="theme-container" class="relative flex size-fit items-center justify-center gap-0.5 rounded-full border border-border p-1 transition-colors overflow-hidden">
+  <div class="bg-foreground absolute left-0 size-7! rounded-full transition-all duration-300 ease-in-out" style="transform: translateX(var(--spacing-slider-left)); width: var(--spacing-slider-width)"></div>
+  <ThemeButton mode="light" active="{{active}}" onclick="updateTheme('light')"><SunIcon /></ThemeButton>
+  <ThemeButton mode="dark" active="{{active}}" onclick="updateTheme('dark')"><MoonIcon /></ThemeButton>
+  <ThemeButton mode="system" active="{{active}}" onclick="updateTheme('system')"><MonitorIcon /></ThemeButton>
+</div>
+<script>
+  let active = localStorage.getItem('nexy-theme') || 'system';
+  function updateTheme_slider() {
+    const container = document.getElementById('theme-container');
+    if (!container) return;
+    const el = container.querySelector(`[data-mode="${active}"]`);
+    if (el) {
+      const root = document.documentElement;
+      root.style.setProperty('--spacing-slider-left', `${el.offsetLeft}px`);
+      root.style.setProperty('--spacing-slider-width', `${el.offsetWidth}px`);
+    }
+  }
+  function apply_theme_logic() {
+    const root = document.documentElement;
+    localStorage.setItem('nexy-theme', active);
+    const apply_class = (is_dark) => { root.classList.toggle('dark', is_dark); };
+    if (active === 'system') { apply_class(window.matchMedia('(prefers-color-scheme: dark)').matches); }
+    else { apply_class(active === 'dark'); }
+    updateTheme_slider();
+  }
+  function updateTheme(new_mode) { active = new_mode; apply_theme_logic(); }
+  window.addEventListener('DOMContentLoaded', () => {
+    apply_theme_logic();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (active === 'system') apply_theme_logic(); });
+  });
+</script>
+{% endif %}

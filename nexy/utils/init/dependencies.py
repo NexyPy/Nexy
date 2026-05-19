@@ -13,6 +13,10 @@ _ORM_PACKAGES: dict[str, str] = {
     "Tortoise-ORM": "tortoise-orm",
 }
 
+_ORM_EXTRA_PACKAGES: dict[str, list[str]] = {
+    "Tortoise-ORM": ["aerich"],
+}
+
 
 class DependencyInstaller:
     """Handles automatic installation of dependencies for different project types."""
@@ -136,6 +140,10 @@ class DependencyInstaller:
             spinner="dots",
         ):
             self._run(["uv", "add", package], f"{self.orm} installation")
+            extras = _ORM_EXTRA_PACKAGES.get(self.orm, [])
+            for extra in extras:
+                self._run(["uv", "add", extra], f"{extra} installation")
+            self._run(["uv", "add", "python-dotenv"], "python-dotenv installation")
 
     def _remove_egg_info(self) -> None:
         for item in self.directory.glob("**/*.egg-info"):

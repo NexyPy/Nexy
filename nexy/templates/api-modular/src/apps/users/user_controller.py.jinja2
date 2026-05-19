@@ -1,0 +1,32 @@
+{% if orm == "None" %}
+{% elif orm in ("SQLModel", "SQLAlchemy") %}
+from nexy.decorators import Controller
+from src.apps.users.user_service import UserService
+
+
+@Controller()
+class UserController:
+    def __init__(self, svc: UserService):
+        self.svc = svc
+
+    def get(self):
+        return self.svc.get_all()
+
+    def post(self, name: str, email: str):
+        return self.svc.create(name, email)
+{% elif orm == "Tortoise-ORM" %}
+from nexy.decorators import Controller
+from src.apps.users.user_service import UserService
+
+
+@Controller()
+class UserController:
+    def __init__(self, svc: UserService):
+        self.svc = svc
+
+    async def get(self):
+        return await self.svc.get_all()
+
+    async def post(self, name: str, email: str):
+        return await self.svc.create(name, email)
+{% endif %}

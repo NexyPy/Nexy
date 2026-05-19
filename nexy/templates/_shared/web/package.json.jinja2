@@ -1,0 +1,46 @@
+{
+  "name": "nexy-{{ client_framework }}-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    {%- if client_framework == "react" %}
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+    {%- elif client_framework == "vue" %}
+    "vue": "^3.5.33"
+    {%- elif client_framework == "svelte" %}
+    "svelte": "^5.20.2"
+    {%- elif client_framework == "solid" %}
+    "solid-js": "^1.9.12"
+    {%- elif client_framework == "preact" %}
+    "preact": "^10.25.4"
+    {%- endif %}
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "tailwindcss": "^4.2.4",
+    {%- if client_framework == "react" %}
+    "@vitejs/plugin-react": "^5.2.0",
+    {%- elif client_framework == "vue" %}
+    "@vitejs/plugin-vue": "^5.2.0",
+    {%- elif client_framework == "svelte" %}
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    {%- elif client_framework == "solid" %}
+    "vite-plugin-solid": "^2.11.0",
+    {%- elif client_framework == "preact" %}
+    "@preact/preset-vite": "^2.11.0",
+    {%- endif %}
+    "esbuild": "^0.28.0",
+    "glob": "^13.0.6",
+    "jsdom": "^29.1.1",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.10"
+  }
+}

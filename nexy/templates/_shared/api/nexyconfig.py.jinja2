@@ -1,0 +1,8 @@
+from nexy.core.models import NexyConfigModel
+{% if not FBRouter %}from src.apps.app_module import AppModule{% endif %}
+
+class NexyConfig(NexyConfigModel):
+    useTitle = "Nexy API ({{ 'FBR' if FBRouter else 'Modular' }})"
+{%- if not FBRouter %}
+    useRouter = AppModule
+{%- endif %}

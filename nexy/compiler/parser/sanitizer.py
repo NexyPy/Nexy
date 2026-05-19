@@ -34,6 +34,15 @@ class LogicSanitizer:
         Resolves the full relative path from the current file,
         taking aliases and relative paths into account.
         """
+        # Detect alias-like paths (starting with @, $, etc) that could not be resolved
+        first_ch = import_str[0]
+        if first_ch in ("@", "$", "~") and not any(
+            import_str.startswith(alias) for alias in self.aliases
+        ):
+            raise ImportError(
+                f"Alias '{import_str.split('/')[0]}' not configured."
+            )
+
         is_relative = import_str.startswith("./") or import_str.startswith("../")
         is_alias = any(import_str.startswith(alias) for alias in self.aliases)
 

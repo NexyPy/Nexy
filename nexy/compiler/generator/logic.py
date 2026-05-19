@@ -2,7 +2,7 @@ import ast
 import re
 import textwrap
 from pathlib import Path
-from typing import *
+from typing import *  # noqa: F403
 
 from nexy.core.config import Config
 from nexy.core.models import ParserModel
@@ -48,7 +48,29 @@ class LogicGenerator:
 
     def _component_model(self) -> str:
         assert self.source is not None
-        LOGIC = textwrap.indent(self.source.frontmatter, "    ")
+
+        module_imports = ""
+        function_body = self.source.frontmatter
+        try:
+            tree = ast.parse(self.source.frontmatter)
+            import_nodes: list[ast.stmt] = []
+            body_nodes: list[ast.stmt] = []
+            for node in tree.body:
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    import_nodes.append(node)
+                else:
+                    body_nodes.append(node)
+            if import_nodes:
+                module_imports = ast.unparse(ast.Module(body=import_nodes, type_ignores=[]))
+                function_body = (
+                    ast.unparse(ast.Module(body=body_nodes, type_ignores=[]))
+                    if body_nodes
+                    else ""
+                )
+        except SyntaxError:
+            pass
+
+        LOGIC = textwrap.indent(function_body, "    ")
         props = self._resolve_props()
 
         use_layout = Config.useRouter is None
@@ -137,6 +159,7 @@ from nexy import Template as __Template , Import as __Import
 from jinja2 import Template as __JinjaTemplate
 NexyElement = Union[callable, __JinjaTemplate]
 {layout_header}
+{module_imports}
 def {self.func_name}({props}) -> str:
     {Slot}
 {LOGIC}

@@ -36,20 +36,24 @@ def dev(port: int | None = None, host: str | None = None) -> None:
         # Initial build (to VFS)
         with console.status("\n[green]nsc[/green] » compile...", spinner="dots"):
             build_start = time.perf_counter()
-            Builder().build()
+            result = Builder().build()
             build_elapsed = time.perf_counter() - build_start
             build_timer = f"{build_elapsed:.2f}s"
             console.print(
                 "\n[green]nsc[/green] » [green]compiling[/green]"
-                f" in [reset][dim]{build_timer}[/dim] [green]✓[/green]"
+                f" in [reset][dim]{build_timer}[/dim]"
             )
+            if result.failed:
+                for p in result.failed:
+                    console.print(f"  [red]x {p}[/red]")
 
-        FrontendGenerator().generate()
-        if config.useVite:
-            vite_proc = Server.vite(port=client_port, ssl=ssl_enabled)
-            time.sleep(0.05)
+        if not result.failed:
+            FrontendGenerator().generate()
+            if config.useVite:
+                vite_proc = Server.vite(port=client_port, ssl=ssl_enabled)
+                time.sleep(0.05)
     except Exception as e:
-        console.print(f"\n[red]✘ Error during initialization:[/red] {e}")
+        console.print(f"\n[red]Error during initialization:[/red] {e}")
         vite_proc = None
 
     # Watcher initialization (now handles in-memory HMR)

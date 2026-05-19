@@ -1,0 +1,28 @@
+{% if orm == "SQLModel" %}
+from sqlmodel import SQLModel, Field
+
+class UserModel(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    email: str = Field(unique=True)
+{% elif orm == "SQLAlchemy" %}
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+
+class UserModel(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100), unique=True)
+{% elif orm == "Tortoise-ORM" %}
+from tortoise import fields
+from tortoise.models import Model
+
+class UserModel(Model):
+    id = fields.IntField(pk=True)
+    name = fields.CharField(max_length=100)
+    email = fields.CharField(max_length=100, unique=True)
+{% endif %}

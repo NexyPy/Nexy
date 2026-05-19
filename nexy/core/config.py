@@ -68,12 +68,22 @@ class Config(NexyConfigModel):
             return
         self._loaded = True
         self._load()
+        if Config._load_error is not None:
+            self._loaded = False
 
     def _load(self) -> None:
         try:
             import nexyconfig
-        except Exception:
-            Config._load_error = "nexyconfig.py not found or has errors"
+        except ModuleNotFoundError:
+            Config._load_error = "nexyconfig.py not found"
+            return
+        except SyntaxError as e:
+            Config._load_error = f"nexyconfig.py has a syntax error: {e}"
+            return
+        except Exception as e:
+            Config._load_error = f"nexyconfig.py failed to load: {e}"
+            import traceback as _tb
+            _tb.print_exc()
             return
 
         nc = nexyconfig.NexyConfig

@@ -75,7 +75,8 @@ class WatchHandler(PatternMatchingEventHandler):
                 elapsed = time.perf_counter() - start_time
                 timer = f"{elapsed:.2f}s"
                 console.print(
-                    f"[green]nsc[/green] » [green]compile[/green] [dim]{path}[/dim] in [dim]{timer}[/dim] [green]✓[/green]"
+                    f"[green]nsc[/green] » [green]compile[/green]"
+                    f" [dim]{path}[/dim] in [dim]{timer}[/dim]"
                 )
 
                 # Invalidate modules related to this file
@@ -96,7 +97,7 @@ class WatchHandler(PatternMatchingEventHandler):
             needs_reload = True
             if not path.startswith("__nexy__/"):
                 console.print(
-                    f"[blue]hmr[/blue] » [green]update[/green] [dim]{path}[/dim] [green]↺[/green]"
+                    f"[blue]hmr[/blue] » [green]update[/green] [dim]{path}[/dim]"
                 )
 
         # 3. Trigger HMR (Partial) or Uvicorn Reload (Full)
@@ -133,10 +134,12 @@ class WatchHandler(PatternMatchingEventHandler):
         """Reload modules affected by a file change using importlib.reload."""
         # 1. Special case: nexyconfig.py → force config re-load
         if path.rstrip("/").endswith("nexyconfig.py"):
-            Config._instance._loaded = False
+            if Config._instance:
+                Config._instance._loaded = False
+                Config._load_error = None
             if "nexyconfig" in sys.modules:
                 del sys.modules["nexyconfig"]
-            console.print("[yellow]nexyconfig changed → will reload on next request[/yellow]")
+            console.print("[yellow]nexyconfig changed -> will reload on next request[/yellow]")
             return
 
         # 2. Map file path to module name
